@@ -1,0 +1,172 @@
+name: SDK Generation & Publishing
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (generate but do not publish)"
+        required: false
+        default: "true"
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  generate-openapi:
+    name: Export OpenAPI Spec from FastAPI
+    runs-on: ubuntu-latest
+    outputs:
+      spec-changed: ${{ steps.diff.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install minimal dependencies
+        working-directory: backend
+        run: |
+          pip install fastapi uvicorn pydantic pydantic-settings python-jose passlib \
+            aiofiles httpx python-dotenv pyyaml numpy scikit-learn --quiet
+
+      - name: Export OpenAPI JSON → YAML
+        run: |
+          python - <<'EOF'
+          import sys, json, importlib, pathlib, os
+          sys.path.insert(0, "backend")
+          os.environ.setdefault("SECRET_KEY", "ci-dummy-key-not-for-production")
+          os.environ.setdefault("NEO4J_URI", "bolt://localhost:7687")
+          os.environ.setdefault("EMBEDDING_PROVIDER", "openai")
+          try:
+              from app.main import app
+              spec = app.openapi()
+              pathlib.Path("fern/openapi/openapi.json").write_text(json.dumps(spec, indent=2))
+              print("OpenAPI spec exported successfully")
+              print(f"Endpoints: {len(spec.get('paths', {}))}")
+          except Exception as e:
+              print(f"Warning: could not export live spec ({e}); using committed spec")
+          EOF
+
+      - name: Check if spec changed
+        id: diff
+        run: |
+          git diff --quiet fern/openapi/ && echo "changed=false" >> $GITHUB_OUTPUT || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit updated spec
+        if: steps.diff.outputs.changed == 'true' && github.event_name == 'release'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add fern/openapi/
+          git commit -m "chore: update OpenAPI spec for ${{ github.ref_name }}"
+          git push
+
+      - name: Upload spec artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-spec
+          path: fern/openapi/
+
+  generate-python-sdk:
+    name: Generate & Publish Python SDK
+    needs: generate-openapi
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download OpenAPI spec
+        uses: actions/download-artifact@v4.1.3
+        with:
+          name: openapi-spec
+          path: fern/openapi/
+
+      - name: Install fern CLI
+        run: npm install -g fern-api
+
+      - name: Generate Python SDK
+        run: |
+          fern generate --group local --log-level debug
+        env:
+          FERN_TOKEN: ${{ secrets.FERN_TOKEN }}
+
+      - name: Install generated SDK
+        run: |
+          pip install sdks/python/ --quiet
+          python -c "import univex; print('SDK import OK')"
+
+      - name: Publish to PyPI
+        if: github.event_name == 'release' && github.event.inputs.dry_run != 'true'
+        run: |
+          pip install build twine --quiet
+          cd sdks/python && python -m build
+          twine upload dist/* --non-interactive
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+
+  generate-typescript-sdk:
+    name: Generate & Publish TypeScript SDK
+    needs: generate-openapi
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Download OpenAPI spec
+        uses: actions/download-artifact@v4.1.3
+        with:
+          name: openapi-spec
+          path: fern/openapi/
+
+      - name: Install fern CLI
+        run: npm install -g fern-api
+
+      - name: Generate TypeScript SDK
+        run: |
+          fern generate --group local --log-level debug
+        env:
+          FERN_TOKEN: ${{ secrets.FERN_TOKEN }}
+
+      - name: Build TypeScript SDK
+        run: |
+          cd sdks/typescript
+          npm install --quiet
+          npm run build
+
+      - name: Publish to npm
+        if: github.event_name == 'release' && github.event.inputs.dry_run != 'true'
+        run: |
+          cd sdks/typescript
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  attach-sdk-to-release:
+    name: Attach SDK Archives to GitHub Release
+    needs: [generate-python-sdk, generate-typescript-sdk]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Package SDKs
+        run: |
+          cd sdks
+          tar czf ../univex-python-sdk-${{ github.ref_name }}.tar.gz python/
+          zip -r  ../univex-typescript-sdk-${{ github.ref_name }}.zip typescript/
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            univex-python-sdk-${{ github.ref_name }}.tar.gz
+            univex-typescript-sdk-${{ github.ref_name }}.zip

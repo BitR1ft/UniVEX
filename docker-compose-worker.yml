@@ -1,0 +1,412 @@
+# ==============================================================================
+# UniVex — Worker Node Docker Compose
+# Day 16: Two-Node Worker Architecture
+#
+# This compose file runs on the WORKER NODE (Node 2) only.
+# It contains: MCP tool servers, Kali Linux tooling, and WorkerServer.
+# It does NOT contain: databases, LLM providers, frontend, or observability.
+#
+# Prerequisites:
+#   - Generate mTLS certificates: scripts/gen-worker-certs.sh
+#   - Set WORKER_SHARED_SECRET in .env.worker
+#   - Configure MAIN_NODE_URL to point at your main node's API
+#
+# Usage:
+#   docker compose -f docker-compose-worker.yml up -d
+# ==============================================================================
+
+version: "3.9"
+
+# ==============================================================================
+# SERVICES
+# ==============================================================================
+
+services:
+
+  # ----------------------------------------------------------------------------
+  # Worker Server — Main-to-Worker Bridge API
+  # Receives tool execution requests from the main node via REST (TLS-secured).
+  # ----------------------------------------------------------------------------
+  worker-server:
+    build:
+      context: .
+      dockerfile: docker/worker/Dockerfile
+    image: univex/worker-server:2.1.0
+    container_name: univex-worker-server
+    restart: unless-stopped
+    command: >
+      uvicorn app.worker.worker_server:get_app
+      --factory
+      --host 0.0.0.0
+      --port ${WORKER_PORT:-9443}
+      --workers ${WORKER_UVICORN_WORKERS:-2}
+      --log-level info
+    environment:
+      PYTHONPATH: /app
+      WORKER_PORT: "${WORKER_PORT:-9443}"
+      WORKER_SHARED_SECRET: "${WORKER_SHARED_SECRET:?WORKER_SHARED_SECRET must be set}"
+      WORKER_MAX_TIMEOUT: "${WORKER_MAX_TIMEOUT:-300}"
+      WORKER_MAX_CONCURRENT: "${WORKER_MAX_CONCURRENT:-10}"
+      WORKER_ID: "${WORKER_ID:-worker-1}"
+      # MCP server URLs on this worker
+      NAABU_SERVER_URL: "http://naabu-server:8000"
+      NUCLEI_SERVER_URL: "http://nuclei-server:8002"
+      METASPLOIT_SERVER_URL: "http://metasploit-server:8003"
+      SQLMAP_SERVER_URL: "http://sqlmap-server:8004"
+      FFUF_SERVER_URL: "http://ffuf-server:8005"
+      NIKTO_SERVER_URL: "http://nikto-server:8006"
+      BROWSER_SERVER_URL: "http://browser:8015"
+    ports:
+      - "${WORKER_PORT:-9443}:${WORKER_PORT:-9443}"
+    volumes:
+      - ./backend:/app:ro
+      - scan-results:/app/results
+      - ./certs/worker:/certs:ro   # mTLS certificates (optional)
+    networks:
+      - tools-network
+      - worker-internal
+    depends_on:
+      kali-tools:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:${WORKER_PORT:-9443}/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    security_opt:
+      - no-new-privileges:true
+
+  # ----------------------------------------------------------------------------
+  # Kali Linux — Security Tool Container
+  # Provides: naabu, nuclei, ffuf, sqlmap, wpscan, nikto, metasploit, hydra, etc.
+  # ----------------------------------------------------------------------------
+  kali-tools:
+    image: kalilinux/kali-rolling:latest
+    container_name: univex-kali-tools-worker
+    restart: unless-stopped
+    # Keep alive; tool servers run as child processes or separate containers
+    command: ["tail", "-f", "/dev/null"]
+    environment:
+      PYTHONPATH: /app
+      TOOL_RESULTS_DIR: /results
+    volumes:
+      - ./backend:/app:ro
+      - kali-tools-data:/usr/local/share/kali-data
+      - scan-results:/results
+      - tool-configs:/etc/univex/tools
+    networks:
+      - tools-network
+      - worker-internal
+    # Allow raw socket access for network scanning (restrict in production)
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "which naabu || which python3 || exit 0"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # ----------------------------------------------------------------------------
+  # Naabu MCP Server — Port Scanning (Port 8000)
+  # ----------------------------------------------------------------------------
+  naabu-server:
+    image: univex/mcp-naabu:2.1.0
+    build:
+      context: .
+      dockerfile: docker/mcp/Dockerfile.naabu
+    container_name: univex-naabu-worker
+    restart: unless-stopped
+    command: uvicorn app.mcp.servers.naabu_server:app --host 0.0.0.0 --port 8000
+    environment:
+      PYTHONPATH: /app
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./backend:/app:ro
+      - scan-results:/results
+    networks:
+      - tools-network
+      - worker-internal
+    cap_add:
+      - NET_RAW
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
+
+  # ----------------------------------------------------------------------------
+  # Nuclei MCP Server — Vulnerability Scanning (Port 8002)
+  # ----------------------------------------------------------------------------
+  nuclei-server:
+    image: univex/mcp-nuclei:2.1.0
+    build:
+      context: .
+      dockerfile: docker/mcp/Dockerfile.nuclei
+    container_name: univex-nuclei-worker
+    restart: unless-stopped
+    command: uvicorn app.mcp.servers.nuclei_server:app --host 0.0.0.0 --port 8002
+    environment:
+      PYTHONPATH: /app
+    ports:
+      - "127.0.0.1:8002:8002"
+    volumes:
+      - ./backend:/app:ro
+      - scan-results:/results
+      - nuclei-templates:/root/nuclei-templates
+    networks:
+      - tools-network
+      - worker-internal
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+
+  # ----------------------------------------------------------------------------
+  # Metasploit MCP Server — Exploitation Framework (Port 8003)
+  # ----------------------------------------------------------------------------
+  metasploit-server:
+    image: univex/mcp-metasploit:2.1.0
+    build:
+      context: .
+      dockerfile: docker/mcp/Dockerfile.metasploit
+    container_name: univex-metasploit-worker
+    restart: unless-stopped
+    command: uvicorn app.mcp.servers.metasploit_server:app --host 0.0.0.0 --port 8003
+    environment:
+      PYTHONPATH: /app
+      MSF_WS_URL: "${MSF_WS_URL:-ws://localhost:55552}"
+      MSF_PASSWORD: "${MSF_PASSWORD:?MSF_PASSWORD must be set}"
+    ports:
+      - "127.0.0.1:8003:8003"
+    volumes:
+      - ./backend:/app:ro
+      - scan-results:/results
+    networks:
+      - tools-network
+      - worker-internal
+    # Metasploit needs raw network access
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 2G
+
+  # ----------------------------------------------------------------------------
+  # SQLMap MCP Server — SQL Injection (Port 8004)
+  # ----------------------------------------------------------------------------
+  sqlmap-server:
+    image: univex/mcp-sqlmap:2.1.0
+    build:
+      context: .
+      dockerfile: docker/mcp/Dockerfile.sqlmap
+    container_name: univex-sqlmap-worker
+    restart: unless-stopped
+    command: uvicorn app.mcp.servers.sqlmap_server:app --host 0.0.0.0 --port 8004
+    environment:
+      PYTHONPATH: /app
+    ports:
+      - "127.0.0.1:8004:8004"
+    volumes:
+      - ./backend:/app:ro
+      - scan-results:/results
+    networks:
+      - tools-network
+      - worker-internal
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
+
+  # ----------------------------------------------------------------------------
+  # FFuf MCP Server — Directory/Parameter Fuzzing (Port 8005)
+  # ----------------------------------------------------------------------------
+  ffuf-server:
+    image: univex/mcp-ffuf:2.1.0
+    build:
+      context: .
+      dockerfile: docker/mcp/Dockerfile.ffuf
+    container_name: univex-ffuf-worker
+    restart: unless-stopped
+    command: uvicorn app.mcp.servers.ffuf_server:app --host 0.0.0.0 --port 8005
+    environment:
+      PYTHONPATH: /app
+    ports:
+      - "127.0.0.1:8005:8005"
+    volumes:
+      - ./backend:/app:ro
+      - scan-results:/results
+    networks:
+      - tools-network
+      - worker-internal
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
+
+  # ----------------------------------------------------------------------------
+  # Nikto/WPScan MCP Server — Web Vulnerability Scanning (Port 8006)
+  # ----------------------------------------------------------------------------
+  nikto-server:
+    image: univex/mcp-nikto:2.1.0
+    build:
+      context: .
+      dockerfile: docker/mcp/Dockerfile.nikto
+    container_name: univex-nikto-worker
+    restart: unless-stopped
+    command: uvicorn app.mcp.servers.nikto_server:app --host 0.0.0.0 --port 8006
+    environment:
+      PYTHONPATH: /app
+    ports:
+      - "127.0.0.1:8006:8006"
+    volumes:
+      - ./backend:/app:ro
+      - scan-results:/results
+    networks:
+      - tools-network
+      - worker-internal
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+
+  # ----------------------------------------------------------------------------
+  # Browser Sandbox — Isolated Playwright Browser (Port 8015)
+  # Runs headless Chromium for web application testing.
+  # Isolated from all internal networks — can only reach the target.
+  # ----------------------------------------------------------------------------
+  browser:
+    image: mcr.microsoft.com/playwright/python:v1.44.0-jammy
+    container_name: univex-browser-worker
+    restart: unless-stopped
+    command: uvicorn app.mcp.servers.browser_server:get_app --factory --host 0.0.0.0 --port 8015
+    environment:
+      PYTHONPATH: /app
+      MINIO_ENDPOINT: "${MINIO_ENDPOINT:-main-node:9100}"
+      MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY:-univex}"
+      MINIO_SECRET_KEY: "${MINIO_SECRET_KEY:-univex123}"
+      MINIO_BUCKET_SCREENSHOTS: "univex-screenshots"
+      BROWSER_TIMEOUT_MS: "${BROWSER_TIMEOUT_MS:-30000}"
+      NO_PROXY: "169.254.169.254,metadata.google.internal"
+    ports:
+      - "127.0.0.1:8015:8015"
+    volumes:
+      - ./backend:/app:ro
+    networks:
+      - tools-network
+    user: "pwuser"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SYS_ADMIN
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+
+  # ----------------------------------------------------------------------------
+  # OOB Listener — Out-of-Band Callback Server
+  # Receives blind vulnerability callbacks from target applications.
+  # Must be reachable from the internet (or target network).
+  # ----------------------------------------------------------------------------
+  oob-listener:
+    image: python:3.12-slim
+    container_name: univex-oob-worker
+    restart: unless-stopped
+    command: python3 /app/run_oob_listener.py
+    working_dir: /app
+    volumes:
+      - ./backend:/app:ro
+    environment:
+      PYTHONPATH: /app
+      OOB_EXTERNAL_IP: "${OOB_EXTERNAL_IP:?Set OOB_EXTERNAL_IP to your public IP}"
+      OOB_HTTP_PORT: "${OOB_HTTP_PORT:-8080}"
+      OOB_DNS_PORT: "${OOB_DNS_PORT:-5353}"
+      OOB_SMTP_PORT: "${OOB_SMTP_PORT:-2525}"
+      OOB_TOKEN_TTL: "${OOB_TOKEN_TTL:-3600}"
+    ports:
+      - "${OOB_HTTP_PORT:-8080}:8080"
+      - "${OOB_SMTP_PORT:-2525}:2525"
+      - "${OOB_DNS_PORT:-5353}:5353/udp"
+    networks:
+      - tools-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+# ==============================================================================
+# NETWORK CONFIGURATION
+# ==============================================================================
+
+networks:
+  # Tools network — MCP servers and Kali tools communicate here
+  tools-network:
+    driver: bridge
+    name: univex-worker-tools
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.21.1.0/24
+
+  # Worker internal — WorkerServer ↔ MCP server communication
+  worker-internal:
+    driver: bridge
+    name: univex-worker-internal
+    internal: true   # Not exposed to host network
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.21.2.0/24
+
+# ==============================================================================
+# VOLUME CONFIGURATION
+# ==============================================================================
+
+volumes:
+  kali-tools-data:
+    driver: local
+    name: univex-worker-kali-data
+  scan-results:
+    driver: local
+    name: univex-worker-scan-results
+  tool-configs:
+    driver: local
+    name: univex-worker-tool-configs
+  nuclei-templates:
+    driver: local
+    name: univex-worker-nuclei-templates

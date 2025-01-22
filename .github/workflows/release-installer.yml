@@ -1,0 +1,132 @@
+name: Release Installer
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag to build (e.g. v1.0.0)"
+        required: true
+
+permissions:
+  contents: write   # needed to upload release assets
+
+jobs:
+  build-installer:
+    name: Build & attach installers to GitHub Release
+    runs-on: ubuntu-22.04
+
+    steps:
+      # -----------------------------------------------------------------------
+      # 1. Checkout
+      # -----------------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history so git describe works
+
+      # -----------------------------------------------------------------------
+      # 2. Resolve version
+      # -----------------------------------------------------------------------
+      - name: Resolve version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: ${VERSION}"
+
+      # -----------------------------------------------------------------------
+      # 3. Build installers
+      # -----------------------------------------------------------------------
+      - name: Build installers
+        env:
+          UNIVEX_VERSION: ${{ steps.version.outputs.version }}
+          UNIVEX_OUT_DIR: dist
+        run: |
+          bash scripts/build-installer.sh \
+            --version "${UNIVEX_VERSION}" \
+            --out-dir dist
+
+      # -----------------------------------------------------------------------
+      # 4. List built artifacts
+      # -----------------------------------------------------------------------
+      - name: List dist/
+        run: ls -lh dist/
+
+      # -----------------------------------------------------------------------
+      # 5. Verify checksums
+      # -----------------------------------------------------------------------
+      - name: Verify checksums
+        run: |
+          cd dist
+          sha256sum -c install.sh.sha256
+          sha256sum -c install-podman.sh.sha256
+          echo "All checksums verified ✅"
+
+      # -----------------------------------------------------------------------
+      # 6. Upload to GitHub Release
+      # -----------------------------------------------------------------------
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          files: |
+            dist/install.sh
+            dist/install.sh.sha256
+            dist/install-podman.sh
+            dist/install-podman.sh.sha256
+            dist/checksums.txt
+          body: |
+            ## Install UniVex ${{ steps.version.outputs.version }}
+
+            ### Docker (recommended)
+
+            ```bash
+            curl -LO https://github.com/BitR1ft/UniVex/releases/latest/download/install.sh
+            curl -LO https://github.com/BitR1ft/UniVex/releases/latest/download/install.sh.sha256
+            sha256sum -c install.sh.sha256
+            bash install.sh
+            ```
+
+            ### Podman / rootless
+
+            ```bash
+            curl -LO https://github.com/BitR1ft/UniVex/releases/latest/download/install-podman.sh
+            curl -LO https://github.com/BitR1ft/UniVex/releases/latest/download/install-podman.sh.sha256
+            sha256sum -c install-podman.sh.sha256
+            bash install-podman.sh
+            ```
+
+            > ⚠️ **Never pipe directly to `bash` without verifying the checksum first.**
+            > The `.sha256` files are provided to allow offline verification.
+
+            ### Verify all assets at once
+
+            ```bash
+            # Download the combined checksum file
+            curl -LO https://github.com/BitR1ft/UniVex/releases/latest/download/checksums.txt
+            sha256sum -c checksums.txt
+            ```
+
+  notify:
+    name: Post-release notification
+    runs-on: ubuntu-22.04
+    needs: build-installer
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Release summary
+        run: |
+          echo "### UniVex ${{ needs.build-installer.outputs.version || github.ref_name }} released 🚀" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Installers built and attached to the GitHub Release:" >> "$GITHUB_STEP_SUMMARY"
+          echo "- \`install.sh\` + \`install.sh.sha256\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- \`install-podman.sh\` + \`install-podman.sh.sha256\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- \`checksums.txt\`" >> "$GITHUB_STEP_SUMMARY"

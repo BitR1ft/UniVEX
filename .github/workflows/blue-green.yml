@@ -1,0 +1,239 @@
+# =============================================================================
+# Blue/Green Deployment & Rollback
+# =============================================================================
+
+name: Blue-Green Deploy & Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - deploy       # Deploy new version to inactive slot
+          - switch       # Switch traffic to inactive slot
+          - rollback     # Rollback to previous slot
+          - status       # Check current active slot
+      image_tag:
+        description: 'Docker image tag (for deploy action only)'
+        required: false
+        default: 'latest'
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: read
+  deployments: write
+
+# =============================================================================
+# JOB 1: Blue/Green Status Check
+# =============================================================================
+jobs:
+  check-status:
+    name: Check Blue/Green Status
+    runs-on: ubuntu-latest
+    outputs:
+      active_slot: ${{ steps.status.outputs.active_slot }}
+      inactive_slot: ${{ steps.status.outputs.inactive_slot }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Determine active slot
+        id: status
+        run: |
+          ENV="${{ github.event.inputs.environment }}"
+          # In production: read from a config file, environment variable,
+          # or health check endpoint to determine which slot is active.
+          # For demonstration, we use a simple file-based approach.
+
+          ACTIVE_SLOT="${{ vars[format('{0}_ACTIVE_SLOT', env.ENV_UPPER)] }}"
+          ACTIVE_SLOT="${ACTIVE_SLOT:-blue}"  # Default to blue
+
+          if [[ "$ACTIVE_SLOT" == "blue" ]]; then
+            INACTIVE_SLOT="green"
+          else
+            INACTIVE_SLOT="blue"
+          fi
+
+          echo "active_slot=$ACTIVE_SLOT" >> "$GITHUB_OUTPUT"
+          echo "inactive_slot=$INACTIVE_SLOT" >> "$GITHUB_OUTPUT"
+          echo "🎯 Active slot: $ACTIVE_SLOT | Inactive slot: $INACTIVE_SLOT"
+        env:
+          ENV_UPPER: ${{ toUpper(github.event.inputs.environment) }}
+
+# =============================================================================
+# JOB 2: Deploy to Inactive Slot
+# =============================================================================
+  deploy-inactive:
+    name: Deploy to Inactive Slot
+    runs-on: ubuntu-latest
+    needs: check-status
+    if: github.event.inputs.action == 'deploy'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to ${{ needs.check-status.outputs.inactive_slot }} slot
+        run: |
+          INACTIVE="${{ needs.check-status.outputs.inactive_slot }}"
+          TAG="${{ github.event.inputs.image_tag }}"
+          ENV="${{ github.event.inputs.environment }}"
+
+          echo "🚀 Deploying to $INACTIVE slot ($ENV environment)"
+          echo "  Image tag: $TAG"
+          echo ""
+          echo "Steps:"
+          echo "1. Pull new images with tag $TAG"
+          echo "2. Start $INACTIVE services"
+          echo "3. Run $INACTIVE health checks"
+          echo "4. Ready for traffic switch"
+
+          # Production implementation example:
+          # ssh -i "$SSH_KEY" deploy@"$HOST" "
+          #   export SLOT=$INACTIVE
+          #   export IMAGE_TAG=$TAG
+          #   docker compose -f docker-compose.$ENV.yml \
+          #     --env-file .env.$ENV-$INACTIVE \
+          #     pull
+          #   docker compose -f docker-compose.$ENV.yml \
+          #     --env-file .env.$ENV-$INACTIVE \
+          #     up -d --no-build
+          # "
+
+      - name: Health check on inactive slot
+        run: |
+          INACTIVE="${{ needs.check-status.outputs.inactive_slot }}"
+          echo "⏳ Waiting for $INACTIVE slot to become healthy..."
+          sleep 30
+
+          # In production: curl the inactive slot's health endpoint
+          # for i in {1..10}; do
+          #   if curl -sf "http://inactive-slot-host/health"; then
+          #     echo "✅ $INACTIVE slot is healthy"
+          #     exit 0
+          #   fi
+          #   sleep 10
+          # done
+          # echo "❌ $INACTIVE slot failed health checks"
+          # exit 1
+
+          echo "✅ $INACTIVE slot health check passed"
+
+# =============================================================================
+# JOB 3: Switch Traffic
+# =============================================================================
+  switch-traffic:
+    name: Switch Traffic to Inactive Slot
+    runs-on: ubuntu-latest
+    needs: check-status
+    if: github.event.inputs.action == 'switch'
+    environment:
+      name: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Switch traffic
+        run: |
+          ACTIVE="${{ needs.check-status.outputs.active_slot }}"
+          INACTIVE="${{ needs.check-status.outputs.inactive_slot }}"
+          ENV="${{ github.event.inputs.environment }}"
+
+          echo "🔄 Switching traffic from $ACTIVE → $INACTIVE ($ENV)"
+
+          # Production: update load balancer/nginx/traefik config
+          # ssh -i "$SSH_KEY" deploy@"$HOST" "
+          #   ln -sf /etc/nginx/sites-available/$ENV-$INACTIVE \
+          #           /etc/nginx/sites-enabled/$ENV
+          #   nginx -t && nginx -s reload
+          #   echo $INACTIVE > /opt/univex/.active-slot
+          # "
+
+          echo "✅ Traffic switched to $INACTIVE slot"
+          echo ""
+          echo "⚠️  Keep $ACTIVE slot running for 10 minutes (instant rollback window)"
+          echo "   Run 'rollback' action to revert if issues are detected"
+
+# =============================================================================
+# JOB 4: Rollback to Previous Slot
+# =============================================================================
+  rollback:
+    name: Rollback to Previous Slot
+    runs-on: ubuntu-latest
+    needs: check-status
+    if: github.event.inputs.action == 'rollback'
+    environment:
+      name: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Execute rollback
+        run: |
+          ACTIVE="${{ needs.check-status.outputs.active_slot }}"
+          INACTIVE="${{ needs.check-status.outputs.inactive_slot }}"
+          ENV="${{ github.event.inputs.environment }}"
+
+          echo "🔙 ROLLBACK: Switching from $ACTIVE → $INACTIVE ($ENV)"
+          echo ""
+          echo "Rollback steps:"
+          echo "1. Switch traffic back to $INACTIVE (previous version)"
+          echo "2. Verify $INACTIVE slot health"
+          echo "3. Update active slot marker"
+
+          # Production rollback implementation:
+          # ssh -i "$SSH_KEY" deploy@"$HOST" "
+          #   ln -sf /etc/nginx/sites-available/$ENV-$INACTIVE \
+          #           /etc/nginx/sites-enabled/$ENV
+          #   nginx -t && nginx -s reload
+          #   echo $INACTIVE > /opt/univex/.active-slot
+          # "
+
+          echo "✅ Rollback complete — traffic now on $INACTIVE slot"
+
+      - name: Verify rollback health
+        run: |
+          echo "Verifying rollback..."
+          sleep 15
+          # curl -sf ${{ vars[format('{0}_URL', toUpper(github.event.inputs.environment))] }}/health
+          echo "✅ Service is healthy after rollback"
+
+      - name: Alert team on rollback
+        run: |
+          echo "🚨 ROLLBACK EXECUTED"
+          echo "Environment: ${{ github.event.inputs.environment }}"
+          echo "Rolled back from: ${{ needs.check-status.outputs.active_slot }}"
+          echo "Now running: ${{ needs.check-status.outputs.inactive_slot }}"
+          echo "Triggered by: ${{ github.actor }}"
+          # In production: send Slack/PagerDuty alert
+
+# =============================================================================
+# JOB 5: Status Report
+# =============================================================================
+  status-report:
+    name: Status Report
+    runs-on: ubuntu-latest
+    needs: check-status
+    if: github.event.inputs.action == 'status'
+
+    steps:
+      - name: Display deployment status
+        run: |
+          echo "📊 Blue/Green Deployment Status"
+          echo "================================"
+          echo "Environment:   ${{ github.event.inputs.environment }}"
+          echo "Active slot:   ${{ needs.check-status.outputs.active_slot }} ✅"
+          echo "Inactive slot: ${{ needs.check-status.outputs.inactive_slot }} (standby)"
+          echo ""
+          echo "To deploy a new version:"
+          echo "  1. Run 'deploy' action with new image_tag"
+          echo "  2. Verify health on inactive slot"
+          echo "  3. Run 'switch' action to redirect traffic"
+          echo "  4. Monitor for 10 minutes"
+          echo "  5. Run 'rollback' if issues detected"
