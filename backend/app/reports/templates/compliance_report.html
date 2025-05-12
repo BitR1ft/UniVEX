@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Compliance Overview -->
+<div class="card">
+  <h2>Compliance Overview</h2>
+  <p>
+    This section maps identified findings to industry-standard compliance frameworks:
+    <strong>OWASP Top 10 (2021)</strong>, <strong>PCI-DSS v4.0</strong>, and
+    <strong>NIST 800-53 Rev 5</strong>.
+  </p>
+  <div style="margin-top:16px;display:flex;gap:24px;flex-wrap:wrap;">
+    <div>
+      <strong>OWASP Categories Affected:</strong>
+      {{ owasp_coverage | length }} / {{ owasp_top10 | length }}
+    </div>
+    <div>
+      <strong>PCI-DSS Requirements Affected:</strong>
+      {{ pci_coverage | length }} / {{ pci_dss_requirements | length }}
+    </div>
+    <div>
+      <strong>NIST 800-53 Families Affected:</strong>
+      {{ nist_coverage | length }} / {{ nist_families | length }}
+    </div>
+  </div>
+</div>
+
+<!-- Risk Charts -->
+{% if config.include_charts and chart_images %}
+<div class="chart-grid">
+  {% if chart_images.severity_pie %}
+  <div class="chart-box"><img src="data:image/png;base64,{{ chart_images.severity_pie }}" alt="Severity Distribution"/></div>
+  {% endif %}
+  {% if chart_images.risk_heatmap %}
+  <div class="chart-box"><img src="data:image/png;base64,{{ chart_images.risk_heatmap }}" alt="Risk Heatmap"/></div>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- OWASP Top 10 -->
+<div class="card">
+  <h2>OWASP Top 10 (2021) Coverage</h2>
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Category</th><th>Findings</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for cat_id, cat_name in owasp_top10.items() %}
+      {% set cat_findings = owasp_coverage.get(cat_id, []) %}
+      <tr>
+        <td><strong>{{ cat_id }}</strong></td>
+        <td>{{ cat_name }}</td>
+        <td>
+          {% for f in cat_findings %}
+          <span class="badge badge-{{ f.severity.value }}" style="margin-right:4px;margin-bottom:2px;">{{ f.title[:30] }}{% if f.title|length > 30 %}…{% endif %}</span>
+          {% endfor %}
+          {% if not cat_findings %}—{% endif %}
+        </td>
+        <td>
+          {% if cat_findings %}
+          <span style="color:var(--critical);font-weight:600;">⚠ Affected</span>
+          {% else %}
+          <span style="color:var(--low);font-weight:600;">✓ Not Affected</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- PCI-DSS -->
+<div class="card">
+  <h2>PCI-DSS v4.0 Requirements</h2>
+  <table>
+    <thead>
+      <tr><th>Req.</th><th>Description</th><th>Affected Findings</th></tr>
+    </thead>
+    <tbody>
+      {% for req_id, req_name in pci_dss_requirements.items() %}
+      {% set req_findings = pci_coverage.get(req_id, []) %}
+      <tr>
+        <td><strong>{{ req_id }}</strong></td>
+        <td>{{ req_name }}</td>
+        <td>
+          {% for f in req_findings %}
+          <span class="badge badge-{{ f.severity.value }}" style="margin-right:4px;margin-bottom:2px;">{{ f.title[:25] }}{% if f.title|length > 25 %}…{% endif %}</span>
+          {% endfor %}
+          {% if not req_findings %}—{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- NIST 800-53 -->
+<div class="card">
+  <h2>NIST 800-53 Rev 5 Control Families</h2>
+  <table>
+    <thead>
+      <tr><th>Family</th><th>Name</th><th>Affected Findings</th></tr>
+    </thead>
+    <tbody>
+      {% for family, family_name in nist_families.items() %}
+      {% set family_findings = nist_coverage.get(family, []) %}
+      <tr>
+        <td><strong>{{ family }}</strong></td>
+        <td>{{ family_name }}</td>
+        <td>
+          {% for f in family_findings %}
+          <span class="badge badge-{{ f.severity.value }}" style="margin-right:4px;margin-bottom:2px;">{{ f.title[:25] }}{% if f.title|length > 25 %}…{% endif %}</span>
+          {% endfor %}
+          {% if not family_findings %}—{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- All Findings -->
+<div class="card">
+  <h2>All Findings Summary</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Title</th><th>Severity</th><th>CVSS</th><th>CVE</th><th>OWASP</th><th>Remediation Summary</th></tr>
+    </thead>
+    <tbody>
+      {% for f in findings %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ f.title }}</td>
+        <td><span class="badge badge-{{ f.severity.value }}">{{ f.severity.value }}</span></td>
+        <td>{{ "%.1f"|format(f.cvss_score) if f.cvss_score else "—" }}</td>
+        <td>{{ f.cve_id or "—" }}</td>
+        <td>{{ f.owasp_category or "—" }}</td>
+        <td>{{ f.remediation[:80] if f.remediation else "—" }}{% if f.remediation and f.remediation|length > 80 %}…{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

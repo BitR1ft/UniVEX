@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>{{ metadata.project_name }} — {{ config.title }}</title>
+<style>
+  :root {
+    --primary: #4F46E5;
+    --critical: #DC2626;
+    --high: #EA580C;
+    --medium: #CA8A04;
+    --low: #16A34A;
+    --info: #2563EB;
+    --bg: #F9FAFB;
+    --card: #FFFFFF;
+    --border: #E5E7EB;
+    --text: #111827;
+    --muted: #6B7280;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+  a { color: var(--primary); text-decoration: none; }
+  .page { max-width: 1100px; margin: 0 auto; padding: 40px 32px; }
+
+  /* Header */
+  .report-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid var(--primary); padding-bottom: 24px; margin-bottom: 32px; }
+  .report-header h1 { font-size: 28px; font-weight: 700; color: var(--primary); }
+  .report-header .meta { text-align: right; color: var(--muted); font-size: 13px; }
+  .confidentiality { display: inline-block; background: var(--critical); color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; }
+
+  /* Cards */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 24px; }
+  .card h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  .card h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+
+  /* Severity badges */
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+  .badge-critical { background: #FEE2E2; color: var(--critical); }
+  .badge-high     { background: #FFEDD5; color: var(--high); }
+  .badge-medium   { background: #FEF9C3; color: var(--medium); }
+  .badge-low      { background: #DCFCE7; color: var(--low); }
+  .badge-info     { background: #DBEAFE; color: var(--info); }
+
+  /* Stats grid */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px; text-align: center; }
+  .stat-card .value { font-size: 32px; font-weight: 800; }
+  .stat-card .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+  .stat-card.critical .value { color: var(--critical); }
+  .stat-card.high     .value { color: var(--high); }
+  .stat-card.medium   .value { color: var(--medium); }
+  .stat-card.low      .value { color: var(--low); }
+  .stat-card.info     .value { color: var(--info); }
+
+  /* Charts */
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .chart-box { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .chart-box img { max-width: 100%; height: auto; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #F3F4F6; padding: 10px 12px; text-align: left; font-weight: 600; border-bottom: 2px solid var(--border); }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #F9FAFB; }
+
+  /* Finding detail */
+  .finding-card { border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; border-left: 5px solid var(--border); }
+  .finding-card.critical { border-left-color: var(--critical); }
+  .finding-card.high     { border-left-color: var(--high); }
+  .finding-card.medium   { border-left-color: var(--medium); }
+  .finding-card.low      { border-left-color: var(--low); }
+  .finding-card.info     { border-left-color: var(--info); }
+  .finding-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .finding-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; font-size: 12px; color: var(--muted); }
+  .finding-meta span { display: flex; align-items: center; gap: 4px; }
+  .finding-section { margin-top: 12px; }
+  .finding-section label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 4px; }
+  .finding-section p { font-size: 13px; }
+  .steps-list { padding-left: 18px; }
+  .steps-list li { margin-bottom: 4px; font-size: 13px; }
+  .code-block { background: #1E1E2E; color: #CDD6F4; padding: 12px 16px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 12px; overflow-x: auto; white-space: pre-wrap; }
+
+  /* TOC */
+  .toc { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+  .toc h2 { font-size: 16px; margin-bottom: 12px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 4px; font-size: 13px; }
+
+  /* Risk level color */
+  .risk-critical { color: var(--critical); font-weight: 700; }
+  .risk-high     { color: var(--high); font-weight: 700; }
+  .risk-medium   { color: var(--medium); font-weight: 700; }
+  .risk-low      { color: var(--low); font-weight: 700; }
+
+  /* Footer */
+  .report-footer { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+
+  /* Compliance matrix */
+  .compliance-cell { width: 24px; height: 24px; border-radius: 4px; display: inline-block; }
+  .compliance-covered { background: var(--low); }
+  .compliance-partial { background: var(--medium); }
+  .compliance-missing { background: #E5E7EB; }
+
+  @media print {
+    body { background: white; }
+    .page { max-width: 100%; }
+    .chart-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="report-header">
+    <div>
+      {% if config.logo_base64 %}
+      <img src="data:image/png;base64,{{ config.logo_base64 }}" alt="Logo" style="height:40px;margin-bottom:8px;display:block;"/>
+      {% endif %}
+      <h1>{{ config.title }}</h1>
+      <p style="color:var(--muted);font-size:14px;margin-top:4px;">{{ metadata.project_name }}</p>
+    </div>
+    <div class="meta">
+      <div class="confidentiality">{{ config.confidentiality }}</div>
+      <div>Generated: {{ metadata.generated_at.strftime('%Y-%m-%d %H:%M UTC') }}</div>
+      <div>Author: {{ metadata.author }}</div>
+      {% if metadata.client_name %}<div>Client: {{ metadata.client_name }}</div>{% endif %}
+      <div>Version: {{ metadata.version }}</div>
+    </div>
+  </div>
+
+  {% block content %}{% endblock %}
+
+  <div class="report-footer">
+    <span>UniVex Security Platform — {{ metadata.project_name }}</span>
+    <span>{{ config.confidentiality }} — Do not distribute without authorization</span>
+    <span>Generated {{ now.strftime('%Y-%m-%d') }}</span>
+  </div>
+</div>
+</body>
+</html>

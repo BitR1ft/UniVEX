@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Executive Summary Section -->
+<div class="card">
+  <h2>Executive Summary</h2>
+  <p>
+    This report presents the results of a security assessment conducted against
+    <strong>{{ metadata.project_name }}</strong>. The assessment identified
+    <strong>{{ total_findings }}</strong> security {{ 'finding' if total_findings == 1 else 'findings' }}
+    across the target environment.
+  </p>
+  <p style="margin-top:12px;">
+    Overall Risk Level:
+    <span class="risk-{{ risk_level | lower }}">{{ risk_level }}</span>
+    (Score: {{ "%.1f"|format(risk_score) }} / 10)
+  </p>
+</div>
+
+<!-- Severity Statistics -->
+<div class="stat-grid">
+  <div class="stat-card critical">
+    <div class="value">{{ severity_counts.critical }}</div>
+    <div class="label">Critical</div>
+  </div>
+  <div class="stat-card high">
+    <div class="value">{{ severity_counts.high }}</div>
+    <div class="label">High</div>
+  </div>
+  <div class="stat-card medium">
+    <div class="value">{{ severity_counts.medium }}</div>
+    <div class="label">Medium</div>
+  </div>
+  <div class="stat-card low">
+    <div class="value">{{ severity_counts.low }}</div>
+    <div class="label">Low</div>
+  </div>
+  <div class="stat-card info">
+    <div class="value">{{ severity_counts.info }}</div>
+    <div class="label">Informational</div>
+  </div>
+</div>
+
+<!-- Charts -->
+{% if config.include_charts and chart_images %}
+<div class="chart-grid">
+  {% if chart_images.severity_pie %}
+  <div class="chart-box">
+    <img src="data:image/png;base64,{{ chart_images.severity_pie }}" alt="Severity Distribution"/>
+  </div>
+  {% endif %}
+  {% if chart_images.risk_heatmap %}
+  <div class="chart-box">
+    <img src="data:image/png;base64,{{ chart_images.risk_heatmap }}" alt="Risk Heatmap"/>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- Key Findings -->
+{% set critical_high = findings | selectattr('severity', 'in', [Severity.CRITICAL, Severity.HIGH]) | list %}
+{% if critical_high %}
+<div class="card">
+  <h2>Key Findings (Critical &amp; High)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Finding</th>
+        <th>Severity</th>
+        <th>CVSS</th>
+        <th>Affected Component</th>
+        <th>Business Impact</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in critical_high %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td><strong>{{ f.title }}</strong></td>
+        <td><span class="badge badge-{{ f.severity.value }}">{{ f.severity.value }}</span></td>
+        <td>{{ "%.1f"|format(f.cvss_score) if f.cvss_score else "—" }}</td>
+        <td>{{ f.affected_component or "—" }}</td>
+        <td>{{ f.business_impact or "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<!-- Scan Summary -->
+<div class="card">
+  <h2>Scope &amp; Coverage</h2>
+  <table>
+    <thead>
+      <tr><th>Target</th><th>Scan Type</th><th>Started</th><th>Completed</th><th>Duration</th><th>Findings</th></tr>
+    </thead>
+    <tbody>
+      {% for scan in scan_results %}
+      <tr>
+        <td>{{ scan.target }}</td>
+        <td>{{ scan.scan_type }}</td>
+        <td>{{ scan.started_at.strftime('%Y-%m-%d %H:%M') if scan.started_at else '—' }}</td>
+        <td>{{ scan.completed_at.strftime('%Y-%m-%d %H:%M') if scan.completed_at else '—' }}</td>
+        <td>{{ "%.0f"|format(scan.duration_seconds) ~ 's' if scan.duration_seconds else '—' }}</td>
+        <td>{{ scan.findings | length }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Remediation Priorities -->
+<div class="card">
+  <h2>Remediation Priorities</h2>
+  <p style="margin-bottom:16px;color:var(--muted);">Address findings in severity order. Critical and High findings should be remediated immediately.</p>
+  {% for f in findings[:10] %}
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+    <span style="min-width:20px;font-weight:700;color:var(--muted);">{{ loop.index }}.</span>
+    <span class="badge badge-{{ f.severity.value }}">{{ f.severity.value }}</span>
+    <span style="flex:1;">{{ f.title }}</span>
+    {% if f.cvss_score %}<span style="color:var(--muted);font-size:12px;">CVSS {{ "%.1f"|format(f.cvss_score) }}</span>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,79 @@
+{#
+  Reusable finding card macro.
+  Usage in other templates:
+    {% from "finding_card.html" import finding_card %}
+    {{ finding_card(f, loop.index) }}
+#}
+{% macro finding_card(f, index=None) %}
+<div class="finding-card {{ f.severity.value }}">
+  <div class="finding-title">
+    {% if index %}{{ index }}. {% endif %}{{ f.title }}
+    <span class="badge badge-{{ f.severity.value }}" style="margin-left:8px;">{{ f.severity.value }}</span>
+    {% if f.cvss_score %}
+    <span style="font-size:12px;font-weight:400;margin-left:8px;color:var(--muted);">CVSS {{ "%.1f"|format(f.cvss_score) }}</span>
+    {% endif %}
+  </div>
+
+  <div class="finding-meta">
+    {% if f.cve_id %}
+    <span>CVE: <a href="https://nvd.nist.gov/vuln/detail/{{ f.cve_id }}" target="_blank">{{ f.cve_id }}</a></span>
+    {% endif %}
+    {% if f.cwe_id %}<span>CWE: {{ f.cwe_id }}</span>{% endif %}
+    {% if f.owasp_category %}<span>OWASP: {{ f.owasp_category }}</span>{% endif %}
+    {% if f.affected_component %}<span>📍 {{ f.affected_component }}</span>{% endif %}
+    {% if f.likelihood %}<span>Likelihood: {{ f.likelihood | capitalize }}</span>{% endif %}
+    {% if f.discovered_at %}<span>Discovered: {{ f.discovered_at.strftime('%Y-%m-%d') }}</span>{% endif %}
+  </div>
+
+  {% if f.description %}
+  <div class="finding-section">
+    <label>Description</label>
+    <p>{{ f.description }}</p>
+  </div>
+  {% endif %}
+
+  {% if f.business_impact %}
+  <div class="finding-section">
+    <label>Business Impact</label>
+    <p>{{ f.business_impact }}</p>
+  </div>
+  {% endif %}
+
+  {% if f.reproduction_steps %}
+  <div class="finding-section">
+    <label>Steps to Reproduce</label>
+    <ol class="steps-list">
+      {% for step in f.reproduction_steps %}<li>{{ step }}</li>{% endfor %}
+    </ol>
+  </div>
+  {% endif %}
+
+  {% if f.evidence %}
+  <div class="finding-section">
+    <label>Evidence / PoC</label>
+    <div class="code-block">{{ f.evidence }}</div>
+  </div>
+  {% endif %}
+
+  {% if f.remediation %}
+  <div class="finding-section">
+    <label>Remediation</label>
+    <p>{{ f.remediation }}</p>
+  </div>
+  {% endif %}
+
+  {% if f.nist_controls %}
+  <div class="finding-section">
+    <label>NIST 800-53</label>
+    <p>{{ f.nist_controls | join(', ') }}</p>
+  </div>
+  {% endif %}
+
+  {% if f.pci_dss_requirements %}
+  <div class="finding-section">
+    <label>PCI-DSS Requirements</label>
+    <p>{{ f.pci_dss_requirements | join(', ') }}</p>
+  </div>
+  {% endif %}
+</div>
+{% endmacro %}
