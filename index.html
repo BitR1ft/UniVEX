@@ -1,0 +1,2508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniVex — AI-Powered Penetration Testing Platform | Autonomous Pentesting</title>
+  <meta name="description" content="UniVex is a fully-autonomous, AI-powered penetration testing platform by BitR1FT. 13 AI agents, 90+ security tools, 12+ LLM providers. One target → full kill chain: recon, exploitation, post-exploitation, compliance reporting." />
+  <meta name="keywords" content="penetration testing, AI security, automated pentest, LangGraph, cybersecurity, ethical hacking, BitR1FT, UniVex, autonomous pentesting, AI hacking tool, vulnerability scanner, OWASP, red team automation, exploit framework, recon tool, open source security, CVE scanner, AI red team, penetration testing framework, cybersecurity automation, AI pentesting platform, security testing automation, automated vulnerability assessment" />
+  <meta name="author" content="BitR1FT" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="theme-color" content="#00e5ff" />
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://bitr1ft.github.io/UniVex/" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://bitr1ft.github.io/UniVex/" />
+  <meta property="og:site_name" content="UniVex" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:title" content="UniVex — AI-Powered Penetration Testing Platform" />
+  <meta property="og:description" content="Fully-autonomous AI pentesting: recon → exploit → post-exploit → compliance report. 13 AI agents, 90+ tools, 12+ LLM providers. One command. Zero manual steps." />
+  <meta property="og:image" content="https://bitr1ft.github.io/UniVex/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="UniVex AI-Powered Penetration Testing Platform dashboard" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@BitR1FT" />
+  <meta name="twitter:creator" content="@BitR1FT" />
+  <meta name="twitter:title" content="UniVex — AI-Powered Penetration Testing Platform" />
+  <meta name="twitter:description" content="13 AI agents · 90+ tools · 12+ LLM providers. Fully autonomous kill chain: recon → exploit → compliance report." />
+  <meta name="twitter:image" content="https://bitr1ft.github.io/UniVex/og-image.png" />
+  <meta name="twitter:image:alt" content="UniVex AI-Powered Penetration Testing Platform" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
+
+  <!-- Resource hints for performance (helps Core Web Vitals / SEO) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://github.com" />
+
+  <!-- Google Fonts (moved from CSS @import for faster render) -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://bitr1ft.github.io/UniVex/#software",
+        "name": "UniVex",
+        "alternateName": "Universal Vulnerability Execution",
+        "description": "UniVex is a fully-autonomous, AI-powered penetration testing platform featuring 13 specialised AI agents, 90+ security tools, and support for 12+ LLM providers. It automates the full offensive security kill chain from reconnaissance to exploitation, post-exploitation, and compliance reporting.",
+        "url": "https://bitr1ft.github.io/UniVex/",
+        "downloadUrl": "https://github.com/BitR1ft/UniVex/releases/latest",
+        "installUrl": "https://github.com/BitR1ft/UniVex#installation",
+        "codeRepository": "https://github.com/BitR1ft/UniVex",
+        "softwareVersion": "1.0.0",
+        "releaseNotes": "https://github.com/BitR1ft/UniVex/blob/main/RELEASE_NOTES.md",
+        "softwareRequirements": "Docker or Podman",
+        "applicationCategory": "SecurityApplication",
+        "applicationSubCategory": "Penetration Testing",
+        "operatingSystem": ["Linux", "macOS", "Windows"],
+        "license": "https://github.com/BitR1ft/UniVex/blob/main/LICENSE",
+        "isAccessibleForFree": true,
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "BitR1FT",
+          "url": "https://github.com/BitR1ft"
+        },
+        "publisher": {
+          "@type": "Person",
+          "name": "BitR1FT",
+          "url": "https://github.com/BitR1ft"
+        },
+        "keywords": "penetration testing, AI security, autonomous penetration testing, LangGraph, cybersecurity, ethical hacking, vulnerability scanner, red team automation",
+        "featureList": [
+          "13 specialised AI agents powered by LangGraph",
+          "90+ integrated security tools (Nmap, Nuclei, SQLMap, Metasploit, and more)",
+          "12+ LLM provider support (OpenAI, Anthropic, Groq, DeepSeek, vLLM, and more)",
+          "Full kill chain automation: recon, exploitation, post-exploitation, reporting",
+          "Compliance frameworks: OWASP Top 10, PCI-DSS 4.0, NIST 800-53, CIS Controls v8",
+          "Episodic memory and RAG for intelligent context retention",
+          "GraphQL API with WebSocket subscriptions",
+          "Cyberpunk PWA frontend with real-time dashboards",
+          "Docker and Podman deployment support",
+          "Enterprise security: TOTP, IP allowlist, RBAC, mTLS"
+        ]
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://bitr1ft.github.io/UniVex/#organization",
+        "name": "BitR1FT",
+        "url": "https://github.com/BitR1ft",
+        "logo": "https://bitr1ft.github.io/UniVex/og-image.png",
+        "sameAs": [
+          "https://github.com/BitR1ft"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://bitr1ft.github.io/UniVex/#website",
+        "url": "https://bitr1ft.github.io/UniVex/",
+        "name": "UniVex — AI-Powered Penetration Testing Platform",
+        "description": "Fully-autonomous AI pentesting platform with 13 AI agents, 90+ security tools, and 12+ LLM providers.",
+        "publisher": {
+          "@id": "https://bitr1ft.github.io/UniVex/#organization"
+        },
+        "inLanguage": "en-US"
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://bitr1ft.github.io/UniVex/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is UniVex?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "UniVex is a fully-autonomous, AI-powered penetration testing platform. It uses 13 specialised AI agents built on LangGraph to automate the entire offensive security kill chain — reconnaissance, vulnerability discovery, exploitation, post-exploitation, and compliance reporting — with support for 90+ security tools and 12+ LLM providers."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is UniVex free to use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, UniVex is fully open-source and released under the MIT License. It is free to download, use, and modify. You only need your own API keys for the LLM providers you want to use."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What LLM providers does UniVex support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "UniVex supports 12+ LLM providers including OpenAI (GPT-4), Anthropic (Claude), Groq, OpenRouter, AWS Bedrock, DeepSeek, Qwen, GLM, Kimi, and vLLM for self-hosted/air-gapped deployments."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What security tools does UniVex integrate with?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "UniVex integrates with 90+ security tools including Nmap, Naabu, Nuclei, FFuf, SQLMap, Metasploit, WPScan, Subfinder, Amass, Katana, Wayback Machine, and many more — all wrapped as MCP (Model Context Protocol) servers."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I install UniVex?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "UniVex can be installed in minutes using a verified shell installer: curl -LO https://github.com/BitR1ft/UniVex/releases/latest/download/install.sh && bash install.sh. Docker or Podman is required. A TUI installer guides you through the full setup including environment configuration."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What compliance frameworks does UniVex support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "UniVex automatically maps findings to OWASP Top 10, PCI-DSS 4.0 (12 requirements), NIST 800-53 (20 control families), and CIS Controls v8 (18 controls), generating audit-ready compliance evidence packages."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #06060f;
+      --bg2:      #0c0c1a;
+      --bg3:      #10102a;
+      --cyan:     #00e5ff;
+      --cyan2:    #00bcd4;
+      --purple:   #7c3aed;
+      --purple2:  #9f67ff;
+      --green:    #00e676;
+      --green2:   #69f0ae;
+      --red:      #ff1744;
+      --amber:    #ffc400;
+      --text:     #e2e8f0;
+      --text2:    #94a3b8;
+      --border:   rgba(0,229,255,.15);
+      --glow-c:   rgba(0,229,255,.35);
+      --glow-p:   rgba(124,58,237,.35);
+      --radius:   12px;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ─── Scrollbar ──────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 3px; }
+
+    /* ─── Utilities ──────────────────────────────────────────────── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .text-cyan   { color: var(--cyan); }
+    .text-purple { color: var(--purple2); }
+    .text-green  { color: var(--green); }
+    .text-amber  { color: var(--amber); }
+    .mono        { font-family: var(--font-mono); }
+
+    /* ─── Canvas Background ──────────────────────────────────────── */
+    #particle-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ─── Nav ────────────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(6,6,15,.85);
+      border-bottom: 1px solid var(--border);
+      transition: border-color .3s;
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 1.3rem;
+      letter-spacing: -.5px;
+    }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      box-shadow: 0 0 16px var(--glow-c);
+    }
+
+    .logo-text { color: var(--text); }
+    .logo-text span { color: var(--cyan); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text2);
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 8px;
+      transition: color .2s, background .2s;
+    }
+
+    .nav-links a:hover { color: var(--cyan); background: rgba(0,229,255,.08); }
+
+    .btn-nav {
+      background: linear-gradient(135deg, var(--cyan), var(--cyan2));
+      color: #000 !important;
+      font-weight: 700 !important;
+      border-radius: 8px;
+      padding: 8px 18px !important;
+      box-shadow: 0 0 16px var(--glow-c);
+      transition: box-shadow .2s, transform .2s !important;
+    }
+
+    .btn-nav:hover { box-shadow: 0 0 28px var(--glow-c) !important; transform: translateY(-1px); }
+
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .nav-hamburger span {
+      width: 24px; height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: .3s;
+    }
+
+    /* ─── Hero ───────────────────────────────────────────────────── */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 0 80px;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .hero-grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, #000 40%, transparent 100%);
+    }
+
+    .hero-glow {
+      position: absolute;
+      top: 20%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(0,229,255,.12) 0%, rgba(124,58,237,.08) 50%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,229,255,.08);
+      border: 1px solid rgba(0,229,255,.25);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--cyan);
+      margin-bottom: 24px;
+      letter-spacing: .5px;
+    }
+
+    .badge-dot {
+      width: 8px; height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(.8); }
+    }
+
+    .hero-title {
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+    }
+
+    .hero-title .line-cyan { color: var(--cyan); text-shadow: 0 0 30px var(--glow-c); }
+    .hero-title .line-white { color: #fff; }
+
+    .hero-desc {
+      font-size: 1.1rem;
+      color: var(--text2);
+      max-width: 480px;
+      margin-bottom: 36px;
+      line-height: 1.7;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: .95rem;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan), var(--cyan2));
+      color: #000;
+      box-shadow: 0 0 24px var(--glow-c);
+    }
+
+    .btn-primary:hover { box-shadow: 0 0 40px var(--glow-c); }
+
+    .btn-secondary {
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover { background: rgba(255,255,255,.1); border-color: rgba(0,229,255,.4); }
+
+    .btn-purple {
+      background: linear-gradient(135deg, var(--purple), var(--purple2));
+      color: #fff;
+      box-shadow: 0 0 24px var(--glow-p);
+    }
+
+    .btn-purple:hover { box-shadow: 0 0 40px var(--glow-p); }
+
+    /* ─── Terminal ────────────────────────────────────────────────── */
+    .terminal {
+      background: #0a0a14;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(0,229,255,.1), 0 40px 80px rgba(0,0,0,.6);
+      font-family: var(--font-mono);
+      font-size: .88rem;
+    }
+
+    .terminal-header {
+      background: rgba(255,255,255,.05);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .term-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+    }
+
+    .term-dot.red   { background: #ff5f57; }
+    .term-dot.amber { background: #febc2e; }
+    .term-dot.green { background: #28c840; }
+
+    .term-title {
+      margin-left: auto;
+      margin-right: auto;
+      color: var(--text2);
+      font-size: .8rem;
+    }
+
+    .terminal-body {
+      padding: 20px;
+      min-height: 340px;
+    }
+
+    .term-line { margin-bottom: 6px; line-height: 1.5; }
+    .term-prompt { color: var(--green); }
+    .term-cmd    { color: var(--text); }
+    .term-output { color: var(--text2); margin-left: 0; }
+    .term-cyan   { color: var(--cyan); }
+    .term-purple { color: var(--purple2); }
+    .term-green  { color: var(--green); }
+    .term-amber  { color: var(--amber); }
+    .term-red    { color: var(--red); }
+
+    .cursor {
+      display: inline-block;
+      width: 2px; height: 1em;
+      background: var(--cyan);
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+    /* ─── Stats Bar ──────────────────────────────────────────────── */
+    .stats-bar {
+      position: relative;
+      z-index: 1;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 40px 0;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 8px;
+      text-align: center;
+    }
+
+    .stat-item {
+      padding: 20px;
+      border-right: 1px solid var(--border);
+    }
+
+    .stat-item:last-child { border-right: none; }
+
+    .stat-num {
+      font-size: 2.4rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--cyan), var(--purple2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-label {
+      font-size: .8rem;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    /* ─── Section Styles ──────────────────────────────────────────── */
+    section { position: relative; z-index: 1; }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .section-tag {
+      display: inline-block;
+      background: rgba(124,58,237,.12);
+      border: 1px solid rgba(124,58,237,.3);
+      color: var(--purple2);
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 900;
+      letter-spacing: -1px;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .section-title span { color: var(--cyan); }
+
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--text2);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ─── Kill Chain ─────────────────────────────────────────────── */
+    #kill-chain {
+      padding: 100px 0;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .kill-chain-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 2px;
+      margin-top: 24px;
+    }
+
+    .chain-step {
+      position: relative;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 28px 20px;
+      text-align: center;
+      transition: border-color .3s, transform .3s;
+    }
+
+    .chain-step:hover {
+      border-color: var(--cyan);
+      transform: translateY(-4px);
+      z-index: 2;
+    }
+
+    .chain-step:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+    .chain-step:last-child  { border-radius: 0 var(--radius) var(--radius) 0; }
+
+    .chain-arrow {
+      position: absolute;
+      right: -14px; top: 50%;
+      transform: translateY(-50%);
+      width: 24px; height: 24px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cyan);
+      font-size: .7rem;
+      z-index: 3;
+    }
+
+    .chain-step:last-child .chain-arrow { display: none; }
+
+    .chain-phase {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--cyan);
+      margin-bottom: 10px;
+    }
+
+    .chain-icon { font-size: 2rem; margin-bottom: 10px; }
+
+    .chain-title {
+      font-size: .95rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .chain-tools {
+      font-size: .75rem;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    /* ─── Features ───────────────────────────────────────────────── */
+    #features { padding: 100px 0; }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      transition: border-color .3s, transform .3s, box-shadow .3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(0,229,255,.4);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.4), 0 0 32px var(--glow-c);
+    }
+
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-icon {
+      width: 52px; height: 52px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .icon-cyan   { background: rgba(0,229,255,.1); border: 1px solid rgba(0,229,255,.25); }
+    .icon-purple { background: rgba(124,58,237,.1); border: 1px solid rgba(124,58,237,.25); }
+    .icon-green  { background: rgba(0,230,118,.1); border: 1px solid rgba(0,230,118,.25); }
+    .icon-amber  { background: rgba(255,196,0,.1); border: 1px solid rgba(255,196,0,.25); }
+    .icon-red    { background: rgba(255,23,68,.1); border: 1px solid rgba(255,23,68,.25); }
+
+    .feature-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .feature-desc {
+      font-size: .88rem;
+      color: var(--text2);
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+
+    .feature-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      font-size: .72rem;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+
+    .tag-cyan   { background: rgba(0,229,255,.1); color: var(--cyan); border: 1px solid rgba(0,229,255,.2); }
+    .tag-purple { background: rgba(124,58,237,.1); color: var(--purple2); border: 1px solid rgba(124,58,237,.2); }
+    .tag-green  { background: rgba(0,230,118,.1); color: var(--green); border: 1px solid rgba(0,230,118,.2); }
+    .tag-amber  { background: rgba(255,196,0,.1); color: var(--amber); border: 1px solid rgba(255,196,0,.2); }
+
+    /* ─── Agents ─────────────────────────────────────────────────── */
+    #agents {
+      padding: 100px 0;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .agent-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: border-color .3s, transform .2s;
+    }
+
+    .agent-card:hover {
+      border-color: var(--purple2);
+      transform: scale(1.02);
+    }
+
+    .agent-emoji { font-size: 1.6rem; }
+
+    .agent-info {}
+
+    .agent-role {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--purple2);
+      margin-bottom: 2px;
+    }
+
+    .agent-desc {
+      font-size: .8rem;
+      color: var(--text2);
+      line-height: 1.4;
+    }
+
+    /* ─── Tech Stack ─────────────────────────────────────────────── */
+    #tech { padding: 100px 0; }
+
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 32px;
+    }
+
+    .tech-category {}
+
+    .tech-cat-title {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--cyan);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tech-items { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .tech-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: .82rem;
+      color: var(--text);
+      transition: border-color .2s, color .2s;
+    }
+
+    .tech-item:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    /* ─── Install ────────────────────────────────────────────────── */
+    #install {
+      padding: 100px 0;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .install-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .install-steps {}
+
+    .install-step {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .step-num {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .8rem;
+      font-weight: 700;
+      color: #000;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .step-content {}
+
+    .step-title {
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .step-desc {
+      font-size: .85rem;
+      color: var(--text2);
+    }
+
+    .code-block {
+      background: #0a0a14;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: rgba(255,255,255,.04);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-lang {
+      font-size: .75rem;
+      color: var(--text2);
+      font-family: var(--font-mono);
+    }
+
+    .copy-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text2);
+      font-size: .75rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: .2s;
+      font-family: var(--font-mono);
+    }
+
+    .copy-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+    .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+    .code-body {
+      padding: 20px;
+      font-family: var(--font-mono);
+      font-size: .84rem;
+      line-height: 2;
+      color: var(--text);
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .code-body .comment { color: var(--text2); }
+    .code-body .cmd-kw  { color: var(--cyan); }
+    .code-body .cmd-str { color: var(--green); }
+    .code-body .cmd-var { color: var(--amber); }
+
+    /* ─── Compliance ─────────────────────────────────────────────── */
+    #compliance { padding: 100px 0; }
+
+    .compliance-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+
+    .compliance-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: .3s;
+    }
+
+    .compliance-card:hover {
+      border-color: var(--green);
+      box-shadow: 0 8px 32px rgba(0,230,118,.1);
+      transform: translateY(-4px);
+    }
+
+    .compliance-icon {
+      font-size: 2.2rem;
+      margin-bottom: 14px;
+    }
+
+    .compliance-name {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .compliance-full {
+      font-size: .8rem;
+      color: var(--text2);
+      margin-bottom: 14px;
+    }
+
+    .compliance-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ctrl-bar {
+      flex: 1;
+      height: 4px;
+      background: rgba(255,255,255,.08);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .ctrl-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--green), var(--cyan));
+    }
+
+    .ctrl-count { font-size: .75rem; color: var(--green); font-weight: 700; }
+
+    /* ─── Architecture ───────────────────────────────────────────── */
+    #architecture {
+      padding: 100px 0;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .arch-diagram {
+      background: #0a0a14;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 40px;
+      font-family: var(--font-mono);
+      font-size: .82rem;
+      line-height: 2;
+      overflow-x: auto;
+    }
+
+    .arch-diagram pre { color: var(--text2); }
+    .arch-diagram .ah { color: var(--cyan); font-weight: 700; }
+    .arch-diagram .ab { color: var(--green); }
+    .arch-diagram .ap { color: var(--purple2); }
+    .arch-diagram .aa { color: var(--amber); }
+
+    /* ─── Roadmap ────────────────────────────────────────────────── */
+    #roadmap { padding: 100px 0; }
+
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .roadmap-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+
+    .roadmap-version {
+      display: inline-block;
+      font-size: .75rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      padding: 4px 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+
+    .v-current { background: rgba(0,230,118,.15); color: var(--green); border: 1px solid rgba(0,230,118,.3); }
+    .v-next    { background: rgba(0,229,255,.1); color: var(--cyan); border: 1px solid rgba(0,229,255,.3); }
+    .v-future  { background: rgba(124,58,237,.1); color: var(--purple2); border: 1px solid rgba(124,58,237,.3); }
+    .v-far     { background: rgba(255,196,0,.08); color: var(--amber); border: 1px solid rgba(255,196,0,.25); }
+
+    .roadmap-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .roadmap-items {
+      list-style: none;
+    }
+
+    .roadmap-items li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .85rem;
+      color: var(--text2);
+      padding: 4px 0;
+    }
+
+    .roadmap-items li::before {
+      content: '→';
+      color: var(--cyan);
+      font-size: .8rem;
+    }
+
+    /* ─── FAQ ─────────────────────────────────────────────────────── */
+    #faq { padding: 100px 0; }
+
+    .faq-list {
+      max-width: 820px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .faq-item {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color .25s;
+    }
+
+    .faq-item:hover { border-color: rgba(0,229,255,.35); }
+
+    .faq-question {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 22px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      cursor: pointer;
+      text-align: left;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+    }
+
+    .faq-question:hover { color: var(--cyan); }
+
+    .faq-icon {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border: 1.5px solid rgba(0,229,255,.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cyan);
+      font-size: .85rem;
+      transition: transform .3s, background .25s;
+    }
+
+    .faq-item.open .faq-icon {
+      transform: rotate(45deg);
+      background: rgba(0,229,255,.12);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .35s ease, padding .3s;
+    }
+
+    .faq-item.open .faq-answer { max-height: 400px; }
+
+    .faq-answer-inner {
+      padding: 0 28px 22px;
+      color: var(--text2);
+      line-height: 1.7;
+      font-size: .95rem;
+    }
+
+    /* ─── CTA Banner ──────────────────────────────────────────────── */
+    #cta {
+      padding: 100px 0;
+      text-align: center;
+    }
+
+    .cta-inner {
+      background: linear-gradient(135deg, rgba(0,229,255,.05), rgba(124,58,237,.05));
+      border: 1px solid rgba(0,229,255,.2);
+      border-radius: 24px;
+      padding: 80px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-inner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(0,229,255,.06), transparent);
+    }
+
+    .cta-title {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 900;
+      letter-spacing: -1px;
+      color: #fff;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .cta-title span { color: var(--cyan); }
+
+    .cta-desc {
+      font-size: 1.1rem;
+      color: var(--text2);
+      max-width: 540px;
+      margin: 0 auto 40px;
+      position: relative;
+    }
+
+    .cta-btns {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    /* ─── Footer ─────────────────────────────────────────────────── */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 64px 0 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand {}
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      text-decoration: none;
+    }
+
+    .footer-desc {
+      font-size: .88rem;
+      color: var(--text2);
+      max-width: 280px;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 10px;
+    }
+
+    .social-btn {
+      width: 36px; height: 36px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: .2s;
+    }
+
+    .social-btn:hover { border-color: var(--cyan); background: rgba(0,229,255,.08); }
+
+    .footer-col-title {
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .footer-links { list-style: none; }
+
+    .footer-links li { margin-bottom: 10px; }
+
+    .footer-links a {
+      color: var(--text2);
+      text-decoration: none;
+      font-size: .88rem;
+      transition: color .2s;
+    }
+
+    .footer-links a:hover { color: var(--cyan); }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-copy {
+      font-size: .82rem;
+      color: var(--text2);
+    }
+
+    .footer-copy a { color: var(--cyan); text-decoration: none; }
+
+    .footer-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .badge {
+      font-size: .72rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      border: 1px solid;
+    }
+
+    /* ─── Animations ─────────────────────────────────────────────── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── Mobile ──────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+      .install-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .chain-step:first-child { border-radius: var(--radius) var(--radius) 0 0; }
+      .chain-step:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+      .kill-chain-grid { grid-template-columns: 1fr; }
+      .chain-arrow { display: none !important; }
+    }
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
+      .stat-item:last-child { border-bottom: none; }
+    }
+
+    /* ─── Glow helpers ────────────────────────────────────────────── */
+    .glow-cyan   { text-shadow: 0 0 20px var(--cyan), 0 0 60px rgba(0,229,255,.4); }
+    .glow-purple { text-shadow: 0 0 20px var(--purple2); }
+
+    /* ─── Scanline overlay (subtle) ─────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,.03) 2px,
+        rgba(0,0,0,.03) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Particle Canvas -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- ─── Nav ──────────────────────────────────────────────────── -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a class="nav-logo" href="#">
+      <div class="logo-icon">🛡️</div>
+      <span class="logo-text">Uni<span>Vex</span></span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="#kill-chain">Kill Chain</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#agents">Agents</a></li>
+      <li><a href="#install">Install</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="https://github.com/BitR1ft/UniVex" target="_blank" rel="noopener noreferrer" class="btn-nav">GitHub ↗</a></li>
+    </ul>
+
+    <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- ─── Hero ──────────────────────────────────────────────────── -->
+<section id="hero" aria-label="Hero — UniVex Overview">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="hero-badge">
+          <div class="badge-dot"></div>
+          v1.0.0 · Production Ready · Open Source
+        </div>
+
+        <h1 class="hero-title">
+          <span class="line-cyan glow-cyan">Autonomous</span><br>
+          <span class="line-white">AI Pentesting</span><br>
+          <span class="line-white">Platform</span>
+        </h1>
+
+        <p class="hero-desc">
+          Give UniVex a target. It autonomously executes the full offensive security kill chain —
+          recon, exploitation, post-exploitation, and compliance reporting — powered by
+          <strong style="color:#fff">13 AI agents</strong> and <strong style="color:#fff">90+ security tools</strong>.
+        </p>
+
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="#install">
+            ⚡ Quick Install
+          </a>
+          <a class="btn btn-secondary" href="https://github.com/BitR1ft/UniVex" target="_blank" rel="noopener noreferrer">
+            ★ Star on GitHub
+          </a>
+          <a class="btn btn-purple" href="https://github.com/BitR1ft/UniVex/releases/latest" target="_blank" rel="noopener noreferrer">
+            📦 v1.0.0 Release
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="terminal">
+          <div class="terminal-header">
+            <div class="term-dot red"></div>
+            <div class="term-dot amber"></div>
+            <div class="term-dot green"></div>
+            <span class="term-title">univex — attack session</span>
+          </div>
+          <div class="terminal-body" id="terminal-body">
+            <!-- Animated terminal content injected by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Stats Bar ──────────────────────────────────────────────── -->
+<div class="stats-bar">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item fade-in">
+        <div class="stat-num" data-target="4000">0</div>
+        <div class="stat-label">Test Cases</div>
+      </div>
+      <div class="stat-item fade-in">
+        <div class="stat-num" data-target="90">0</div>
+        <div class="stat-label">Agent Tools</div>
+      </div>
+      <div class="stat-item fade-in">
+        <div class="stat-num" data-target="13">0</div>
+        <div class="stat-label">AI Agents</div>
+      </div>
+      <div class="stat-item fade-in">
+        <div class="stat-num" data-target="12">0</div>
+        <div class="stat-label">LLM Providers</div>
+      </div>
+      <div class="stat-item fade-in">
+        <div class="stat-num" data-target="8">0</div>
+        <div class="stat-label">MCP Servers</div>
+      </div>
+      <div class="stat-item fade-in">
+        <div class="stat-num" data-target="54">0</div>
+        <div class="stat-label">E2E Tests</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Kill Chain ────────────────────────────────────────────── -->
+<section id="kill-chain" aria-label="Full Attack Kill Chain">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Full Kill Chain</div>
+      <h2 class="section-title">One Target. <span>Zero Manual Steps.</span></h2>
+      <p class="section-desc">
+        UniVex autonomously executes every phase of a professional pentest — from initial recon to
+        final compliance report — with human-in-the-loop approval gates for dangerous operations.
+      </p>
+    </div>
+
+    <div class="kill-chain-grid">
+      <div class="chain-step fade-in">
+        <div class="chain-phase">Phase 1</div>
+        <div class="chain-icon">🔍</div>
+        <div class="chain-title">Reconnaissance</div>
+        <div class="chain-tools">subfinder · amass · naabu · nmap · httpx · whois</div>
+        <div class="chain-arrow">›</div>
+      </div>
+      <div class="chain-step fade-in">
+        <div class="chain-phase">Phase 2</div>
+        <div class="chain-icon">🧬</div>
+        <div class="chain-title">Vuln Discovery</div>
+        <div class="chain-tools">nuclei · CVE enrichment · MITRE ATT&CK · CWE · CAPEC</div>
+        <div class="chain-arrow">›</div>
+      </div>
+      <div class="chain-step fade-in">
+        <div class="chain-phase">Phase 3</div>
+        <div class="chain-icon">💥</div>
+        <div class="chain-title">Exploitation</div>
+        <div class="chain-tools">Metasploit · SQLMap · ffuf · Nikto · WPScan · SearchSploit</div>
+        <div class="chain-arrow">›</div>
+      </div>
+      <div class="chain-step fade-in">
+        <div class="chain-phase">Phase 3.5</div>
+        <div class="chain-icon">🔓</div>
+        <div class="chain-title">Session Upgrade</div>
+        <div class="chain-tools">Shell → Meterpreter · TTY stabilisation · Lateral movement</div>
+        <div class="chain-arrow">›</div>
+      </div>
+      <div class="chain-step fade-in">
+        <div class="chain-phase">Phase 4</div>
+        <div class="chain-icon">🏴</div>
+        <div class="chain-title">Post-Exploitation</div>
+        <div class="chain-tools">LinPEAS · WinPEAS · hash cracking · credential reuse</div>
+        <div class="chain-arrow">›</div>
+      </div>
+      <div class="chain-step fade-in">
+        <div class="chain-phase">Phase 5</div>
+        <div class="chain-icon">📊</div>
+        <div class="chain-title">Reporting</div>
+        <div class="chain-tools">PDF/HTML/MD reports · CVSS scoring · OWASP · PCI-DSS · Neo4j graph</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Features ──────────────────────────────────────────────── -->
+<section id="features" aria-label="Features">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Feature Matrix</div>
+      <h2 class="section-title">Built for <span>Professional</span> Pentesters</h2>
+      <p class="section-desc">
+        Every feature designed around real-world offensive security workflows — from solo researchers to enterprise red teams.
+      </p>
+    </div>
+
+    <div class="features-grid">
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon icon-cyan">🤖</div>
+        <div class="feature-title">Multi-Agent LangGraph System</div>
+        <div class="feature-desc">13 specialised AI agents coordinated by a LangGraph StateGraph. ReAct reasoning, human-in-the-loop approval gates, and ML-based intent classification.</div>
+        <div class="feature-tags">
+          <span class="tag tag-cyan">LangGraph</span>
+          <span class="tag tag-cyan">ReAct</span>
+          <span class="tag tag-purple">GPT-4</span>
+          <span class="tag tag-purple">Claude-3</span>
+        </div>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon icon-purple">🔌</div>
+        <div class="feature-title">MCP Tool Servers</div>
+        <div class="feature-desc">8 Model Context Protocol servers running in an isolated Kali Linux container. Agents call tools through MCPToolAdapter — no direct subprocess spawning, no command injection.</div>
+        <div class="feature-tags">
+          <span class="tag tag-purple">MCP</span>
+          <span class="tag tag-cyan">Kali Linux</span>
+          <span class="tag tag-green">mTLS</span>
+        </div>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon icon-green">☁️</div>
+        <div class="feature-title">Cloud Security (19 Tools)</div>
+        <div class="feature-desc">AWS, Azure, and GCP misconfiguration detection. IAM policy analysis, S3 bucket auditing, Azure AD enumeration, GCP service account review, and Kubernetes security scanning.</div>
+        <div class="feature-tags">
+          <span class="tag tag-amber">AWS</span>
+          <span class="tag tag-cyan">Azure</span>
+          <span class="tag tag-green">GCP</span>
+          <span class="tag tag-purple">K8s</span>
+        </div>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon icon-amber">📋</div>
+        <div class="feature-title">Compliance Frameworks</div>
+        <div class="feature-desc">Built-in compliance engine supporting OWASP Top 10, PCI-DSS 4.0, NIST 800-53, and CIS v8. Auto-maps findings to controls and generates audit-ready evidence reports.</div>
+        <div class="feature-tags">
+          <span class="tag tag-green">OWASP</span>
+          <span class="tag tag-cyan">PCI-DSS</span>
+          <span class="tag tag-purple">NIST</span>
+          <span class="tag tag-amber">CIS v8</span>
+        </div>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon icon-cyan">🧠</div>
+        <div class="feature-title">Episodic Memory + RAG</div>
+        <div class="feature-desc">Graphiti-powered knowledge graph with Neo4j. Episodic memory stores attack context across sessions. pgvector RAG with CVE/OWASP embeddings from 6 embedding providers.</div>
+        <div class="feature-tags">
+          <span class="tag tag-purple">Neo4j</span>
+          <span class="tag tag-cyan">pgvector</span>
+          <span class="tag tag-green">Graphiti</span>
+        </div>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon icon-red">📄</div>
+        <div class="feature-title">Professional Reports</div>
+        <div class="feature-desc">Executive, Technical, and Compliance PDF reports with dynamic charts. Findings triage and deduplication. Jira and ServiceNow ticket integration. MinIO artifact storage.</div>
+        <div class="feature-tags">
+          <span class="tag tag-cyan">PDF</span>
+          <span class="tag tag-cyan">HTML</span>
+          <span class="tag tag-purple">Jira</span>
+          <span class="tag tag-amber">MinIO</span>
+        </div>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon icon-purple">🌐</div>
+        <div class="feature-title">GraphQL API</div>
+        <div class="feature-desc">Full Strawberry GraphQL API with 14 queries, 17 mutations, and 3 WebSocket subscriptions. Dataloader pattern for N+1 elimination. Real-time attack event streaming.</div>
+        <div class="feature-tags">
+          <span class="tag tag-purple">GraphQL</span>
+          <span class="tag tag-cyan">WebSocket</span>
+          <span class="tag tag-green">Strawberry</span>
+        </div>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon icon-green">🔒</div>
+        <div class="feature-title">Enterprise Security</div>
+        <div class="feature-desc">mTLS between all services, RFC 6238 TOTP with backup codes, account lockout, IP allowlist middleware, TLS 1.3 + HTTP/2 via Nginx, and RBAC on every endpoint.</div>
+        <div class="feature-tags">
+          <span class="tag tag-green">mTLS</span>
+          <span class="tag tag-cyan">TOTP</span>
+          <span class="tag tag-purple">RBAC</span>
+          <span class="tag tag-amber">TLS 1.3</span>
+        </div>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon icon-amber">🖥️</div>
+        <div class="feature-title">Cyberpunk UI + PWA</div>
+        <div class="feature-desc">Next.js 14 App Router frontend with a custom cyberpunk design system, Framer Motion animations, Recharts visualisations, CommandPalette (Ctrl+K), and full PWA support.</div>
+        <div class="feature-tags">
+          <span class="tag tag-cyan">Next.js 14</span>
+          <span class="tag tag-purple">Tailwind</span>
+          <span class="tag tag-green">PWA</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── Agents ─────────────────────────────────────────────────── -->
+<section id="agents" aria-label="AI Agent Roster">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Agent Roster</div>
+      <h2 class="section-title">13 <span>Specialised</span> AI Agents</h2>
+      <p class="section-desc">
+        Each agent has a focused responsibility. The AttackPathRouter classifies user intent via ML and routes to the right agent automatically.
+      </p>
+    </div>
+
+    <div class="agents-grid">
+      <div class="agent-card fade-in">
+        <div class="agent-emoji">🗺️</div>
+        <div class="agent-info">
+          <div class="agent-role">Planner</div>
+          <div class="agent-desc">Decomposes targets into attack plans</div>
+        </div>
+      </div>
+      <div class="agent-card fade-in">
+        <div class="agent-emoji">🔍</div>
+        <div class="agent-info">
+          <div class="agent-role">Recon</div>
+          <div class="agent-desc">Port scan, OSINT, HTTP probing</div>
+        </div>
+      </div>
+      <div class="agent-card fade-in">
+        <div class="agent-emoji">💥</div>
+        <div class="agent-info">
+          <div class="agent-role">Exploit</div>
+          <div class="agent-desc">SQLMap, Metasploit, reverse shells</div>
+        </div>
+      </div>
+      <div class="agent-card fade-in">
+        <div class="agent-emoji">🌐</div>
+        <div class="agent-info">
+          <div class="agent-role">WebApp</div>
+          <div class="agent-desc">XSS, CSRF, SSRF, IDOR, JWT attacks</div>
+        </div>
+      </div>
+      <div class="agent-card fade-in">
+        <div class="agent-emoji">📊</div>
+        <div class="agent-info">
+          <div class="agent-role">Report</div>
+          <div class="agent-desc">CVSS scoring, PDF/Markdown reports</div>
+        </div>
+      </div>
+      <div class="agent-card fade-in">
+        <div class="agent-emoji">✨</div>
+        <div class="agent-info">
+          <div class="agent-role">Refiner</div>
+          <div class="agent-desc">Iterative output quality improvement</div>
+        </div>
+      </div>
+      <div class="agent-card fade-in">
+        <div class="agent-emoji">⚙️</div>
+        <div class="agent-info">
+          <div class="agent-role">Generator</div>
+          <div class="agent-desc">Payload, wordlist, PoC code generation</div>
+        </div>
+      </div>
+      <div class="agent-card fade-in">
+        <div class="agent-emoji">🧑‍⚖️</div>
+        <div class="agent-info">
+          <div class="agent-role">Adviser</div>
+          <div class="agent-desc">Expert second opinion on exploit selection</div>
+        </div>
+      </div>
+      <div class="agent-card fade-in">
+        <div class="agent-emoji">🪞</div>
+        <div class="agent-info">
+          <div class="agent-role">Reflector</div>
+          <div class="agent-desc">Self-reflection, missed attack surfaces</div>
+        </div>
+      </div>
+      <div class="agent-card fade-in">
+        <div class="agent-emoji">🔗</div>
+        <div class="agent-info">
+          <div class="agent-role">Enricher</div>
+          <div class="agent-desc">CVE lookup, OWASP mapping, CVSS</div>
+        </div>
+      </div>
+      <div class="agent-card fade-in">
+        <div class="agent-emoji">💻</div>
+        <div class="agent-info">
+          <div class="agent-role">Coder</div>
+          <div class="agent-desc">Exploit code, reverse shells, scripts</div>
+        </div>
+      </div>
+      <div class="agent-card fade-in">
+        <div class="agent-emoji">🛠️</div>
+        <div class="agent-info">
+          <div class="agent-role">Installer</div>
+          <div class="agent-desc">Tool installation guidance</div>
+        </div>
+      </div>
+      <div class="agent-card fade-in">
+        <div class="agent-emoji">📦</div>
+        <div class="agent-info">
+          <div class="agent-role">SimpleJSON</div>
+          <div class="agent-desc">Lightweight JSON data extraction</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Tech Stack ─────────────────────────────────────────────── -->
+<section id="tech" aria-label="Technology Stack">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Technology Stack</div>
+      <h2 class="section-title">Built on <span>Industry-Leading</span> Tools</h2>
+      <p class="section-desc">Production-grade, battle-tested technologies from the ground up.</p>
+    </div>
+
+    <div class="tech-grid">
+      <div class="tech-category fade-in">
+        <div class="tech-cat-title">Backend</div>
+        <div class="tech-items">
+          <div class="tech-item">🐍 Python 3.11+</div>
+          <div class="tech-item">⚡ FastAPI</div>
+          <div class="tech-item">🔄 LangGraph</div>
+          <div class="tech-item">🍓 Strawberry GraphQL</div>
+          <div class="tech-item">🔧 asyncpg</div>
+          <div class="tech-item">📦 Pydantic v2</div>
+        </div>
+      </div>
+
+      <div class="tech-category fade-in">
+        <div class="tech-cat-title">Frontend</div>
+        <div class="tech-items">
+          <div class="tech-item">▲ Next.js 14</div>
+          <div class="tech-item">📘 TypeScript</div>
+          <div class="tech-item">🎨 Tailwind CSS</div>
+          <div class="tech-item">🐻 Zustand</div>
+          <div class="tech-item">🌀 Framer Motion</div>
+          <div class="tech-item">📊 Recharts</div>
+        </div>
+      </div>
+
+      <div class="tech-category fade-in">
+        <div class="tech-cat-title">Databases</div>
+        <div class="tech-items">
+          <div class="tech-item">🐘 PostgreSQL</div>
+          <div class="tech-item">🔵 pgvector</div>
+          <div class="tech-item">🟢 Neo4j</div>
+          <div class="tech-item">🔴 Redis</div>
+          <div class="tech-item">📈 ClickHouse</div>
+          <div class="tech-item">🟡 VictoriaMetrics</div>
+        </div>
+      </div>
+
+      <div class="tech-category fade-in">
+        <div class="tech-cat-title">Infrastructure</div>
+        <div class="tech-items">
+          <div class="tech-item">🐳 Docker Compose</div>
+          <div class="tech-item">🔒 Nginx TLS 1.3</div>
+          <div class="tech-item">📦 MinIO</div>
+          <div class="tech-item">☸️ Kubernetes</div>
+          <div class="tech-item">🛡️ Kali Linux</div>
+          <div class="tech-item">🎭 Playwright E2E</div>
+        </div>
+      </div>
+
+      <div class="tech-category fade-in">
+        <div class="tech-cat-title">LLM Providers</div>
+        <div class="tech-items">
+          <div class="tech-item">🤖 OpenAI GPT-4</div>
+          <div class="tech-item">🧠 Anthropic Claude</div>
+          <div class="tech-item">⚡ Groq</div>
+          <div class="tech-item">🔀 OpenRouter</div>
+          <div class="tech-item">☁️ AWS Bedrock</div>
+          <div class="tech-item">🌊 DeepSeek</div>
+          <div class="tech-item">🔮 Qwen</div>
+          <div class="tech-item">🏠 vLLM (local)</div>
+        </div>
+      </div>
+
+      <div class="tech-category fade-in">
+        <div class="tech-cat-title">Security Tools</div>
+        <div class="tech-items">
+          <div class="tech-item">🔫 Metasploit</div>
+          <div class="tech-item">💉 SQLMap</div>
+          <div class="tech-item">🌀 Nuclei</div>
+          <div class="tech-item">🔍 Naabu</div>
+          <div class="tech-item">🌐 ffuf</div>
+          <div class="tech-item">🕷️ WPScan</div>
+          <div class="tech-item">🔎 Nmap</div>
+          <div class="tech-item">📡 httpx</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Install ────────────────────────────────────────────────── -->
+<section id="install" aria-label="Installation">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Quick Install</div>
+      <h2 class="section-title">Up and Running in <span>5 Minutes</span></h2>
+      <p class="section-desc">Docker-native deployment with a single verified installer. Supports Docker and Podman.</p>
+    </div>
+
+    <div class="install-grid">
+      <div class="install-steps">
+        <div class="install-step fade-in">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Download &amp; verify the installer</div>
+            <div class="step-desc">Always verify the SHA-256 checksum before executing any remote script.</div>
+          </div>
+        </div>
+        <div class="install-step fade-in">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Run the TUI installer</div>
+            <div class="step-desc">Interactive 10-step whiptail TUI. Generates <code style="color:var(--cyan)">.env</code>, configures TLS, and starts all services.</div>
+          </div>
+        </div>
+        <div class="install-step fade-in">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Open the web interface</div>
+            <div class="step-desc">Navigate to <strong style="color:var(--cyan)">http://localhost:3000</strong>. First-run credentials are printed by the installer.</div>
+          </div>
+        </div>
+        <div class="install-step fade-in">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">Start your first scan</div>
+            <div class="step-desc">Enter a target IP or domain in the chat. UniVex handles the rest autonomously.</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="code-block fade-in" style="margin-bottom:20px">
+          <div class="code-header">
+            <span class="code-lang">bash — Docker (recommended)</span>
+            <button class="copy-btn" onclick="copyCode(this, 'code-docker')">copy</button>
+          </div>
+          <div class="code-body" id="code-docker"><span class="comment"># Download and verify</span>
+<span class="cmd-kw">curl</span> <span class="cmd-str">-LO</span> https://github.com/BitR1ft/UniVex/releases/latest/download/install.sh
+<span class="cmd-kw">curl</span> <span class="cmd-str">-LO</span> https://github.com/BitR1ft/UniVex/releases/latest/download/install.sh.sha256
+<span class="cmd-kw">sha256sum</span> -c install.sh.sha256
+<span class="cmd-kw">bash</span> install.sh</div>
+        </div>
+
+        <div class="code-block fade-in" style="margin-bottom:20px">
+          <div class="code-header">
+            <span class="code-lang">bash — Podman / rootless</span>
+            <button class="copy-btn" onclick="copyCode(this, 'code-podman')">copy</button>
+          </div>
+          <div class="code-body" id="code-podman"><span class="comment"># Rootless container support</span>
+<span class="cmd-kw">curl</span> <span class="cmd-str">-LO</span> https://github.com/BitR1ft/UniVex/releases/latest/download/install-podman.sh
+<span class="cmd-kw">curl</span> <span class="cmd-str">-LO</span> https://github.com/BitR1ft/UniVex/releases/latest/download/install-podman.sh.sha256
+<span class="cmd-kw">sha256sum</span> -c install-podman.sh.sha256
+<span class="cmd-kw">bash</span> install-podman.sh</div>
+        </div>
+
+        <div class="code-block fade-in">
+          <div class="code-header">
+            <span class="code-lang">bash — From source (dev)</span>
+            <button class="copy-btn" onclick="copyCode(this, 'code-source')">copy</button>
+          </div>
+          <div class="code-body" id="code-source"><span class="cmd-kw">git</span> clone https://github.com/BitR1ft/UniVex.git && <span class="cmd-kw">cd</span> UniVex
+<span class="cmd-kw">cp</span> .env.example .env   <span class="comment"># edit with your API keys</span>
+<span class="cmd-kw">docker</span> compose up --build</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Compliance ─────────────────────────────────────────────── -->
+<section id="compliance" aria-label="Compliance Frameworks">
+  <div class="container" style="padding: 100px 24px;">
+    <div class="section-header fade-in">
+      <div class="section-tag">Compliance Engine</div>
+      <h2 class="section-title">Audit-Ready <span>Compliance Reports</span></h2>
+      <p class="section-desc">Auto-map every finding to the right compliance control. Generate evidence packages for auditors in seconds.</p>
+    </div>
+
+    <div class="compliance-grid">
+      <div class="compliance-card fade-in">
+        <div class="compliance-icon">🕷️</div>
+        <div class="compliance-name">OWASP Top 10</div>
+        <div class="compliance-full">Web Application Security Risks</div>
+        <div class="compliance-controls">
+          <div class="ctrl-bar"><div class="ctrl-fill" style="width:100%"></div></div>
+          <span class="ctrl-count">10 controls</span>
+        </div>
+      </div>
+      <div class="compliance-card fade-in">
+        <div class="compliance-icon">💳</div>
+        <div class="compliance-name">PCI-DSS 4.0</div>
+        <div class="compliance-full">Payment Card Industry Data Security</div>
+        <div class="compliance-controls">
+          <div class="ctrl-bar"><div class="ctrl-fill" style="width:92%"></div></div>
+          <span class="ctrl-count">12 reqs</span>
+        </div>
+      </div>
+      <div class="compliance-card fade-in">
+        <div class="compliance-icon">🏛️</div>
+        <div class="compliance-name">NIST 800-53</div>
+        <div class="compliance-full">Security &amp; Privacy Controls</div>
+        <div class="compliance-controls">
+          <div class="ctrl-bar"><div class="ctrl-fill" style="width:85%"></div></div>
+          <span class="ctrl-count">20 families</span>
+        </div>
+      </div>
+      <div class="compliance-card fade-in">
+        <div class="compliance-icon">🛡️</div>
+        <div class="compliance-name">CIS Controls v8</div>
+        <div class="compliance-full">Center for Internet Security</div>
+        <div class="compliance-controls">
+          <div class="ctrl-bar"><div class="ctrl-fill" style="width:78%"></div></div>
+          <span class="ctrl-count">18 controls</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Architecture ──────────────────────────────────────────── -->
+<section id="architecture" aria-label="Architecture Overview">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Architecture</div>
+      <h2 class="section-title">How <span>UniVex</span> Works</h2>
+      <p class="section-desc">A microservice architecture with strict network segmentation, mTLS everywhere, and an isolated Kali Linux attack container.</p>
+    </div>
+
+    <div class="arch-diagram fade-in">
+<pre>
+<span class="ah">         ┌────────────────────────────────────────────────────────────────┐</span>
+<span class="ah">         │                      UNIVEX PLATFORM                          │</span>
+<span class="ah">         └────────────────────────────────────────────────────────────────┘</span>
+<span class="ah">
+     Browser / API Client</span>
+            │  HTTPS / WSS
+            ▼
+<span class="ah">    ┌──────────────────┐</span>
+<span class="ah">    │   Nginx TLS 1.3   │</span>  HTTP/2 · Security Headers · WebSocket Proxy
+<span class="ah">    └────────┬─────────┘</span>
+             │
+<span class="ap">    ┌────────▼─────────────────────────────────────────┐</span>
+<span class="ap">    │              FastAPI Backend (async)              │</span>
+<span class="ap">    │  REST /api/*  ·  GraphQL /graphql  ·  WS /ws/*  │</span>
+<span class="ap">    └────┬────────────────────┬─────────────────┬──────┘</span>
+         │                    │                 │
+<span class="ab">    ┌────▼──────┐   ┌────────▼──────┐   ┌──────▼──────────┐</span>
+<span class="ab">    │ LangGraph  │   │  PostgreSQL   │   │     Redis       │</span>
+<span class="ab">    │ Agents x13 │   │  + pgvector  │   │  Queue + Cache  │</span>
+<span class="ab">    └────┬───────┘   └───────────────┘   └─────────────────┘</span>
+         │
+         │  mTLS (mutual TLS)
+<span class="aa">    ┌────▼────────────────────────────────────────────────┐</span>
+<span class="aa">    │              MCP Tool Servers (Kali Linux)           │</span>
+<span class="aa">    │  Recon · Exploit · Web · Cloud · K8s · Browser · OOB│</span>
+<span class="aa">    └────┬────────────────────────────────────────────────┘</span>
+         │
+         ▼
+<span class="ah">    External Target (authorised scope only)</span>
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Roadmap ────────────────────────────────────────────────── -->
+<section id="roadmap" aria-label="Product Roadmap">
+  <div class="container" style="padding: 100px 24px;">
+    <div class="section-header fade-in">
+      <div class="section-tag">Roadmap</div>
+      <h2 class="section-title">What's <span>Coming Next</span></h2>
+      <p class="section-desc">UniVex is under active development. Here's what's planned across upcoming releases.</p>
+    </div>
+
+    <div class="roadmap-grid">
+      <div class="roadmap-card fade-in">
+        <div class="roadmap-version v-current">v1.0.0 — Now</div>
+        <div class="roadmap-title">Production Release</div>
+        <ul class="roadmap-items">
+          <li>13 AI agents + LangGraph ReAct</li>
+          <li>90+ security tool integrations</li>
+          <li>12+ LLM providers</li>
+          <li>GraphQL API + WebSocket subs</li>
+          <li>Full compliance engine</li>
+          <li>PWA cyberpunk frontend</li>
+          <li>4,000+ tests</li>
+        </ul>
+      </div>
+
+      <div class="roadmap-card fade-in">
+        <div class="roadmap-version v-next">v1.1.0 — Q2 2026</div>
+        <div class="roadmap-title">Enhanced Intelligence</div>
+        <ul class="roadmap-items">
+          <li>Active Directory attack chains</li>
+          <li>Autonomous lateral movement</li>
+          <li>BloodHound + Impacket integration</li>
+          <li>Real-time collaboration mode</li>
+          <li>Team workspaces + RBAC v2</li>
+          <li>SIEM push (Splunk / Elastic)</li>
+        </ul>
+      </div>
+
+      <div class="roadmap-card fade-in">
+        <div class="roadmap-version v-future">v2.0.0 — Q3 2026</div>
+        <div class="roadmap-title">Enterprise Edition</div>
+        <ul class="roadmap-items">
+          <li>Multi-tenant SaaS mode</li>
+          <li>Custom agent marketplace</li>
+          <li>SOC workflow integration</li>
+          <li>Mobile companion app</li>
+          <li>Fine-tuned pentesting LLMs</li>
+          <li>Red team campaign scheduler</li>
+        </ul>
+      </div>
+
+      <div class="roadmap-card fade-in">
+        <div class="roadmap-version v-far">v3.0.0 — 2027</div>
+        <div class="roadmap-title">Autonomous Red Team</div>
+        <ul class="roadmap-items">
+          <li>Zero-day research automation</li>
+          <li>Self-improving exploit chains</li>
+          <li>Purple team orchestration</li>
+          <li>Threat intelligence synthesis</li>
+          <li>AI-driven patch prioritisation</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FAQ ─────────────────────────────────────────────────────── -->
+<section id="faq" aria-label="Frequently Asked Questions">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">FAQ</div>
+      <h2 class="section-title">Frequently Asked <span>Questions</span></h2>
+      <p class="section-desc">Everything you need to know about UniVex before you get started.</p>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item fade-in">
+        <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+          What is UniVex?
+          <span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            UniVex is a fully-autonomous, AI-powered penetration testing platform. It uses 13 specialised AI agents built on LangGraph to automate the entire offensive security kill chain — reconnaissance, vulnerability discovery, exploitation, post-exploitation, and compliance reporting — with support for 90+ security tools and 12+ LLM providers.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item fade-in">
+        <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+          Is UniVex free to use?
+          <span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            Yes. UniVex is fully open-source and released under the MIT License — free to download, use, and modify. You only need your own API keys for the LLM providers you choose to use. Self-hosted vLLM is supported for fully air-gapped or cost-free deployments.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item fade-in">
+        <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+          What LLM providers does UniVex support?
+          <span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            UniVex supports 12+ LLM providers: OpenAI (GPT-4o, GPT-4), Anthropic (Claude 3), Groq, OpenRouter, AWS Bedrock, DeepSeek, Qwen, GLM, Kimi, and vLLM for self-hosted/air-gapped deployments. You can configure a different model per agent via YAML.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item fade-in">
+        <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+          What security tools does UniVex integrate with?
+          <span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            UniVex integrates with 90+ security tools including Nmap, Naabu, Nuclei, FFuf, SQLMap, Metasploit, WPScan, Subfinder, Amass, Katana, Wayback Machine, MassDNS, and many more — all wrapped as MCP (Model Context Protocol) servers so agents can call them natively.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item fade-in">
+        <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+          How do I install UniVex?
+          <span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            Run <code style="font-family:var(--font-mono);color:var(--cyan);background:rgba(0,229,255,.08);padding:2px 6px;border-radius:4px">curl -LO https://github.com/BitR1ft/UniVex/releases/latest/download/install.sh &amp;&amp; bash install.sh</code>. Docker or Podman is required. A full TUI installer guides you through environment setup. You're up and running in under 5 minutes.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item fade-in">
+        <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+          What compliance frameworks does UniVex support?
+          <span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            UniVex automatically maps every finding to OWASP Top 10, PCI-DSS 4.0 (12 requirements), NIST 800-53 (20 control families), and CIS Controls v8 (18 controls). It generates audit-ready evidence packages and compliance reports in PDF, HTML, and Markdown formats.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item fade-in">
+        <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+          Is UniVex legal to use?
+          <span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            UniVex is designed exclusively for authorised security testing. You must have explicit written permission from the system owner before running any tests. Unauthorised use against systems you do not own or have permission to test is illegal and unethical. Always follow your jurisdiction's computer misuse laws.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ────────────────────────────────────────────────────── -->
+<section id="cta" aria-label="Call to Action">
+  <div class="container">
+    <div class="cta-inner fade-in">
+      <h2 class="cta-title">Ready to <span>Automate</span> Your Pentests?</h2>
+      <p class="cta-desc">
+        Join security professionals using UniVex to scale their offensive security operations.
+        Open source. MIT licensed. Built by BitR1FT.
+      </p>
+      <div class="cta-btns">
+        <a class="btn btn-primary" href="https://github.com/BitR1ft/UniVex/releases/latest/download/install.sh" target="_blank" rel="noopener noreferrer">
+          ⚡ Download Installer
+        </a>
+        <a class="btn btn-secondary" href="https://github.com/BitR1ft/UniVex" target="_blank" rel="noopener noreferrer">
+          ⭐ Star on GitHub
+        </a>
+        <a class="btn btn-purple" href="https://github.com/BitR1ft/UniVex/blob/main/docs/QUICKSTART.md" target="_blank" rel="noopener noreferrer">
+          📖 Read the Docs
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Footer ─────────────────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="footer-logo" href="#">
+          <div class="logo-icon">🛡️</div>
+          <span class="logo-text" style="font-size:1.2rem;font-weight:800;color:#fff">Uni<span style="color:var(--cyan)">Vex</span></span>
+        </a>
+        <p class="footer-desc">
+          AI-powered, fully-autonomous penetration testing platform.
+          Built by <strong style="color:var(--cyan)">BitR1FT</strong> — Professional open-source security automation.
+        </p>
+        <div class="footer-social">
+          <a class="social-btn" href="https://github.com/BitR1ft/UniVex" target="_blank" rel="noopener noreferrer" title="GitHub">🐙</a>
+          <a class="social-btn" href="https://github.com/BitR1ft" target="_blank" rel="noopener noreferrer" title="Author">👤</a>
+          <a class="social-btn" href="https://github.com/BitR1ft/UniVex/releases" target="_blank" rel="noopener noreferrer" title="Releases">📦</a>
+          <a class="social-btn" href="https://github.com/BitR1ft/UniVex/issues" target="_blank" rel="noopener noreferrer" title="Issues">🐛</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Product</div>
+        <ul class="footer-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#kill-chain">Kill Chain</a></li>
+          <li><a href="#agents">AI Agents</a></li>
+          <li><a href="#install">Installation</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#roadmap">Roadmap</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Docs</div>
+        <ul class="footer-links">
+          <li><a href="https://github.com/BitR1ft/UniVex/blob/main/docs/QUICKSTART.md" target="_blank" rel="noopener noreferrer">Quick Start</a></li>
+          <li><a href="https://github.com/BitR1ft/UniVex/blob/main/docs/ARCHITECTURE.md" target="_blank" rel="noopener noreferrer">Architecture</a></li>
+          <li><a href="https://github.com/BitR1ft/UniVex/blob/main/docs/API_REFERENCE.md" target="_blank" rel="noopener noreferrer">API Reference</a></li>
+          <li><a href="https://github.com/BitR1ft/UniVex/blob/main/docs/CONFIGURATION_GUIDE.md" target="_blank" rel="noopener noreferrer">Configuration</a></li>
+          <li><a href="https://github.com/BitR1ft/UniVex/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">Contributing</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Community</div>
+        <ul class="footer-links">
+          <li><a href="https://github.com/BitR1ft/UniVex/issues" target="_blank" rel="noopener noreferrer">Report a Bug</a></li>
+          <li><a href="https://github.com/BitR1ft/UniVex/discussions" target="_blank" rel="noopener noreferrer">Discussions</a></li>
+          <li><a href="https://github.com/BitR1ft/UniVex/releases" target="_blank" rel="noopener noreferrer">Releases</a></li>
+          <li><a href="https://github.com/BitR1ft/UniVex/blob/main/.github/SECURITY.md" target="_blank" rel="noopener noreferrer">Security Policy</a></li>
+          <li><a href="https://github.com/BitR1ft/UniVex/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-copy">
+        © 2026 <a href="https://github.com/BitR1ft" target="_blank" rel="noopener noreferrer">BitR1FT</a>. Released under the MIT License.
+        UniVex is for authorised security testing only.
+      </div>
+      <div class="footer-badges">
+        <span class="badge" style="background:rgba(0,230,118,.1);color:var(--green);border-color:rgba(0,230,118,.3)">v1.0.0</span>
+        <span class="badge" style="background:rgba(0,229,255,.08);color:var(--cyan);border-color:rgba(0,229,255,.25)">MIT</span>
+        <span class="badge" style="background:rgba(124,58,237,.1);color:var(--purple2);border-color:rgba(124,58,237,.3)">Open Source</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ─── JavaScript ─────────────────────────────────────────────── -->
+<script>
+/* ── Particle Canvas ─────────────────────────────────────────── */
+(function () {
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function makeParticles(n) {
+    return Array.from({length: n}, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.5 + .3,
+      dx: (Math.random() - .5) * .4,
+      dy: (Math.random() - .5) * .4,
+      o: Math.random() * .5 + .15,
+    }));
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    for (const p of particles) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,229,255,${p.o})`;
+      ctx.fill();
+      p.x += p.dx; p.y += p.dy;
+      if (p.x < 0 || p.x > W) p.dx *= -1;
+      if (p.y < 0 || p.y > H) p.dy *= -1;
+    }
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  particles = makeParticles(90);
+  draw();
+  window.addEventListener('resize', () => { resize(); particles = makeParticles(90); });
+})();
+
+/* ── Animated Terminal ───────────────────────────────────────── */
+(function () {
+  const lines = [
+    {type:'prompt', text:'univex target 10.10.14.22'},
+    {type:'out', text:'[*] Initialising attack session...', color:'cyan'},
+    {type:'out', text:'[*] Loading 13 AI agents', color:'purple'},
+    {type:'blank'},
+    {type:'out', text:'[PHASE 1] Reconnaissance', color:'amber'},
+    {type:'out', text:'  → subfinder: 12 subdomains discovered', color:'text'},
+    {type:'out', text:'  → naabu:     ports 22,80,443,8080 open', color:'text'},
+    {type:'out', text:'  → httpx:     3 live HTTP hosts', color:'text'},
+    {type:'blank'},
+    {type:'out', text:'[PHASE 2] Vulnerability Discovery', color:'amber'},
+    {type:'out', text:'  → nuclei:    CVE-2024-1234 (CRITICAL 9.8)', color:'red'},
+    {type:'out', text:'  → enricher:  MITRE T1190 mapped', color:'text'},
+    {type:'blank'},
+    {type:'out', text:'[PHASE 3] Exploitation', color:'amber'},
+    {type:'out', text:'  ⚠  Approval required for: exploit/multi/handler', color:'amber'},
+    {type:'out', text:'  → [APPROVED] Executing Metasploit module...', color:'green'},
+    {type:'out', text:'  → Session 1 opened (10.10.14.22:4444)', color:'green'},
+    {type:'blank'},
+    {type:'out', text:'[PHASE 5] Generating report...', color:'amber'},
+    {type:'out', text:'  ✓  PDF report saved: report_20260327.pdf', color:'green'},
+    {type:'out', text:'  ✓  PCI-DSS compliance: 9/12 controls pass', color:'green'},
+  ];
+
+  const body = document.getElementById('terminal-body');
+  let lineIdx = 0;
+  let charIdx = 0;
+  let lineEl = null;
+
+  function appendLine(l) {
+    const div = document.createElement('div');
+    div.className = 'term-line';
+    if (l.type === 'blank') { div.innerHTML = '&nbsp;'; body.appendChild(div); return null; }
+    if (l.type === 'prompt') {
+      div.innerHTML = `<span class="term-prompt">$ </span><span class="term-cmd"></span><span class="cursor"></span>`;
+    } else {
+      const cls = l.color === 'cyan' ? 'term-cyan' : l.color === 'purple' ? 'term-purple' :
+                  l.color === 'green' ? 'term-green' : l.color === 'amber' ? 'term-amber' :
+                  l.color === 'red' ? 'term-red' : 'term-output';
+      div.innerHTML = `<span class="${cls}"></span>`;
+    }
+    body.appendChild(div);
+    return div;
+  }
+
+  function type() {
+    if (lineIdx >= lines.length) return;
+    const l = lines[lineIdx];
+
+    if (l.type === 'blank') {
+      appendLine(l);
+      lineIdx++;
+      charIdx = 0;
+      setTimeout(type, 80);
+      return;
+    }
+
+    if (!lineEl) { lineEl = appendLine(l); charIdx = 0; }
+
+    const span = lineEl.querySelector('span:not(.cursor):last-of-type');
+    if (!span) { lineIdx++; lineEl = null; setTimeout(type, 50); return; }
+
+    if (charIdx < l.text.length) {
+      span.textContent += l.text[charIdx++];
+      // remove cursor from this line once done with prompt
+      body.scrollTop = body.scrollHeight;
+      setTimeout(type, l.type === 'prompt' ? 60 : 18);
+    } else {
+      // remove cursor span from prompt line
+      const cur = lineEl.querySelector('.cursor');
+      if (cur) cur.remove();
+      lineIdx++; lineEl = null;
+      setTimeout(type, l.type === 'prompt' ? 400 : 80);
+    }
+  }
+
+  setTimeout(type, 800);
+})();
+
+/* ── Counter Animation ───────────────────────────────────────── */
+function animateCounter(el, target) {
+  const dur = 1800;
+  const start = performance.now();
+  function step(now) {
+    const t = Math.min((now - start) / dur, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(ease * target).toLocaleString() + (target >= 1000 ? '+' : target > 10 ? '+' : '');
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ── Intersection Observer ──────────────────────────────────── */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      // Counter
+      const num = e.target.querySelector('[data-target]');
+      if (num && !num.dataset.animated) {
+        num.dataset.animated = '1';
+        animateCounter(num, parseInt(num.dataset.target));
+      }
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+/* Also observe stat-item directly for counter */
+document.querySelectorAll('.stat-item').forEach(el => observer.observe(el));
+
+/* ── Copy Button ────────────────────────────────────────────── */
+function copyCode(btn, id) {
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+/* ── Mobile Menu ─────────────────────────────────────────────── */
+function toggleMenu() {
+  const links = document.querySelector('.nav-links');
+  if (links.style.display === 'flex') {
+    links.style.display = '';
+  } else {
+    links.style.cssText = 'display:flex;flex-direction:column;position:absolute;top:64px;left:0;right:0;background:rgba(6,6,15,.98);border-bottom:1px solid rgba(0,229,255,.15);padding:16px;gap:4px;';
+  }
+}
+
+/* ── FAQ Accordion ───────────────────────────────────────────── */
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.faq-item.open').forEach(el => {
+    el.classList.remove('open');
+    el.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+  });
+  // Open clicked if it was closed
+  if (!isOpen) {
+    item.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+  }
+}
+
+/* ── Smooth nav hide on scroll ───────────────────────────────── */
+let lastScroll = 0;
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  const cur = window.scrollY;
+  if (cur > 100 && cur > lastScroll) {
+    navbar.style.transform = 'translateY(-100%)';
+    navbar.style.transition = 'transform .3s';
+  } else {
+    navbar.style.transform = 'translateY(0)';
+  }
+  lastScroll = cur;
+}, {passive: true});
+</script>
+</body>
+</html>
