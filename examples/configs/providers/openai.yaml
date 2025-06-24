@@ -1,0 +1,27 @@
+# OpenAI LLM Provider Configuration (Reference Example)
+# Documentation: https://platform.openai.com/docs
+#
+# Required: Set OPENAI_API_KEY environment variable
+#   export OPENAI_API_KEY=sk-...
+#
+# This file shows the standard provider YAML pattern.
+# OpenAI is supported natively via langchain-openai;
+# this config is provided as a reference for the YAML format.
+#
+provider: deepseek       # use "deepseek" class as a stand-in for any OpenAI-compatible endpoint
+name: openai-compatible
+base_url: https://api.openai.com/v1
+api_key: ${OPENAI_API_KEY}
+default_model: gpt-4o
+available_models:
+  - gpt-4o              # Flagship multimodal model
+  - gpt-4o-mini         # Fast and affordable
+  - gpt-4-turbo         # High-intelligence, 128k context
+  - gpt-3.5-turbo       # Legacy, cheapest option
+max_tokens: 4096
+temperature: 0.7
+timeout: 60
+extra_params:
+  top_p: 1.0
+  frequency_penalty: 0.0
+  presence_penalty: 0.0

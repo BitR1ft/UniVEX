@@ -1,0 +1,45 @@
+groups:
+  - name: univex_api
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          rate(http_requests_total{status_code=~"5.."}[5m])
+          / rate(http_requests_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API error rate (> 5%)"
+          description: "Error rate is {{ $value | humanizePercentage }} over the last 5 minutes."
+
+      - alert: VeryHighErrorRate
+        expr: |
+          rate(http_requests_total{status_code=~"5.."}[5m])
+          / rate(http_requests_total[5m]) > 0.20
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical API error rate (> 20%)"
+          description: "Error rate is {{ $value | humanizePercentage }}."
+
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95,
+            rate(http_request_duration_seconds_bucket[5m])
+          ) > 2.0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "p95 latency > 2s"
+          description: "p95 latency is {{ $value | humanizeDuration }}."
+
+      - alert: NoActiveScans
+        expr: active_scans_total == 0
+        for: 60m
+        labels:
+          severity: info
+        annotations:
+          summary: "No active scans for 60 minutes"
+          description: "System may be idle or scan queue is stuck. Check if this is expected (e.g. off-hours)."

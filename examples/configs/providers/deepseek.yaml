@@ -1,0 +1,22 @@
+# DeepSeek LLM Provider Configuration
+# Documentation: https://platform.deepseek.com/api-docs
+#
+# Required: Set DEEPSEEK_API_KEY environment variable
+#   export DEEPSEEK_API_KEY=sk-...
+#
+provider: deepseek
+name: deepseek
+base_url: https://api.deepseek.com/v1
+api_key: ${DEEPSEEK_API_KEY}
+default_model: deepseek-chat
+available_models:
+  - deepseek-chat       # Best for general tasks (~GPT-4 level, much cheaper)
+  - deepseek-coder      # Specialized for code generation and analysis
+  - deepseek-reasoner   # Extended reasoning with Chain-of-Thought (R1 series)
+max_tokens: 8192
+temperature: 0.7
+timeout: 120
+extra_params:
+  top_p: 0.95
+  frequency_penalty: 0.0
+  presence_penalty: 0.0

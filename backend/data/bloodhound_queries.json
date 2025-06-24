@@ -1,0 +1,282 @@
+[
+  {
+    "id": "BHQ001",
+    "name": "Shortest Path to Domain Admin",
+    "category": "attack_paths",
+    "description": "Find the shortest attack path from any owned principal to the Domain Admin group",
+    "cypher": "MATCH (n {owned:true}), (target:Group {name:'DOMAIN ADMINS@{domain}'}), p=shortestPath((n)-[*1..15]->(target)) WHERE n<>target RETURN p",
+    "params": ["domain"],
+    "tags": ["critical", "privilege_escalation", "lateral_movement"],
+    "severity": "critical"
+  },
+  {
+    "id": "BHQ002",
+    "name": "All Paths to Domain Admin",
+    "category": "attack_paths",
+    "description": "Enumerate all paths (not just shortest) to Domain Admin",
+    "cypher": "MATCH (n {owned:true}), (target:Group {name:'DOMAIN ADMINS@{domain}'}), p=allShortestPaths((n)-[*1..10]->(target)) WHERE n<>target RETURN p",
+    "params": ["domain"],
+    "tags": ["critical", "privilege_escalation"],
+    "severity": "critical"
+  },
+  {
+    "id": "BHQ003",
+    "name": "Kerberoastable Users",
+    "category": "kerberos",
+    "description": "Find all users with SPNs set (Kerberoastable) - targets for offline hash cracking",
+    "cypher": "MATCH (u:ADUser {hasspn:true}) WHERE u.enabled=true RETURN u.name AS user, u.displayname AS display_name, u.description AS description, u.serviceprincipalnames AS spns, u.pwdlastset AS pwd_last_set ORDER BY u.name",
+    "params": [],
+    "tags": ["kerberos", "credential_theft", "kerberoast"],
+    "severity": "high"
+  },
+  {
+    "id": "BHQ004",
+    "name": "AS-REP Roastable Users",
+    "category": "kerberos",
+    "description": "Find users with Kerberos pre-authentication disabled (AS-REP Roastable)",
+    "cypher": "MATCH (u:ADUser {dontreqpreauth:true}) WHERE u.enabled=true RETURN u.name AS user, u.displayname AS display_name, u.description AS description, u.pwdlastset AS pwd_last_set ORDER BY u.name",
+    "params": [],
+    "tags": ["kerberos", "credential_theft", "asrep"],
+    "severity": "high"
+  },
+  {
+    "id": "BHQ005",
+    "name": "Users with DCSync Rights",
+    "category": "privilege_escalation",
+    "description": "Find principals with DCSync rights (DS-Replication-Get-Changes-All permission)",
+    "cypher": "MATCH (n)-[:DCSync|AllExtendedRights|GenericAll]->(d:ADDomain) RETURN n.name AS principal, labels(n) AS type, d.name AS domain ORDER BY n.name",
+    "params": [],
+    "tags": ["dcsync", "critical", "privilege_escalation"],
+    "severity": "critical"
+  },
+  {
+    "id": "BHQ006",
+    "name": "Unconstrained Delegation",
+    "category": "kerberos",
+    "description": "Find computers/users with unconstrained delegation enabled",
+    "cypher": "MATCH (n {unconstraineddelegation:true}) WHERE NOT n:ADDomain RETURN n.name AS name, labels(n) AS type, n.operatingsystem AS os, n.enabled AS enabled ORDER BY n.name",
+    "params": [],
+    "tags": ["kerberos", "delegation", "critical"],
+    "severity": "critical"
+  },
+  {
+    "id": "BHQ007",
+    "name": "Constrained Delegation",
+    "category": "kerberos",
+    "description": "Find principals with constrained delegation configured",
+    "cypher": "MATCH (n {constraineddelegation:true}) RETURN n.name AS name, labels(n) AS type, n.allowedtodelegate AS allowed_to_delegate ORDER BY n.name",
+    "params": [],
+    "tags": ["kerberos", "delegation"],
+    "severity": "high"
+  },
+  {
+    "id": "BHQ008",
+    "name": "High Value Targets",
+    "category": "reconnaissance",
+    "description": "List all high-value targets (Domain Admins, Enterprise Admins, etc.)",
+    "cypher": "MATCH (n {highvalue:true}) RETURN n.name AS name, labels(n) AS type, n.description AS description ORDER BY labels(n)[0], n.name",
+    "params": [],
+    "tags": ["targets", "reconnaissance"],
+    "severity": "informational"
+  },
+  {
+    "id": "BHQ009",
+    "name": "GPO Abuse Paths",
+    "category": "attack_paths",
+    "description": "Find principals that can modify GPOs linked to high-value targets",
+    "cypher": "MATCH (n)-[r:GenericWrite|GenericAll|WriteDACL|WriteOwner]->(g:ADGPO) WITH n, g MATCH (g)-[r2:GpLink]->(target {highvalue:true}) RETURN n.name AS attacker, g.name AS gpo, target.name AS affected_target ORDER BY n.name",
+    "params": [],
+    "tags": ["gpo", "privilege_escalation"],
+    "severity": "high"
+  },
+  {
+    "id": "BHQ010",
+    "name": "GenericAll Permissions",
+    "category": "acl_abuse",
+    "description": "Find all GenericAll ACL relationships (full control over another object)",
+    "cypher": "MATCH (n)-[:GenericAll]->(m) WHERE n<>m RETURN n.name AS source, labels(n) AS source_type, m.name AS target, labels(m) AS target_type ORDER BY n.name",
+    "params": [],
+    "tags": ["acl", "genericall", "privilege_escalation"],
+    "severity": "high"
+  },
+  {
+    "id": "BHQ011",
+    "name": "WriteDACL Permissions",
+    "category": "acl_abuse",
+    "description": "Find principals that can modify DACLs on other objects",
+    "cypher": "MATCH (n)-[:WriteDACL]->(m) WHERE n<>m RETURN n.name AS source, labels(n) AS source_type, m.name AS target, labels(m) AS target_type ORDER BY n.name",
+    "params": [],
+    "tags": ["acl", "writedacl"],
+    "severity": "high"
+  },
+  {
+    "id": "BHQ012",
+    "name": "ForceChangePassword Permissions",
+    "category": "acl_abuse",
+    "description": "Find who can force-change another user's password without knowing the current one",
+    "cypher": "MATCH (n)-[:ForceChangePassword]->(m:ADUser) RETURN n.name AS attacker, labels(n) AS attacker_type, m.name AS victim, m.enabled AS victim_enabled ORDER BY m.name",
+    "params": [],
+    "tags": ["acl", "password_reset"],
+    "severity": "high"
+  },
+  {
+    "id": "BHQ013",
+    "name": "AdminTo Relationships",
+    "category": "lateral_movement",
+    "description": "Find all local administrator relationships across hosts",
+    "cypher": "MATCH (u)-[:AdminTo]->(c:ADComputer) RETURN u.name AS admin, labels(u) AS admin_type, c.name AS computer, c.operatingsystem AS os ORDER BY c.name",
+    "params": [],
+    "tags": ["lateral_movement", "local_admin"],
+    "severity": "medium"
+  },
+  {
+    "id": "BHQ014",
+    "name": "Active Sessions",
+    "category": "reconnaissance",
+    "description": "Find active user sessions on remote computers",
+    "cypher": "MATCH (u:ADUser)-[:HasSession]->(c:ADComputer) RETURN u.name AS user, c.name AS computer, c.operatingsystem AS os ORDER BY c.name",
+    "params": [],
+    "tags": ["sessions", "reconnaissance"],
+    "severity": "informational"
+  },
+  {
+    "id": "BHQ015",
+    "name": "Domain Admin Sessions",
+    "category": "attack_paths",
+    "description": "Find computers where Domain Admins have active sessions (for credential theft)",
+    "cypher": "MATCH (u:ADUser)-[:MemberOf*1..]->(g:ADGroup {name:'DOMAIN ADMINS@{domain}'}), (u)-[:HasSession]->(c:ADComputer) RETURN u.name AS da_user, c.name AS computer, c.operatingsystem AS os ORDER BY c.name",
+    "params": ["domain"],
+    "tags": ["critical", "credential_theft", "lateral_movement"],
+    "severity": "critical"
+  },
+  {
+    "id": "BHQ016",
+    "name": "Nested Group Membership to DA",
+    "category": "reconnaissance",
+    "description": "Enumerate all principals with nested Domain Admin membership",
+    "cypher": "MATCH (n)-[:MemberOf*1..]->(g:ADGroup {name:'DOMAIN ADMINS@{domain}'}) RETURN n.name AS principal, labels(n) AS type ORDER BY labels(n)[0], n.name",
+    "params": ["domain"],
+    "tags": ["groups", "membership"],
+    "severity": "informational"
+  },
+  {
+    "id": "BHQ017",
+    "name": "Cross-Domain Trust Paths",
+    "category": "attack_paths",
+    "description": "Find attack paths that exploit cross-domain trust relationships",
+    "cypher": "MATCH (d1:ADDomain)-[:TrustedBy|HasTrust]-(d2:ADDomain) RETURN d1.name AS domain1, d2.name AS domain2 ORDER BY d1.name",
+    "params": [],
+    "tags": ["trusts", "cross_domain"],
+    "severity": "high"
+  },
+  {
+    "id": "BHQ018",
+    "name": "Computers with Local Admin Access",
+    "category": "lateral_movement",
+    "description": "Find all computers any owned principal has local admin on",
+    "cypher": "MATCH (n {owned:true})-[:AdminTo|MemberOf*1..]->(m) WHERE m:ADComputer OR (m:ADGroup)-[:AdminTo]->(:ADComputer) RETURN n.name AS attacker, m.name AS target ORDER BY m.name",
+    "params": [],
+    "tags": ["lateral_movement", "local_admin"],
+    "severity": "medium"
+  },
+  {
+    "id": "BHQ019",
+    "name": "Owned Principals",
+    "category": "reconnaissance",
+    "description": "List all currently owned/compromised principals",
+    "cypher": "MATCH (n {owned:true}) RETURN n.name AS name, labels(n) AS type, n.description AS description ORDER BY labels(n)[0], n.name",
+    "params": [],
+    "tags": ["owned", "reconnaissance"],
+    "severity": "informational"
+  },
+  {
+    "id": "BHQ020",
+    "name": "LAPS Enabled Computers",
+    "category": "reconnaissance",
+    "description": "Find computers with LAPS (Local Administrator Password Solution) enabled",
+    "cypher": "MATCH (c:ADComputer {haslaps:true}) RETURN c.name AS computer, c.operatingsystem AS os, c.lastlogontimestamp AS last_logon ORDER BY c.name",
+    "params": [],
+    "tags": ["laps", "reconnaissance"],
+    "severity": "informational"
+  },
+  {
+    "id": "BHQ021",
+    "name": "Users with Password Never Expires",
+    "category": "reconnaissance",
+    "description": "Find enabled users with passwords set to never expire",
+    "cypher": "MATCH (u:ADUser {pwdneverexpires:true, enabled:true}) WHERE NOT u.name STARTS WITH 'KRBTGT' RETURN u.name AS user, u.displayname AS display_name, u.description AS description, u.pwdlastset AS pwd_last_set ORDER BY u.pwdlastset",
+    "params": [],
+    "tags": ["password_policy", "reconnaissance"],
+    "severity": "low"
+  },
+  {
+    "id": "BHQ022",
+    "name": "WriteOwner Permissions",
+    "category": "acl_abuse",
+    "description": "Find principals that can change ownership of AD objects",
+    "cypher": "MATCH (n)-[:WriteOwner]->(m) WHERE n<>m RETURN n.name AS attacker, labels(n) AS attacker_type, m.name AS target, labels(m) AS target_type ORDER BY n.name",
+    "params": [],
+    "tags": ["acl", "writeowner"],
+    "severity": "high"
+  },
+  {
+    "id": "BHQ023",
+    "name": "Shadow Credentials via AddKeyCredentialLink",
+    "category": "acl_abuse",
+    "description": "Find principals that can add key credentials (Shadow Credential attack) to other accounts",
+    "cypher": "MATCH (n)-[:AddKeyCredentialLink]->(m) RETURN n.name AS attacker, labels(n) AS attacker_type, m.name AS victim, labels(m) AS victim_type ORDER BY n.name",
+    "params": [],
+    "tags": ["shadow_credentials", "acl"],
+    "severity": "high"
+  },
+  {
+    "id": "BHQ024",
+    "name": "Privileged Groups Overview",
+    "category": "reconnaissance",
+    "description": "Enumerate all privileged built-in AD groups and their direct members",
+    "cypher": "MATCH (g:ADGroup) WHERE g.name IN ['DOMAIN ADMINS@{domain}','ENTERPRISE ADMINS@{domain}','SCHEMA ADMINS@{domain}','ADMINISTRATORS@{domain}','BACKUP OPERATORS@{domain}','ACCOUNT OPERATORS@{domain}','PRINT OPERATORS@{domain}','SERVER OPERATORS@{domain}'] OPTIONAL MATCH (m)-[:MemberOf]->(g) RETURN g.name AS group, count(m) AS member_count ORDER BY member_count DESC",
+    "params": ["domain"],
+    "tags": ["groups", "reconnaissance"],
+    "severity": "informational"
+  },
+  {
+    "id": "BHQ025",
+    "name": "Protected Users Group Members",
+    "category": "reconnaissance",
+    "description": "List members of the Protected Users security group (enhanced Kerberos protection)",
+    "cypher": "MATCH (u)-[:MemberOf*1..]->(g:ADGroup {name:'PROTECTED USERS@{domain}'}) RETURN u.name AS user, labels(u) AS type ORDER BY u.name",
+    "params": ["domain"],
+    "tags": ["protected_users", "kerberos", "reconnaissance"],
+    "severity": "informational"
+  },
+  {
+    "id": "BHQ026",
+    "name": "Resource-Based Constrained Delegation (RBCD)",
+    "category": "kerberos",
+    "description": "Find computers with msDS-AllowedToActOnBehalfOfOtherIdentity set (RBCD targets)",
+    "cypher": "MATCH (n)-[:AllowedToAct]->(c:ADComputer) RETURN n.name AS allowed_actor, labels(n) AS actor_type, c.name AS target_computer ORDER BY c.name",
+    "params": [],
+    "tags": ["rbcd", "kerberos", "delegation"],
+    "severity": "high"
+  },
+  {
+    "id": "BHQ027",
+    "name": "Computers with Outdated OS",
+    "category": "reconnaissance",
+    "description": "Find domain-joined computers running end-of-life operating systems",
+    "cypher": "MATCH (c:ADComputer) WHERE c.operatingsystem =~ '(?i).*(XP|Vista|2000|2003|2008|Windows 7|Windows 8[^.]).*' AND c.enabled=true RETURN c.name AS computer, c.operatingsystem AS os, c.lastlogontimestamp AS last_logon ORDER BY c.operatingsystem",
+    "params": [],
+    "tags": ["eol_os", "reconnaissance"],
+    "severity": "high"
+  },
+  {
+    "id": "BHQ028",
+    "name": "GenericWrite on Users",
+    "category": "acl_abuse",
+    "description": "Find principals with GenericWrite on user objects (can set SPN → Kerberoast or write msDS-KeyCredentialLink → Shadow Creds)",
+    "cypher": "MATCH (n)-[:GenericWrite]->(m:ADUser) WHERE n<>m RETURN n.name AS attacker, labels(n) AS attacker_type, m.name AS target_user, m.enabled AS enabled ORDER BY n.name",
+    "params": [],
+    "tags": ["acl", "genericwrite", "kerberoast", "shadow_credentials"],
+    "severity": "high"
+  }
+]

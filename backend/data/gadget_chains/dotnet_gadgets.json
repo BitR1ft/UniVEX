@@ -1,0 +1,163 @@
+[
+  {
+    "id": "binaryformatter-rce",
+    "name": "BinaryFormatter/RCE",
+    "formatter": "BinaryFormatter",
+    "payload_types": ["RCE"],
+    "description": "BinaryFormatter deserialization — most dangerous .NET formatter. Allows arbitrary object graph deserialization. Present in ASP.NET WebForms, WCF, .NET Remoting.",
+    "detection": "Magic bytes: 00 01 00 00 00 (NRBF record). Often base64-encoded in POST body or ViewState.",
+    "cve_examples": ["CVE-2011-3414", "CVE-2017-9805"],
+    "mitigation": "Replace with System.Text.Json or Newtonsoft.Json. Enable BinaryFormatter restrictions in .NET 5+.",
+    "ysoserial_net_gadget": "TypeConfuseDelegate",
+    "verified": true
+  },
+  {
+    "id": "objectstateformatter-rce",
+    "name": "ObjectStateFormatter/RCE",
+    "formatter": "ObjectStateFormatter",
+    "payload_types": ["RCE"],
+    "description": "ASP.NET ObjectStateFormatter — used for ViewState serialization in WebForms. Exploitable when MAC validation is disabled or key is known.",
+    "detection": "ViewState parameter in ASP.NET WebForms POST requests. Base64-encoded, starts with /w after decode.",
+    "cve_examples": ["CVE-2014-6332"],
+    "mitigation": "Enable ViewState MAC, use HTTPS, rotate machineKey regularly.",
+    "ysoserial_net_gadget": "ObjectStateFormatter",
+    "verified": true
+  },
+  {
+    "id": "losformatter-rce",
+    "name": "LosFormatter/RCE",
+    "formatter": "LosFormatter",
+    "payload_types": ["RCE"],
+    "description": "ASP.NET LosFormatter (Limited Object Serialization) — lightweight serializer used in older ASP.NET. Wraps ObjectStateFormatter.",
+    "detection": "Compressed and base64-encoded ViewState or form fields in legacy ASP.NET apps.",
+    "cve_examples": [],
+    "mitigation": "Migrate to ASP.NET Core. Enable ViewState MAC.",
+    "ysoserial_net_gadget": "LosFormatter",
+    "verified": true
+  },
+  {
+    "id": "soapformatter-rce",
+    "name": "SoapFormatter/RCE",
+    "formatter": "SoapFormatter",
+    "payload_types": ["RCE"],
+    "description": "SoapFormatter — SOAP-based XML serializer. Deprecated but present in legacy WCF/ASMX services.",
+    "detection": "SOAP XML request/response with type attributes. Look for __type or type annotations.",
+    "cve_examples": ["CVE-2012-0160"],
+    "mitigation": "Migrate to WCF with DataContractSerializer or REST APIs.",
+    "ysoserial_net_gadget": "SoapFormatter",
+    "verified": true
+  },
+  {
+    "id": "xmlserializer-rce",
+    "name": "XmlSerializer/TypeConfuse",
+    "formatter": "XmlSerializer",
+    "payload_types": ["RCE"],
+    "description": "XmlSerializer type confusion via xsi:type attribute injection. Requires attacker-controlled Type parameter.",
+    "detection": "XML POST body with xsi:type attributes pointing to arbitrary types.",
+    "cve_examples": [],
+    "mitigation": "Validate allowed types before deserialization. Use DataContractSerializer with known types list.",
+    "ysoserial_net_gadget": "TypeConfuseDelegate",
+    "verified": true
+  },
+  {
+    "id": "datacontractserializer-rce",
+    "name": "DataContractSerializer/TypeConfuse",
+    "formatter": "DataContractSerializer",
+    "payload_types": ["RCE"],
+    "description": "DataContractSerializer with NetDataContractSerializer — exploitable when resolving arbitrary types. Common in WCF services.",
+    "detection": "WCF SOAP endpoints with NetDataContractSerializer. Look for __type in JSON or type attribute in XML.",
+    "cve_examples": [],
+    "mitigation": "Use known types list. Avoid NetDataContractSerializer.",
+    "ysoserial_net_gadget": "DataContractSerializer",
+    "verified": true
+  },
+  {
+    "id": "json-net-rce",
+    "name": "Json.NET/TypeNameHandling",
+    "formatter": "Json.NET (Newtonsoft.Json)",
+    "payload_types": ["RCE"],
+    "description": "Newtonsoft.Json RCE when TypeNameHandling.Auto or TypeNameHandling.All is enabled. Allows injecting arbitrary .NET types via $type property.",
+    "detection": "$type JSON property in deserialization payload. Commonly seen in ASP.NET APIs accepting generic object types.",
+    "cve_examples": ["CVE-2017-9805"],
+    "mitigation": "Set TypeNameHandling = TypeNameHandling.None. Use SerializationBinder to whitelist types.",
+    "ysoserial_net_gadget": "Json.Net",
+    "gadget_chains": [
+      "ObjectDataProvider+Process (RCE)",
+      "WindowsIdentity (RCE via token impersonation)",
+      "ActivitySurrogateSelector (bypasses __type restrictions)"
+    ],
+    "verified": true
+  },
+  {
+    "id": "viewstate-machinekey",
+    "name": "ViewState/MachineKeyRCE",
+    "formatter": "ViewState (ASP.NET WebForms)",
+    "payload_types": ["RCE"],
+    "description": "ViewState RCE via known machineKey. If machineKey is leaked (web.config exposure, default key), attacker can forge malicious ViewState triggering BinaryFormatter deserialization.",
+    "detection": "__VIEWSTATE parameter in ASP.NET WebForms POST. Check for ViewStateMac=false or known machineKey from GitHub/Shodan leaks.",
+    "cve_examples": ["CVE-2014-0257"],
+    "mitigation": "Use unique random machineKey. Never disable ViewState MAC. Upgrade to ASP.NET Core.",
+    "ysoserial_net_gadget": "ViewState",
+    "verified": true
+  },
+  {
+    "id": "typedescriptor-rce",
+    "name": "TypeDescriptor/RCE",
+    "formatter": "Generic",
+    "payload_types": ["RCE"],
+    "description": "TypeDescriptor.GetConverter exploitation — bypasses SerializationBinder via type conversion abuse.",
+    "detection": "Generic RCE gadget in any .NET 4.x application using BinaryFormatter.",
+    "cve_examples": [],
+    "mitigation": "Apply .NET 5+ BinaryFormatter restrictions.",
+    "ysoserial_net_gadget": "TypeConfuseDelegate",
+    "verified": false
+  },
+  {
+    "id": "activitysurrogate-rce",
+    "name": "ActivitySurrogateSelector/RCE",
+    "formatter": "BinaryFormatter",
+    "payload_types": ["RCE"],
+    "description": "ActivitySurrogateSelector gadget — bypasses BinaryFormatter blocklists in .NET 4.8 and earlier.",
+    "detection": "Use when standard gadgets are blocked by custom serialization binders.",
+    "cve_examples": [],
+    "mitigation": "Apply KB4341860 hotfix or upgrade to .NET 5+.",
+    "ysoserial_net_gadget": "ActivitySurrogateSelectorFromFile",
+    "verified": true
+  },
+  {
+    "id": "xaml-rce",
+    "name": "XAML/BamlRCE",
+    "formatter": "XamlReader",
+    "payload_types": ["RCE"],
+    "description": "XAML deserialization via XamlReader.Parse() — arbitrary .NET type instantiation through XAML markup injection.",
+    "detection": "Applications accepting XAML or BAML input. WPF applications with custom XAML loading.",
+    "cve_examples": [],
+    "mitigation": "Never deserialize untrusted XAML. Use read-only XamlSchemaContext.",
+    "ysoserial_net_gadget": "XamlAssemblyLoadFromFile",
+    "verified": true
+  },
+  {
+    "id": "resourcereader-rce",
+    "name": "ResourceReader/RCE",
+    "formatter": "ResourceReader",
+    "payload_types": ["RCE"],
+    "description": "ResourceReader deserialization via .resources file injection. Affects applications dynamically loading resource files.",
+    "detection": "Applications loading .resx files from user-controlled paths.",
+    "cve_examples": [],
+    "mitigation": "Validate and restrict resource file sources.",
+    "ysoserial_net_gadget": "ResourceSet",
+    "verified": false
+  },
+  {
+    "id": "wcf-netdatacontract",
+    "name": "WCF/NetDataContractSerializer",
+    "formatter": "NetDataContractSerializer",
+    "payload_types": ["RCE"],
+    "description": "WCF services using NetDataContractSerializer — allows arbitrary type injection.",
+    "detection": "WCF endpoints exposing netTcpBinding or wsHttpBinding with NetDataContractSerializer.",
+    "cve_examples": [],
+    "mitigation": "Migrate to DataContractSerializer with known types.",
+    "ysoserial_net_gadget": "DataContractSerializer",
+    "verified": true
+  }
+]

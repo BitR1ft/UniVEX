@@ -1,0 +1,23 @@
+# Moonshot AI Kimi Provider Configuration
+# Documentation: https://platform.moonshot.cn/docs
+#
+# Required: Set KIMI_API_KEY environment variable
+#   export KIMI_API_KEY=sk-...
+#
+# Kimi is known for its excellent long-context handling capabilities.
+# Choose the context window variant that matches your use case.
+#
+provider: kimi
+name: kimi
+base_url: https://api.moonshot.cn/v1
+api_key: ${KIMI_API_KEY}
+default_model: moonshot-v1-8k
+available_models:
+  - moonshot-v1-8k     # Standard context window — fast and cost-effective
+  - moonshot-v1-32k    # Extended context for longer documents
+  - moonshot-v1-128k   # Long-context specialist (full book / codebase analysis)
+max_tokens: 4096
+temperature: 0.7
+timeout: 120
+extra_params:
+  top_p: 0.95

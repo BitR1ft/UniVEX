@@ -1,0 +1,25 @@
+# Zhipu AI GLM Provider Configuration
+# Documentation: https://open.bigmodel.cn/dev/api
+#
+# Required: Set GLM_API_KEY environment variable
+#   export GLM_API_KEY=<id>.<secret>
+#
+# Authentication: The API key is in "id.secret" format.
+# The provider automatically generates a short-lived JWT token from it.
+# If you have already obtained a bearer token, you can set it directly.
+#
+provider: glm
+name: glm
+base_url: https://open.bigmodel.cn/api/paas/v4
+api_key: ${GLM_API_KEY}
+default_model: glm-4
+available_models:
+  - glm-4        # Flagship model, strong reasoning and instruction following
+  - glm-4-air    # Lighter, faster, lower cost
+  - glm-4-flash  # Ultra-fast inference for high-throughput workloads
+  - glm-4v       # Multimodal (text + image)
+max_tokens: 4096
+temperature: 0.7
+timeout: 60
+extra_params:
+  top_p: 0.95

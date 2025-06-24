@@ -1,0 +1,18 @@
+# ==============================================================================
+# crontab – UniVex PostgreSQL backup schedule
+# ==============================================================================
+#
+# To install:
+#   crontab backend/backup/crontab
+#
+# Environment variables are read from /etc/environment or can be set in
+# /etc/cron.d/ if your system supports it.
+#
+# Format: minute hour day-of-month month day-of-week command
+# ==============================================================================
+
+# Daily backup at 02:00 UTC
+0 2 * * * /app/backend/backup/pg_backup.sh >> /var/log/univex/backup.log 2>&1
+
+# (Weekly and monthly backups are handled automatically by the script
+#  based on the day-of-week / day-of-month at the time it runs.)

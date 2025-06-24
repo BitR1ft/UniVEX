@@ -1,0 +1,33 @@
+# vLLM Self-Hosted Inference Provider Configuration
+# Documentation: https://docs.vllm.ai
+#
+# This provider connects to a locally hosted vLLM server.
+# No API key required for local deployments (set VLLM_API_KEY for secured endpoints).
+#
+# GPU Requirements:
+#   7B parameters   → 1× RTX 4090 (24 GB VRAM)
+#   13B parameters  → 2× RTX 5090 (48 GB VRAM total)
+#   70B parameters  → 4× RTX 5090 or 2× A100 80GB
+#   405B parameters → 16× H100 80GB
+#
+# Quickstart:
+#   pip install vllm
+#   vllm serve mistralai/Mistral-7B-Instruct-v0.3 --host 0.0.0.0 --port 8000
+#
+provider: vllm
+name: vllm
+base_url: ${VLLM_BASE_URL}  # default: http://localhost:8000/v1
+api_key: ${VLLM_API_KEY}    # leave empty for unsecured local deployments
+default_model: ""            # auto-detected from server
+available_models: []         # fetched dynamically from /v1/models
+max_tokens: 8192
+temperature: 0.7
+timeout: 300                 # longer timeout for large models
+extra_params:
+  # vLLM-specific sampling parameters
+  top_k: 50
+  top_p: 0.95
+  repetition_penalty: 1.1
+  # Beam search (optional, disable for speed)
+  # best_of: 1
+  # use_beam_search: false

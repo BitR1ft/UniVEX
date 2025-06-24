@@ -1,0 +1,181 @@
+# ==============================================================================
+# UniVex — Per-Agent Model Configuration
+# ==============================================================================
+# File: examples/configs/agents/agents.yaml
+#
+# Configure a dedicated LLM model, provider, temperature, and token budget
+# for each of the 13 UniVex agent roles.
+#
+# Priority order (highest → lowest):
+#   1. Environment variables  (e.g. PLANNER_MODEL=gpt-4o-mini)
+#   2. This YAML file
+#   3. Built-in defaults in agent_model_config.py
+#
+# To activate this file, set:
+#   AGENTS_CONFIG_PATH=/path/to/agents.yaml
+# or place it at examples/configs/agents/agents.yaml (auto-detected).
+#
+# Global settings:
+#   AGENT_MAX_TOKENS=4096        (default max_tokens for all agents)
+#   AGENT_SUMMARY_THRESHOLD=0.75 (context summary trigger threshold)
+#   PROXY_URL=socks5://...       (route all LLM calls through a proxy)
+# ==============================================================================
+
+agents:
+
+  # ----------------------------------------------------------------------------
+  # Planner Agent — Decomposes targets into a prioritised attack plan.
+  # Requires strong reasoning; GPT-4o or Claude Opus recommended.
+  # ----------------------------------------------------------------------------
+  planner:
+    model: gpt-4o
+    provider: openai
+    temperature: 0.2
+    max_tokens: 4096
+    # system_prompt: |   # Uncomment to override the built-in system prompt
+    #   You are a world-class penetration testing strategist ...
+
+  # ----------------------------------------------------------------------------
+  # Recon Agent — Port scanning, OSINT, HTTP probing, and enumeration.
+  # Cost-optimised: GPT-4o-mini is fast and accurate for structured output.
+  # ----------------------------------------------------------------------------
+  recon:
+    model: gpt-4o-mini
+    provider: openai
+    temperature: 0.1
+    max_tokens: 4096
+
+  # ----------------------------------------------------------------------------
+  # Exploit Agent — Binary exploitation, SQLMap, Metasploit, credential attacks.
+  # Requires deep security knowledge; Claude 3.5 Sonnet excels at exploit code.
+  # ----------------------------------------------------------------------------
+  exploit:
+    model: claude-3-5-sonnet-20241022
+    provider: anthropic
+    temperature: 0.1
+    max_tokens: 8192
+
+  # ----------------------------------------------------------------------------
+  # WebApp Agent — XSS, CSRF, SSRF, IDOR, JWT, API security.
+  # GPT-4o provides excellent web attack coverage.
+  # ----------------------------------------------------------------------------
+  webapp:
+    model: gpt-4o
+    provider: openai
+    temperature: 0.1
+    max_tokens: 4096
+
+  # ----------------------------------------------------------------------------
+  # Report Agent — Deduplication, CVSS scoring, Markdown report generation.
+  # Slightly higher temperature for natural prose output.
+  # ----------------------------------------------------------------------------
+  report:
+    model: gpt-4o-mini
+    provider: openai
+    temperature: 0.3
+    max_tokens: 8192
+
+  # ----------------------------------------------------------------------------
+  # Refiner Agent — Iteratively improves agent outputs for quality.
+  # (Gap Coverage Day 3 — New Agent Role)
+  # ----------------------------------------------------------------------------
+  refiner:
+    model: gpt-4o
+    provider: openai
+    temperature: 0.2
+    max_tokens: 4096
+
+  # ----------------------------------------------------------------------------
+  # Generator Agent — Payload, wordlist, PoC code, and exploit template creation.
+  # Higher temperature for creative content generation.
+  # (Gap Coverage Day 3 — New Agent Role)
+  # ----------------------------------------------------------------------------
+  generator:
+    model: gpt-4o
+    provider: openai
+    temperature: 0.7
+    max_tokens: 8192
+
+  # ----------------------------------------------------------------------------
+  # Adviser Agent — Expert second opinion on exploit selection, risk, remediation.
+  # Claude 3.5 Sonnet for nuanced security advice.
+  # (Gap Coverage Day 3 — New Agent Role)
+  # ----------------------------------------------------------------------------
+  adviser:
+    model: claude-3-5-sonnet-20241022
+    provider: anthropic
+    temperature: 0.3
+    max_tokens: 4096
+
+  # ----------------------------------------------------------------------------
+  # Reflector Agent — Self-reflection, missed attack surfaces, next-step planning.
+  # (Gap Coverage Day 3 — New Agent Role)
+  # ----------------------------------------------------------------------------
+  reflector:
+    model: gpt-4o
+    provider: openai
+    temperature: 0.4
+    max_tokens: 4096
+
+  # ----------------------------------------------------------------------------
+  # Enricher Agent — CVE lookup, OWASP mapping, CVSS scoring, remediation.
+  # Uses deterministic zero-temperature for factual output.
+  # (Gap Coverage Day 3 — New Agent Role)
+  # ----------------------------------------------------------------------------
+  enricher:
+    model: gpt-4o-mini
+    provider: openai
+    temperature: 0.0
+    max_tokens: 2048
+
+  # ----------------------------------------------------------------------------
+  # Coder Agent — Exploit code, reverse shells, payloads, tool scripts.
+  # Claude 3.5 Sonnet is state-of-the-art for code generation.
+  # (Gap Coverage Day 3 — New Agent Role)
+  # ----------------------------------------------------------------------------
+  coder:
+    model: claude-3-5-sonnet-20241022
+    provider: anthropic
+    temperature: 0.1
+    max_tokens: 8192
+
+  # ----------------------------------------------------------------------------
+  # Installer Agent — Tool installation guidance, dependency resolution.
+  # (Gap Coverage Day 3 — New Agent Role)
+  # ----------------------------------------------------------------------------
+  installer:
+    model: gpt-4o-mini
+    provider: openai
+    temperature: 0.2
+    max_tokens: 2048
+
+  # ----------------------------------------------------------------------------
+  # SimpleJSON Agent — Lightweight structured JSON extraction.
+  # Deterministic zero-temperature; cheapest model is sufficient.
+  # (Gap Coverage Day 3 — New Agent Role)
+  # ----------------------------------------------------------------------------
+  simple_json:
+    model: gpt-4o-mini
+    provider: openai
+    temperature: 0.0
+    max_tokens: 1024
+
+# ==============================================================================
+# Provider Override Examples
+# ==============================================================================
+# Swap individual agents to alternative providers without changing this file.
+# Just set the relevant environment variables:
+#
+#   # Use DeepSeek for cost-effective reasoning:
+#   RECON_MODEL=deepseek-chat
+#   RECON_PROVIDER=deepseek
+#   DEEPSEEK_API_KEY=your-key
+#
+#   # Use local vLLM cluster for air-gapped deployment:
+#   EXPLOIT_MODEL=llama-3.1-70b-instruct
+#   EXPLOIT_PROVIDER=vllm
+#   VLLM_BASE_URL=http://localhost:8000/v1
+#
+#   # Route all LLM calls through a SOCKS5 proxy:
+#   PROXY_URL=socks5://user:pass@proxy.corp.internal:1080
+# ==============================================================================

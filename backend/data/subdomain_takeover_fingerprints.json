@@ -1,0 +1,1002 @@
+[
+  {
+    "service": "GitHub Pages",
+    "cname": ["github.io", "github.com"],
+    "response_fingerprint": ["There isn't a GitHub Pages site here", "For root URLs (like http://example.com/) you must provide an index.html file"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/37",
+    "documentation": "https://docs.github.com/en/pages",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Heroku",
+    "cname": ["herokudns.com", "herokuapp.com", "herokussl.com"],
+    "response_fingerprint": ["No such app", "herokucdn.com/error-pages/no-such-app.html", "There's nothing here, yet."],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/38",
+    "documentation": "https://devcenter.heroku.com/articles/custom-domains",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Amazon S3",
+    "cname": ["s3.amazonaws.com", "s3-website.amazonaws.com", "s3-website-us-east-1.amazonaws.com", "s3-website-us-west-1.amazonaws.com", "s3-website-us-west-2.amazonaws.com", "s3-website-ap-southeast-1.amazonaws.com", "s3-website-ap-northeast-1.amazonaws.com", "s3-website-eu-west-1.amazonaws.com", "s3-website-sa-east-1.amazonaws.com"],
+    "response_fingerprint": ["NoSuchBucket", "The specified bucket does not exist"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/40",
+    "documentation": "https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Amazon CloudFront",
+    "cname": ["cloudfront.net"],
+    "response_fingerprint": ["The request could not be satisfied", "ERROR: The request could not be satisfied"],
+    "status": "vulnerable",
+    "difficulty": "hard",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/130",
+    "documentation": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/CNAMEs.html",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Microsoft Azure App Service",
+    "cname": ["azurewebsites.net", "websites.net"],
+    "response_fingerprint": ["404 Web Site not found", "Microsoft Azure App Service - Error 404"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/35",
+    "documentation": "https://docs.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-custom-domain",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Microsoft Azure Traffic Manager",
+    "cname": ["trafficmanager.net"],
+    "response_fingerprint": ["404 Not Found", "Error 404 - Web app not found"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/29",
+    "documentation": "https://docs.microsoft.com/en-us/azure/traffic-manager/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Microsoft Azure CDN",
+    "cname": ["azureedge.net", "z01.azurefd.net"],
+    "response_fingerprint": ["The resource you are looking for has been removed", "ErrorCode: CDNEndpointNotFound"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/136",
+    "documentation": "https://docs.microsoft.com/en-us/azure/cdn/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Microsoft Azure Front Door",
+    "cname": ["azurefd.net"],
+    "response_fingerprint": ["Provided request is not a valid Front Door resource", "Origin Not Found"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/166",
+    "documentation": "https://docs.microsoft.com/en-us/azure/frontdoor/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Microsoft Azure Storage",
+    "cname": ["blob.core.windows.net", "table.core.windows.net", "queue.core.windows.net", "file.core.windows.net"],
+    "response_fingerprint": ["The specified resource does not exist", "BlobNotFound", "StorageAccountNotFound"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/35",
+    "documentation": "https://docs.microsoft.com/en-us/azure/storage/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Shopify",
+    "cname": ["myshopify.com", "shops.myshopify.com"],
+    "response_fingerprint": ["Sorry, this shop is currently unavailable.", "Only one step left!", "Sorry, this shop is not available."],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/32",
+    "documentation": "https://help.shopify.com/en/manual/domains",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Fastly",
+    "cname": ["fastly.net", "a.ssl.fastly.net"],
+    "response_fingerprint": ["Fastly error: unknown domain", "Please check that this domain has been added to a service"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/22",
+    "documentation": "https://docs.fastly.com/en/guides/adding-a-custom-domain",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Ghost",
+    "cname": ["ghost.io"],
+    "response_fingerprint": ["The thing you were looking for is no longer here, or never was", "Ghost Blog"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/14",
+    "documentation": "https://ghost.org/docs/hosting/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Pantheon",
+    "cname": ["pantheonsite.io", "pantheon.io", "gotpantheon.com"],
+    "response_fingerprint": ["The gods are wise, but do not know of the site which you seek", "404 error unknown site!"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/24",
+    "documentation": "https://pantheon.io/docs/custom-domains",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "WP Engine",
+    "cname": ["wpengine.com"],
+    "response_fingerprint": ["The site you were looking for couldn't be found", "WP Engine - Site not found"],
+    "status": "vulnerable",
+    "difficulty": "hard",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/57",
+    "documentation": "https://wpengine.com/support/add-domain-wp-engine/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Tumblr",
+    "cname": ["domains.tumblr.com"],
+    "response_fingerprint": ["There's nothing here.", "Whatever you were looking for doesn't currently exist at this address."],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/4",
+    "documentation": "https://help.tumblr.com/hc/en-us/articles/231256548",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Surge.sh",
+    "cname": ["surge.sh"],
+    "response_fingerprint": ["project not found", "This domain is currently not registered with Surge."],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/2",
+    "documentation": "https://surge.sh/help/adding-a-custom-domain",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Bitbucket",
+    "cname": ["bitbucket.io"],
+    "response_fingerprint": ["Repository not found", "The page you have requested does not exist"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/9",
+    "documentation": "https://confluence.atlassian.com/bitbucket/set-up-a-custom-domain",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "HubSpot",
+    "cname": ["hs-sites.com", "hubspot.net", "hubspot.com"],
+    "response_fingerprint": ["Domain not configured", "does not exist in our system", "This page isn't available"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/47",
+    "documentation": "https://knowledge.hubspot.com/cos-general/how-to-connect-a-subdomain-to-hubspot",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Zendesk",
+    "cname": ["zendesk.com"],
+    "response_fingerprint": ["Help Center Closed", "Looks like you have followed a broken link or entered a URL that doesn't exist on this site"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/15",
+    "documentation": "https://support.zendesk.com/hc/en-us/articles/203664356",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "ReadTheDocs",
+    "cname": ["readthedocs.io", "readthedocs.org"],
+    "response_fingerprint": ["Unknown Host", "readthedocs.org/projects/"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/36",
+    "documentation": "https://docs.readthedocs.io/en/stable/custom_domains.html",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Cargo Collective",
+    "cname": ["cargocollective.com"],
+    "response_fingerprint": ["404 Not Found", "If you're moving your domain away from Cargo you must make this configuration"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/31",
+    "documentation": "https://support.cargo.site/Custom-Domains",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "UserVoice",
+    "cname": ["uservoice.com"],
+    "response_fingerprint": ["This UserVoice subdomain is currently available!", "This page is no longer available."],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/50",
+    "documentation": "https://developer.uservoice.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Help Scout",
+    "cname": ["helpscoutdocs.com"],
+    "response_fingerprint": ["No settings were found for this company", "Help Scout"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/26",
+    "documentation": "https://docs.helpscout.com/article/65-custom-domain",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Freshdesk",
+    "cname": ["freshdesk.com"],
+    "response_fingerprint": ["There is no helpdesk configured on this domain", "This page is no longer available"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/1",
+    "documentation": "https://support.freshdesk.com/support/solutions/articles/37529",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Campaign Monitor",
+    "cname": ["createsend.com"],
+    "response_fingerprint": ["Trying to access your account?"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/11",
+    "documentation": "https://help.campaignmonitor.com/custom-domain-names",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Mailchimp",
+    "cname": ["mcsv.net", "list-manage.com"],
+    "response_fingerprint": ["Oops! That page no longer exists", "This campaign link is not available any longer"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/61",
+    "documentation": "https://mailchimp.com/help/about-email-domain-authentication/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "SendGrid",
+    "cname": ["sendgrid.net"],
+    "response_fingerprint": ["The provided host name is not valid for this server"],
+    "status": "vulnerable",
+    "difficulty": "hard",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/75",
+    "documentation": "https://sendgrid.com/docs/ui/sending-email/how-to-set-up-link-branding/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "StatusPage (Atlassian)",
+    "cname": ["statuspage.io"],
+    "response_fingerprint": ["page not found", "You are being redirected"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/41",
+    "documentation": "https://support.atlassian.com/statuspage/docs/add-a-custom-domain/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Pingdom",
+    "cname": ["stats.pingdom.com"],
+    "response_fingerprint": ["This public report page has not been activated by the user"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/10",
+    "documentation": "https://www.pingdom.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Salesforce",
+    "cname": ["salesforce.com", "force.com", "siteforce.com"],
+    "response_fingerprint": ["The remote server returned an error", "Page Not Found"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/43",
+    "documentation": "https://help.salesforce.com/articleView?id=domain_name_overview.htm",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "UptimeRobot",
+    "cname": ["uptimerobot.com"],
+    "response_fingerprint": ["page not found", "This status page is not currently active for this monitor."],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/44",
+    "documentation": "https://uptimerobot.com/blog/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Intercom",
+    "cname": ["custom.intercom.help", "intercom.io"],
+    "response_fingerprint": ["This page is reserved for artistic dogs.", "Uh oh. That page doesn't exist."],
+    "status": "vulnerable",
+    "difficulty": "hard",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/67",
+    "documentation": "https://www.intercom.com/help/en/articles/891-configure-custom-domain",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Feedpress",
+    "cname": ["feedpress.me"],
+    "response_fingerprint": ["The feed has not been found", "feedpress.me - Unknown Feed"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/12",
+    "documentation": "https://feedpress.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Tilda",
+    "cname": ["tilda.ws", "tildacdn.com"],
+    "response_fingerprint": ["Please renew your subscription", "Domain is being transferred, please try later"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/155",
+    "documentation": "https://help.tilda.cc/domain",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Strikingly",
+    "cname": ["s.strikinglydns.com", "strikingly.com"],
+    "response_fingerprint": ["But if you do, you'll be in good company.", "page not found - Strikingly"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/58",
+    "documentation": "https://support.strikingly.com/hc/en-us/articles/214364548",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Webflow",
+    "cname": ["proxy.webflow.com", "webflow.io"],
+    "response_fingerprint": ["The page you are looking for doesn't exist or has been moved", "this domain is not connected to a Webflow site"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/68",
+    "documentation": "https://webflow.com/blog/custom-domains",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Fly.io",
+    "cname": ["fly.dev", "flycast"],
+    "response_fingerprint": ["404 Not Found", "Unknown app", "Application not found"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/193",
+    "documentation": "https://fly.io/docs/networking/custom-domain/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Render",
+    "cname": ["onrender.com"],
+    "response_fingerprint": ["Page Not Found", "Site Not Found", "There is no Render application associated with this URL"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/196",
+    "documentation": "https://render.com/docs/custom-domains",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Railway",
+    "cname": ["up.railway.app", "railway.app"],
+    "response_fingerprint": ["Application not found", "Not Found"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/190",
+    "documentation": "https://docs.railway.app/deploy/custom-domains",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Netlify",
+    "cname": ["netlify.app", "netlify.com"],
+    "response_fingerprint": ["Not Found", "Page Not Found", "netlify.app"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/80",
+    "documentation": "https://docs.netlify.com/domains-https/custom-domains/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Vercel",
+    "cname": ["vercel.app", "now.sh"],
+    "response_fingerprint": ["The deployment could not be found on Vercel", "This Deployment has been disabled"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/91",
+    "documentation": "https://vercel.com/docs/concepts/projects/custom-domains",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Firebase",
+    "cname": ["firebaseapp.com", "web.app"],
+    "response_fingerprint": ["The requested URL was not found on this server", "Firebase Hosting"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/27",
+    "documentation": "https://firebase.google.com/docs/hosting/custom-domain",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "DigitalOcean App Platform",
+    "cname": ["ondigitalocean.app"],
+    "response_fingerprint": ["domain is not configured", "404 Not Found"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/200",
+    "documentation": "https://docs.digitalocean.com/products/app-platform/how-to/manage-domains/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "DigitalOcean Spaces",
+    "cname": ["digitaloceanspaces.com"],
+    "response_fingerprint": ["NoSuchBucket", "The specified bucket does not exist"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/160",
+    "documentation": "https://docs.digitalocean.com/products/spaces/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Squarespace",
+    "cname": ["squarespace.com", "sqsp.net"],
+    "response_fingerprint": ["404 Page Not Found", "No Site At This Address"],
+    "status": "vulnerable",
+    "difficulty": "hard",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/55",
+    "documentation": "https://support.squarespace.com/hc/en-us/articles/205812378",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Format.com",
+    "cname": ["format.com"],
+    "response_fingerprint": ["If you're the owner of this website, please contact your hosting provider", "The portfolio you were looking for was not found"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/5",
+    "documentation": "https://help.format.com/hc/en-us/articles/360000578206",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Aftership",
+    "cname": ["aftership.com"],
+    "response_fingerprint": ["Tracking page not found", "Sorry, there isn't a tracking page at this address"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/122",
+    "documentation": "https://help.aftership.com/hc/en-us/articles/360007068173",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Agile CRM",
+    "cname": ["agilecrm.com"],
+    "response_fingerprint": ["Sorry, this page is no longer available.", "Agile CRM - No account for this domain"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/100",
+    "documentation": "https://www.agilecrm.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Airee",
+    "cname": ["airee.ru"],
+    "response_fingerprint": ["\u0411\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u044b\u0439 \u0440\u043e\u0441\u0441\u0438\u0439\u0441\u043a\u0438\u0439 CDN-\u0445\u043e\u0441\u0442\u0438\u043d\u0433"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/96",
+    "documentation": "https://airee.ru/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Anima App",
+    "cname": ["animaapp.io"],
+    "response_fingerprint": ["Missing Domain <troubleshooting ID"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/98",
+    "documentation": "https://www.animaapp.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "AWS Elastic Beanstalk",
+    "cname": ["elasticbeanstalk.com"],
+    "response_fingerprint": ["NXDOMAIN", "NoSuchDomain"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/150",
+    "documentation": "https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/customdomains.html",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "AWS API Gateway",
+    "cname": ["execute-api.amazonaws.com"],
+    "response_fingerprint": ["{\"message\":\"Forbidden\"}", "{\"message\":\"Missing Authentication Token\"}"],
+    "status": "vulnerable",
+    "difficulty": "hard",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/169",
+    "documentation": "https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Big Cartel",
+    "cname": ["bigcartel.com"],
+    "response_fingerprint": ["Oops, this page no longer exists.", "404 Not Found"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/30",
+    "documentation": "https://help.bigcartel.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Brightcove",
+    "cname": ["bcvp0rtal.com", "brightcovegallery.com", "gallery.video"],
+    "response_fingerprint": ["<p class=\"bc-gallery-error-code\">Error Code: 404</p>"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/75",
+    "documentation": "https://docs.brightcove.com/en/video-cloud/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Canny",
+    "cname": ["canny.io"],
+    "response_fingerprint": ["There is no such company. Did you enter the right URL?"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/75",
+    "documentation": "https://canny.io/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "ClickFunnels",
+    "cname": ["myclickfunnels.com", "cf-domain.com"],
+    "response_fingerprint": ["Please set up your custom domain", "No Site Configured At This Address"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/120",
+    "documentation": "https://help.clickfunnels.com/hc/en-us/articles/360020955273",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Desk.com (Salesforce)",
+    "cname": ["desk.com"],
+    "response_fingerprint": ["Please try again or try Desk.com free for 14 days.", "Sorry, We could not find your page"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/48",
+    "documentation": "https://desk.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Discourse",
+    "cname": ["discourse.org"],
+    "response_fingerprint": ["discourse-no-site"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/91",
+    "documentation": "https://meta.discourse.org/t/configure-a-new-domain-name-for-your-discourse/66161",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Domain.com",
+    "cname": ["domain.com"],
+    "response_fingerprint": ["This domain is not configured"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/137",
+    "documentation": "https://www.domain.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Getresponse",
+    "cname": ["gr8.com"],
+    "response_fingerprint": ["With GetResponse Landing Pages, lead generation has never been easier"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/79",
+    "documentation": "https://www.getresponse.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "GitBook",
+    "cname": ["gitbook.io"],
+    "response_fingerprint": ["If you need specifics, here's the technical mumbo-jumbo: GitBook DNS Error"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/93",
+    "documentation": "https://docs.gitbook.com/integrations/custom-domain",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Google Cloud Storage",
+    "cname": ["storage.googleapis.com", "c.storage.googleapis.com"],
+    "response_fingerprint": ["NoSuchBucket", "The specified bucket does not exist"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/92",
+    "documentation": "https://cloud.google.com/storage/docs/hosting-static-website",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Help Juice",
+    "cname": ["helpjuice.com"],
+    "response_fingerprint": ["We could not find what you're looking for.", "Please contact your account manager to update the domain settings."],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/68",
+    "documentation": "https://helpjuice.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Instapage",
+    "cname": ["pageserve.co", "secure.pageserve.co"],
+    "response_fingerprint": ["You've Discovered A Missing Link. Our Apologies!", "Instapage"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/73",
+    "documentation": "https://instapage.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "JetBrains Space",
+    "cname": ["jetbrains.space"],
+    "response_fingerprint": ["JetBrains Space — domain not found", "unknown space domain"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/205",
+    "documentation": "https://www.jetbrains.com/space/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Kajabi",
+    "cname": ["endurance.com"],
+    "response_fingerprint": ["The page you were looking for doesn't exist (404)", "Kajabi"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/154",
+    "documentation": "https://kajabi.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Kinsta",
+    "cname": ["kinsta.com", "kinsta.cloud"],
+    "response_fingerprint": ["No Site For Domain", "This domain is not configured for any Kinsta site"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/200",
+    "documentation": "https://kinsta.com/knowledgebase/add-domain/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "LaunchRock",
+    "cname": ["launchrock.com"],
+    "response_fingerprint": ["It looks like you may have taken a wrong turn somewhere."],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/74",
+    "documentation": "https://launchrock.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Leadpages",
+    "cname": ["lpages.co", "leadpages.net"],
+    "response_fingerprint": ["Your requested page is not found", "404 Not Found"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/54",
+    "documentation": "https://www.leadpages.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "MaxCDN / StackPath",
+    "cname": ["maxcdn.com", "stackpathcdn.com"],
+    "response_fingerprint": ["The domain you've attempted to reach isn't associated with an account on our network"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/84",
+    "documentation": "https://www.stackpath.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Medium",
+    "cname": ["medium.com"],
+    "response_fingerprint": ["publication not found", "medium-com"],
+    "status": "vulnerable",
+    "difficulty": "hard",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/16",
+    "documentation": "https://medium.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Netlify",
+    "cname": ["netlify.app"],
+    "response_fingerprint": ["Not Found - Request ID"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/80",
+    "documentation": "https://docs.netlify.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Ngrok",
+    "cname": ["ngrok.io"],
+    "response_fingerprint": ["ngrok.io not found", "Tunnel .* not found"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/92",
+    "documentation": "https://ngrok.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Pantheon",
+    "cname": ["pantheonsite.io"],
+    "response_fingerprint": ["404 error unknown site!", "The gods are wise, but do not know of the site which you seek"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/24",
+    "documentation": "https://docs.pantheon.io/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Readme.io",
+    "cname": ["readme.io"],
+    "response_fingerprint": ["Project doesnt exist... yet!", "readme.io"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/141",
+    "documentation": "https://readme.io/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Short.io",
+    "cname": ["short.io"],
+    "response_fingerprint": ["This domain is not configured on short.io", "Link Not Found"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/154",
+    "documentation": "https://short.io/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "SmugMug",
+    "cname": ["domains.smugmug.com"],
+    "response_fingerprint": ["Page Not Found \\(404\\)"],
+    "status": "vulnerable",
+    "difficulty": "hard",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/18",
+    "documentation": "https://www.smugmug.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "SoundCloud",
+    "cname": ["soundcloud.com"],
+    "response_fingerprint": ["SoundCloud doesn't have a page at this address", "404 Error"],
+    "status": "vulnerable",
+    "difficulty": "hard",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/21",
+    "documentation": "https://soundcloud.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Squarespace",
+    "cname": ["squarespace.com"],
+    "response_fingerprint": ["No Site At This Address"],
+    "status": "vulnerable",
+    "difficulty": "hard",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/55",
+    "documentation": "https://www.squarespace.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Strikingly",
+    "cname": ["s.strikinglydns.com"],
+    "response_fingerprint": ["But if you do, you'll be in good company.", "page not found"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/58",
+    "documentation": "https://www.strikingly.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Tave",
+    "cname": ["tave.com"],
+    "response_fingerprint": ["This studio account no longer exists"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/171",
+    "documentation": "https://tave.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Teamwork",
+    "cname": ["teamwork.com"],
+    "response_fingerprint": ["Oops - We didn't find your site.", "There is no such company"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/133",
+    "documentation": "https://www.teamwork.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Thinkific",
+    "cname": ["thinkific.com"],
+    "response_fingerprint": ["You may have mistyped the address or the page may have moved.", "Thinkific"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/181",
+    "documentation": "https://www.thinkific.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Tictail",
+    "cname": ["tictail.com"],
+    "response_fingerprint": ["Building with Tictail", "Tictail"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/6",
+    "documentation": "https://tictail.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Unbounce",
+    "cname": ["unbounce.com"],
+    "response_fingerprint": ["The requested URL was not found on this server", "Sorry, the page you're looking for can't be found"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/22",
+    "documentation": "https://unbounce.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Wishpond",
+    "cname": ["wishpond.com"],
+    "response_fingerprint": ["https://landing.wishpond.com/404"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/101",
+    "documentation": "https://www.wishpond.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Wordpress.com VIP",
+    "cname": ["wordpress.com"],
+    "response_fingerprint": ["Do you want to register"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/80",
+    "documentation": "https://wordpress.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Wufoo",
+    "cname": ["wufoo.com"],
+    "response_fingerprint": ["Profile not found", "Wufoo"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/72",
+    "documentation": "https://www.wufoo.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Wix",
+    "cname": ["wix.com", "wixsite.com"],
+    "response_fingerprint": ["Error ConnectYourDomain", "This page isn't working", "Wix website is not published"],
+    "status": "vulnerable",
+    "difficulty": "hard",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/66",
+    "documentation": "https://support.wix.com/en/article/connecting-a-domain-purchased-outside-of-wix-using-cname",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Acquia",
+    "cname": ["acquia-sites.com", "acquia.com"],
+    "response_fingerprint": ["The request cannot be routed to any origin", "Site Not Found"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/75",
+    "documentation": "https://docs.acquia.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Apigee",
+    "cname": ["apigee.net"],
+    "response_fingerprint": ["There's nothing here...yet"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/156",
+    "documentation": "https://cloud.google.com/apigee",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Contentful",
+    "cname": ["contentful.com"],
+    "response_fingerprint": ["The page is not available", "Contentful"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/94",
+    "documentation": "https://www.contentful.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Desk.com",
+    "cname": ["desk.com"],
+    "response_fingerprint": ["Sorry, We could not find your page", "Please try again or try Desk.com free"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/48",
+    "documentation": "https://desk.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "GoDaddy",
+    "cname": ["godaddysites.com", "godaddy.com"],
+    "response_fingerprint": ["This site can\u2019t be reached", "GoDaddy Website Builder - Site Not Found"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/126",
+    "documentation": "https://www.godaddy.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Hatenablog",
+    "cname": ["hatenablog.com"],
+    "response_fingerprint": ["\u3053\u306e\u30da\u30fc\u30b8\u306f\u5b58\u5728\u3057\u307e\u305b\u3093", "Hatenablog"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/185",
+    "documentation": "https://hatenablog.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Landingi",
+    "cname": ["landingi.com"],
+    "response_fingerprint": ["It looks like you're lost...", "Landingi"],
+    "status": "vulnerable",
+    "difficulty": "easy",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/176",
+    "documentation": "https://landingi.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Microsoft Azure OpenAI",
+    "cname": ["openai.azure.com"],
+    "response_fingerprint": ["Resource not found", "404 Not Found"],
+    "status": "vulnerable",
+    "difficulty": "hard",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/210",
+    "documentation": "https://learn.microsoft.com/en-us/azure/ai-services/openai/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Google Cloud Run",
+    "cname": ["run.app"],
+    "response_fingerprint": ["Error: Service Not Found", "Service Not Found"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/208",
+    "documentation": "https://cloud.google.com/run/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Cloudflare Pages",
+    "cname": ["pages.dev"],
+    "response_fingerprint": ["404 Not Found", "There isn't a Pages project associated with this domain"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/199",
+    "documentation": "https://pages.cloudflare.com/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  },
+  {
+    "service": "Supabase",
+    "cname": ["supabase.co", "supabase.in"],
+    "response_fingerprint": ["Project not found", "supabase.co/404"],
+    "status": "vulnerable",
+    "difficulty": "medium",
+    "discussion": "https://github.com/EdOverflow/can-i-take-over-xyz/issues/202",
+    "documentation": "https://supabase.com/docs/",
+    "owasp": "A05:2021-Security Misconfiguration"
+  }
+]

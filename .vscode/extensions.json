@@ -1,0 +1,59 @@
+{
+  // ============================================================================
+  // UniVex — Recommended VSCode Extensions
+  // ============================================================================
+  // Open the Extensions panel (Ctrl+Shift+X), click "..." → "Show Recommended Extensions"
+  // to install all extensions below in one click.
+  // ============================================================================
+  "recommendations": [
+    // ── Python ────────────────────────────────────────────────────────────────
+    "ms-python.python",               // Python language support
+    "ms-python.pylance",              // Fast, feature-rich Python IntelliSense
+    "ms-python.black-formatter",      // Black code formatter
+    "ms-python.isort",                // isort import sorter
+    "charliermarsh.ruff",             // Ruff linter (replaces flake8/pyflakes)
+    "ms-python.mypy-type-checker",    // Mypy static type checking
+
+    // ── TypeScript / React ─────────────────────────────────────────────────────
+    "dbaeumer.vscode-eslint",         // ESLint for TypeScript/React
+    "esbenp.prettier-vscode",         // Prettier formatter
+    "bradlc.vscode-tailwindcss",      // Tailwind CSS IntelliSense
+    "ms-vscode.vscode-typescript-next", // Latest TypeScript language features
+
+    // ── Docker & Containers ───────────────────────────────────────────────────
+    "ms-azuretools.vscode-docker",    // Docker file support, container management
+    "ms-vscode-remote.remote-containers", // Dev Containers support
+
+    // ── YAML & Config ─────────────────────────────────────────────────────────
+    "redhat.vscode-yaml",             // YAML schema validation & IntelliSense
+    "mikestead.dotenv",               // .env file syntax highlighting
+    "ms-vscode.remote-explorer",      // Remote SSH/container explorer
+
+    // ── API Development ───────────────────────────────────────────────────────
+    "humao.rest-client",              // Send HTTP requests from .http files
+
+    // ── Git & Collaboration ───────────────────────────────────────────────────
+    "eamodio.gitlens",                // Supercharged Git — blame, history, diff
+    "github.vscode-github-actions",   // GitHub Actions workflow editor
+    "github.vscode-pull-request-github", // GitHub PR & issues integration
+
+    // ── Code Quality & Productivity ───────────────────────────────────────────
+    "gruntfuggly.todo-tree",          // TODO/FIXME/SECURITY annotation tree
+    "streetsidesoftware.code-spell-checker", // Spell checker
+    "usernamehw.errorlens",           // Inline error/warning display
+    "oderwat.indent-rainbow",         // Colorize indentation levels
+    "pkief.material-icon-theme",      // File icon theme
+
+    // ── Database ──────────────────────────────────────────────────────────────
+    "cweijan.vscode-postgresql-client2", // PostgreSQL client
+    "ckolkman.vscode-postgres",       // PostgreSQL syntax highlighting
+
+    // ── Markdown / Docs ───────────────────────────────────────────────────────
+    "yzhang.markdown-all-in-one",     // Markdown preview, TOC generation
+    "bierner.markdown-mermaid",       // Mermaid diagram preview in Markdown
+
+    // ── Testing ───────────────────────────────────────────────────────────────
+    "ms-playwright.playwright",       // Playwright test runner integration
+    "ms-vscode.test-adapter-converter" // Jest/pytest test explorer
+  ]
+}

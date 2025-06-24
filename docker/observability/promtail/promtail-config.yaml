@@ -1,0 +1,133 @@
+# ==============================================================================
+# Promtail Configuration — UniVex Observability
+# Day 12: Promtail → Loki Log Shipping
+#
+# Ships Docker container logs to Loki with structured labels for:
+# - container name / image
+# - UniVex service identity
+# - log stream (stdout/stderr)
+#
+# Multi-line support: Python tracebacks are merged into single Loki entries.
+# ==============================================================================
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+  log_level: info
+
+# Persisted scrape positions (avoids re-shipping on restart)
+positions:
+  filename: /tmp/positions.yaml
+
+# ---------------------------------------------------------------------------
+# Loki push target
+# ---------------------------------------------------------------------------
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+    tenant_id: univex
+    batchwait: 1s
+    batchsize: 102400   # 100 KB
+    timeout: 10s
+    backoff_config:
+      min_period: 500ms
+      max_period: 5m
+      max_retries: 10
+
+# ---------------------------------------------------------------------------
+# Scrape configs
+# ---------------------------------------------------------------------------
+scrape_configs:
+  # --------------------------------------------------------------------------
+  # Docker containers — ship all container logs to Loki
+  # Labels are extracted from Docker container metadata.
+  # --------------------------------------------------------------------------
+  - job_name: docker-containers
+    docker_sd_configs:
+      - host: unix:///run/docker.sock
+        refresh_interval: 5s
+        filters:
+          - name: status
+            values: [running]
+
+    relabel_configs:
+      # Use container name as the Loki job label
+      - source_labels: [__meta_docker_container_name]
+        regex: "/(.*)"
+        target_label: container
+        replacement: "$1"
+
+      # Use Docker image name
+      - source_labels: [__meta_docker_container_image]
+        target_label: image
+
+      # Map known UniVex containers to a service label
+      - source_labels: [container]
+        regex: "univex-(.*)"
+        target_label: service
+        replacement: "$1"
+
+      # Keep log stream label (stdout / stderr)
+      - source_labels: [__meta_docker_container_log_stream]
+        target_label: logstream
+
+      # Set job based on container prefix
+      - source_labels: [container]
+        target_label: job
+        replacement: "docker/$1"
+
+    # ---- Multi-line ----
+    # Merge Python tracebacks into a single log entry
+    pipeline_stages:
+      - multiline:
+          firstline: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}'
+          max_wait_time: 3s
+          max_lines: 128
+
+      # Parse JSON log lines from the UniVex backend
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            logger: logger
+            message: message
+            flow_id: flow_id
+            agent_role: agent_role
+            trace_id: trace_id
+            session_id: session_id
+            request_id: request_id
+
+      # Promote structured fields to Loki labels for stream selection
+      - labels:
+          level: ""
+          logger: ""
+          flow_id: ""
+          agent_role: ""
+          trace_id: ""
+
+      # Set log timestamp from the JSON field when available
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+          action_on_failure: skip
+
+      # Set the final log line (use original if JSON parse fails)
+      - output:
+          source: message
+
+  # --------------------------------------------------------------------------
+  # System logs (host /var/log)
+  # --------------------------------------------------------------------------
+  - job_name: system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: system
+          service: host
+          __path__: /var/log/{syslog,auth.log,kern.log}
+
+    pipeline_stages:
+      - regex:
+          expression: '(?P<level>ERROR|WARN|INFO|DEBUG|CRITICAL)'
+      - labels:
+          level: ""

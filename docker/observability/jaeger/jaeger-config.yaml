@@ -1,0 +1,103 @@
+# ==============================================================================
+# Jaeger Configuration — UniVex Observability
+# Day 12: Jaeger Distributed Tracing
+#
+# Jaeger All-in-One configuration.
+# For production, switch SPAN_STORAGE_TYPE to elasticsearch or cassandra.
+#
+# Receiving formats:
+#   - OTLP gRPC  (port 4317) — primary, used by UniVex backend OTEL exporter
+#   - OTLP HTTP  (port 4318) — HTTP alternative
+#   - Jaeger gRPC (port 14250)
+#   - Jaeger Thrift (port 14268 HTTP, 6831 UDP)
+#   - Zipkin (port 9411)
+#
+# UI: http://localhost:16686
+# ==============================================================================
+
+# ---------------------------------------------------------------------------
+# Service identification
+# ---------------------------------------------------------------------------
+service_name: univex-jaeger
+
+# ---------------------------------------------------------------------------
+# Storage — in-memory (development) / Elasticsearch (production)
+# ---------------------------------------------------------------------------
+# Development: spans stored in memory, lost on restart.
+# Production: uncomment the Elasticsearch section below.
+
+span_storage:
+  type: memory
+  options:
+    # Maximum number of traces to retain in memory
+    max_traces: 10000
+
+# Production Elasticsearch example:
+# span_storage:
+#   type: elasticsearch
+#   options:
+#     es:
+#       server-urls: "http://elasticsearch:9200"
+#       index-prefix: "univex-jaeger"
+#       num-shards: 3
+#       num-replicas: 1
+#       username: "${ES_USERNAME}"
+#       password: "${ES_PASSWORD}"
+
+# ---------------------------------------------------------------------------
+# OTEL Receiver (primary ingestion path from UniVex backend)
+# ---------------------------------------------------------------------------
+otlp:
+  enabled: true
+  grpc:
+    host-port: "0.0.0.0:4317"
+  http:
+    host-port: "0.0.0.0:4318"
+
+# ---------------------------------------------------------------------------
+# Jaeger native receivers (legacy compatibility)
+# ---------------------------------------------------------------------------
+collector:
+  # Jaeger gRPC
+  grpc:
+    host-port: "0.0.0.0:14250"
+  # Jaeger HTTP (Thrift binary)
+  http:
+    host-port: "0.0.0.0:14268"
+  # Zipkin receiver
+  zipkin:
+    host-port: "0.0.0.0:9411"
+
+# ---------------------------------------------------------------------------
+# Sampling strategy
+# Development: sample everything (100%)
+# Production: reduce to 5–10% or use adaptive sampling
+# ---------------------------------------------------------------------------
+sampling:
+  strategies_file: ""
+  # Default: sample 100% — override per-service in production
+  default_strategy:
+    type: probabilistic
+    param: 1.0
+
+# ---------------------------------------------------------------------------
+# Query service (Jaeger UI backend)
+# ---------------------------------------------------------------------------
+query:
+  base-path: "/"
+  # Maximum number of clock skew adjustment seconds (set to 0 to disable)
+  max-clock-skew-adjustment: 0s
+
+# ---------------------------------------------------------------------------
+# Metrics reporting
+# ---------------------------------------------------------------------------
+metrics:
+  # Expose /metrics for Prometheus scraping
+  backend: prometheus
+  http-route: "/metrics"
+
+# ---------------------------------------------------------------------------
+# Service-dependency graph
+# ---------------------------------------------------------------------------
+dependency_storage:
+  type: memory

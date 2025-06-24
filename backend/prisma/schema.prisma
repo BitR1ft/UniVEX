@@ -1,0 +1,265 @@
+// Prisma Schema for UniVex
+// Database: PostgreSQL
+
+generator client {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// User Management
+// ============================================================================
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  username       String    @unique
+  fullName       String?   @map("full_name")
+  hashedPassword String    @map("hashed_password")
+  isActive       Boolean   @default(true) @map("is_active")
+  isAdmin        Boolean   @default(false) @map("is_admin")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  // Relationships
+  projects       Project[]
+  sessions       Session[]
+
+  @@map("users")
+}
+
+// ============================================================================
+// Session Management (JWT Refresh Tokens)
+// ============================================================================
+
+model Session {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token       String    @unique
+  isRevoked   Boolean   @default(false) @map("is_revoked")
+  expiresAt   DateTime  @map("expires_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("sessions")
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+// ============================================================================
+// Project Management
+// ============================================================================
+
+model Project {
+  id              String    @id @default(uuid())
+  name            String
+  description     String?
+  target          String
+  projectType     String    @default("full_assessment") @map("project_type")
+  status          String    @default("draft")
+
+  // Timestamps
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  startedAt       DateTime? @map("started_at")
+  completedAt     DateTime? @map("completed_at")
+
+  // User relationship
+  userId          String    @map("user_id")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Reconnaissance Configuration
+  enableSubdomainEnum Boolean @default(true) @map("enable_subdomain_enum")
+  enablePortScan      Boolean @default(true) @map("enable_port_scan")
+  enableWebCrawl      Boolean @default(true) @map("enable_web_crawl")
+  enableTechDetection Boolean @default(true) @map("enable_tech_detection")
+
+  // Scanning Configuration
+  enableVulnScan Boolean @default(true) @map("enable_vuln_scan")
+  enableNuclei   Boolean @default(true) @map("enable_nuclei")
+
+  // Exploitation Configuration (DISABLED by default for safety)
+  enableAutoExploit Boolean @default(false) @map("enable_auto_exploit")
+
+  // Relationships
+  tasks Task[]
+
+  @@map("projects")
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// Task Management
+// ============================================================================
+
+model Task {
+  id          String    @id @default(uuid())
+  projectId   String    @map("project_id")
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  type        String    // recon | port_scan | http_probe
+  status      String    @default("pending") // pending | running | completed | failed | cancelled
+  priority    Int       @default(0)
+
+  // Timestamps
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  startedAt   DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+
+  // Relationships
+  reconTask   ReconTask?
+  portScanTask PortScanTask?
+  httpProbeTask HttpProbeTask?
+  results     TaskResult[]
+  logs        TaskLog[]
+  metrics     TaskMetrics?
+
+  @@map("tasks")
+  @@index([projectId])
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// Recon Task (Domain Discovery)
+// ============================================================================
+
+model ReconTask {
+  id              String   @id @default(uuid())
+  taskId          String   @unique @map("task_id")
+  task            Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  domain          String
+  subdomainsFound Int      @default(0) @map("subdomains_found")
+  dnsRecordsFound Int      @default(0) @map("dns_records_found")
+  whoisData       Json?    @map("whois_data")
+  subdomains      Json?    // array of discovered subdomains
+  dnsRecords      Json?    @map("dns_records")
+
+  @@map("recon_tasks")
+}
+
+// ============================================================================
+// Port Scan Task
+// ============================================================================
+
+model PortScanTask {
+  id           String  @id @default(uuid())
+  taskId       String  @unique @map("task_id")
+  task         Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  target       String
+  portsScanned Int     @default(0) @map("ports_scanned")
+  openPorts    Int     @default(0) @map("open_ports")
+  scanProfile  String  @default("default") @map("scan_profile")
+  portResults  Json?   @map("port_results") // array of {port, state, service, version}
+
+  @@map("port_scan_tasks")
+}
+
+// ============================================================================
+// HTTP Probe Task
+// ============================================================================
+
+model HttpProbeTask {
+  id             String  @id @default(uuid())
+  taskId         String  @unique @map("task_id")
+  task           Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  targetsProbed  Int     @default(0) @map("targets_probed")
+  liveHosts      Int     @default(0) @map("live_hosts")
+  probeResults   Json?   @map("probe_results") // array of {url, status_code, title, tech}
+
+  @@map("http_probe_tasks")
+}
+
+// ============================================================================
+// Task Result (JSON output storage)
+// ============================================================================
+
+model TaskResult {
+  id        String   @id @default(uuid())
+  taskId    String   @map("task_id")
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  resultKey String   @map("result_key") // e.g. "subdomains", "open_ports", "vulnerabilities"
+  data      Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("task_results")
+  @@index([taskId])
+  @@index([resultKey])
+}
+
+// ============================================================================
+// Task Log (execution logs)
+// ============================================================================
+
+model TaskLog {
+  id        String   @id @default(uuid())
+  taskId    String   @map("task_id")
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  level     String   @default("info") // debug | info | warning | error
+  message   String
+  extra     Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("task_logs")
+  @@index([taskId])
+  @@index([level])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// Task Metrics (performance data)
+// ============================================================================
+
+model TaskMetrics {
+  id              String   @id @default(uuid())
+  taskId          String   @unique @map("task_id")
+  task            Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  durationSeconds Float?   @map("duration_seconds")
+  memoryMb        Float?   @map("memory_mb")
+  cpuPercent      Float?   @map("cpu_percent")
+  itemsProcessed  Int      @default(0) @map("items_processed")
+  errorCount      Int      @default(0) @map("error_count")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("task_metrics")
+}
+
+
+// ============================================================================
+// Vector Store (pgvector)
+// ============================================================================
+
+model VectorDocument {
+  id         String   @id @default(uuid())
+  collection String   @default("default")
+  docText    String   @map("doc_text") @db.Text
+  metadata   Json     @default("{}")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("vector_documents")
+  @@index([collection])
+}
+
+model EmbeddingCollection {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  provider    String
+  model       String
+  dimensions  Int
+  docCount    Int      @default(0) @map("doc_count")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("embedding_collections")
+}

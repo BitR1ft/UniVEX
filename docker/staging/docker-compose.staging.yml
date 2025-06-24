@@ -1,0 +1,198 @@
+# ==============================================================================
+# UniVex — Staging Environment Configuration
+# Day 188: Staging Environment Setup
+#
+# Usage:
+#   export IMAGE_TAG=sha-abc1234
+#   docker compose -f docker/staging/docker-compose.staging.yml up -d
+# ==============================================================================
+
+version: '3.8'
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  # ============================================================================
+  # DATABASE TIER
+  # ============================================================================
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: univex-staging-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-univex}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+      POSTGRES_DB: ${POSTGRES_DB:-univex_staging}
+    volumes:
+      - postgres-staging-data:/var/lib/postgresql/data
+      - ../../backend/init-scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      - staging-db
+      - staging-backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-univex}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  neo4j:
+    image: neo4j:5.15-community
+    container_name: univex-staging-neo4j
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: ${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:?NEO4J_PASSWORD required}
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_memory_heap_initial__size: "256m"
+      NEO4J_dbms_memory_heap_max__size: "1g"
+      NEO4J_dbms_memory_pagecache_size: "512m"
+    volumes:
+      - neo4j-staging-data:/data
+      - neo4j-staging-logs:/logs
+    networks:
+      - staging-db
+      - staging-backend
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:7474 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  # ============================================================================
+  # APPLICATION TIER
+  # ============================================================================
+
+  backend:
+    image: ${BACKEND_IMAGE:-ghcr.io/bitr1ft/univex-backend}:${IMAGE_TAG:-latest}
+    container_name: univex-staging-backend
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: staging
+      PROJECT_NAME: "UniVex (Staging)"
+      DEBUG: "false"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-univex}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-univex_staging}
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: ${NEO4J_USER:-neo4j}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY required}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      REFRESH_TOKEN_EXPIRE_DAYS: 7
+      BACKEND_CORS_ORIGINS: '["${STAGING_FRONTEND_URL:-http://staging.univex.local}"]'
+      LOG_LEVEL: INFO
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_ENDPOINT:-}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    networks:
+      - staging-backend
+      - staging-frontend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  frontend:
+    image: ${FRONTEND_IMAGE:-ghcr.io/bitr1ft/univex-frontend}:${IMAGE_TAG:-latest}
+    container_name: univex-staging-frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${STAGING_API_URL:-http://localhost:8000}
+      NEXT_PUBLIC_WS_URL: ${STAGING_WS_URL:-ws://localhost:8000}
+      NEXT_TELEMETRY_DISABLED: "1"
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - staging-frontend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # ============================================================================
+  # OBSERVABILITY
+  # ============================================================================
+
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: univex-staging-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../../docker/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-staging-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=7d'
+    networks:
+      - staging-backend
+    logging: *default-logging
+
+# ==============================================================================
+# NETWORKS
+# ==============================================================================
+
+networks:
+  staging-db:
+    driver: bridge
+    internal: true
+  staging-backend:
+    driver: bridge
+  staging-frontend:
+    driver: bridge
+
+# ==============================================================================
+# VOLUMES
+# ==============================================================================
+
+volumes:
+  postgres-staging-data:
+    name: univex-staging-postgres-data
+  neo4j-staging-data:
+    name: univex-staging-neo4j-data
+  neo4j-staging-logs:
+    name: univex-staging-neo4j-logs
+  prometheus-staging-data:
+    name: univex-staging-prometheus-data

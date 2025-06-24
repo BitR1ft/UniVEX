@@ -1,0 +1,22 @@
+# Alibaba Qwen (通义千问) LLM Provider Configuration
+# Documentation: https://help.aliyun.com/zh/dashscope/
+#
+# Required: Set QWEN_API_KEY environment variable
+#   export QWEN_API_KEY=sk-...
+#
+provider: qwen
+name: qwen
+base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+api_key: ${QWEN_API_KEY}
+default_model: qwen-max
+available_models:
+  - qwen-max    # Most capable, best for complex reasoning
+  - qwen-plus   # Balanced performance and cost
+  - qwen-turbo  # Fast, cost-effective for simple tasks
+  - qwen-long   # Optimized for long documents (up to 10M tokens)
+max_tokens: 8192
+temperature: 0.7
+timeout: 120
+extra_params:
+  top_p: 0.95
+  repetition_penalty: 1.05

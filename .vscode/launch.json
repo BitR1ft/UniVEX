@@ -1,0 +1,272 @@
+{
+  // ============================================================================
+  // UniVex — VSCode Launch Configurations
+  // ============================================================================
+  "version": "0.2.0",
+  "configurations": [
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Backend: FastAPI (Uvicorn)
+    // ──────────────────────────────────────────────────────────────────────────
+    {
+      "name": "FastAPI: Dev Server",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "app.main:app",
+        "--host", "0.0.0.0",
+        "--port", "8000",
+        "--reload",
+        "--log-level", "debug"
+      ],
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/backend",
+        "ENVIRONMENT": "development"
+      },
+      "envFile": "${workspaceFolder}/backend/.env",
+      "justMyCode": false,
+      "console": "integratedTerminal"
+    },
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Backend: FastAPI — Production Mode (no reload)
+    // ──────────────────────────────────────────────────────────────────────────
+    {
+      "name": "FastAPI: Production Mode",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "app.main:app",
+        "--host", "0.0.0.0",
+        "--port", "8000",
+        "--workers", "1",
+        "--log-level", "info"
+      ],
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/backend",
+        "ENVIRONMENT": "production"
+      },
+      "envFile": "${workspaceFolder}/backend/.env.production",
+      "justMyCode": true,
+      "console": "integratedTerminal"
+    },
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Backend: pytest — All Tests
+    // ──────────────────────────────────────────────────────────────────────────
+    {
+      "name": "pytest: All Tests",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": [
+        "tests/",
+        "--ignore=tests/test_auth.py",
+        "-v",
+        "--tb=short",
+        "--no-header"
+      ],
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/backend"
+      },
+      "envFile": "${workspaceFolder}/backend/.env.test",
+      "justMyCode": false,
+      "console": "integratedTerminal"
+    },
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Backend: pytest — Current File
+    // ──────────────────────────────────────────────────────────────────────────
+    {
+      "name": "pytest: Current File",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": [
+        "${relativeFile}",
+        "-v",
+        "--tb=long",
+        "--no-header"
+      ],
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/backend"
+      },
+      "envFile": "${workspaceFolder}/backend/.env.test",
+      "justMyCode": false,
+      "console": "integratedTerminal"
+    },
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Backend: pytest — Mock Mode (no live LLM or DB required)
+    // ──────────────────────────────────────────────────────────────────────────
+    {
+      "name": "pytest: Mock Mode",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": [
+        "tests/agent/",
+        "tests/tools/",
+        "-v",
+        "--tb=short"
+      ],
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/backend",
+        "MOCK_MODE": "true"
+      },
+      "justMyCode": false,
+      "console": "integratedTerminal"
+    },
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Backend: pytest — Benchmark Suite (ctester)
+    // ──────────────────────────────────────────────────────────────────────────
+    {
+      "name": "pytest: Agent Benchmarks",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": [
+        "tests/agent/benchmark/",
+        "-v",
+        "--tb=short",
+        "-s"
+      ],
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/backend",
+        "MOCK_MODE": "true"
+      },
+      "justMyCode": false,
+      "console": "integratedTerminal"
+    },
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Frontend: Next.js Dev Server
+    // ──────────────────────────────────────────────────────────────────────────
+    {
+      "name": "Next.js: Dev Server",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/frontend",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "envFile": "${workspaceFolder}/frontend/.env.local",
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "pattern": "ready started server on",
+        "uriFormat": "http://localhost:3000",
+        "action": "openExternally"
+      }
+    },
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Frontend: Jest Tests
+    // ──────────────────────────────────────────────────────────────────────────
+    {
+      "name": "Jest: All Tests",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["test", "--", "--watchAll=false", "--verbose"],
+      "cwd": "${workspaceFolder}/frontend",
+      "env": {
+        "NODE_ENV": "test"
+      },
+      "console": "integratedTerminal"
+    },
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Frontend: Jest — Current File
+    // ──────────────────────────────────────────────────────────────────────────
+    {
+      "name": "Jest: Current File",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "test",
+        "--",
+        "--watchAll=false",
+        "--verbose",
+        "--testPathPattern=${relativeFile}"
+      ],
+      "cwd": "${workspaceFolder}/frontend",
+      "env": {
+        "NODE_ENV": "test"
+      },
+      "console": "integratedTerminal"
+    },
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Playwright: E2E Tests
+    // ──────────────────────────────────────────────────────────────────────────
+    {
+      "name": "Playwright: All E2E Tests",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["playwright", "test", "--headed"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // CLI Tools: ctester
+    // ──────────────────────────────────────────────────────────────────────────
+    {
+      "name": "ctester: Run Recon Benchmarks",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/tools/ctester.py",
+      "args": [
+        "run",
+        "--group", "group_recon",
+        "--mock"
+      ],
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/backend",
+        "MOCK_MODE": "true"
+      },
+      "console": "integratedTerminal"
+    },
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // CLI Tools: ftester
+    // ──────────────────────────────────────────────────────────────────────────
+    {
+      "name": "ftester: List Agents",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/tools/ftester.py",
+      "args": ["list-agents"],
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/backend"
+      },
+      "console": "integratedTerminal"
+    }
+  ],
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Compound configurations (launch multiple at once)
+  // ──────────────────────────────────────────────────────────────────────────
+  "compounds": [
+    {
+      "name": "Full Stack: Backend + Frontend",
+      "configurations": ["FastAPI: Dev Server", "Next.js: Dev Server"],
+      "stopAll": true
+    }
+  ]
+}

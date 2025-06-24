@@ -1,0 +1,4465 @@
+openapi: 3.1.0
+info:
+  title: UniVex API
+  description: >
+    Professional AI-powered pentesting and vulnerability management platform.
+    UniVex (Universal + Vulnerability Execution) provides a comprehensive suite
+    of security automation tools including AI agent orchestration, reconnaissance,
+    vulnerability scanning, exploit chaining, compliance assessment, and reporting.
+  version: 2.1.0
+  contact:
+    name: BitR1FT
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Authentication
+    description: User registration, login, token management
+  - name: Projects
+    description: Pentest project lifecycle management
+  - name: Graph
+    description: Neo4j graph ingestion, querying, and attack surface analysis
+  - name: AI Agent
+    description: LangGraph multi-agent orchestration and real-time communication
+  - name: Reconnaissance
+    description: OSINT, subdomain enumeration, and target reconnaissance
+  - name: Port Scanning
+    description: Naabu-backed port scanning tasks
+  - name: HTTP Probing
+    description: HTTP service probing and fingerprinting
+  - name: Scans
+    description: Unified scan management (ports, Nuclei)
+  - name: URL Discovery
+    description: URL and directory discovery tasks
+  - name: CVE Enrichment
+    description: CVE lookup and finding enrichment
+  - name: CWE/CAPEC Enrichment
+    description: CWE and CAPEC taxonomy enrichment and mapping
+  - name: AutoChain
+    description: Automated exploitation chain orchestration
+  - name: Reports
+    description: Report generation, download, and artifact management
+  - name: Campaigns
+    description: Multi-target campaign management
+  - name: Findings
+    description: Vulnerability finding CRUD, triage, evidence, and CVSS
+  - name: Compliance
+    description: Compliance framework assessment (OWASP, PCI-DSS, NIST, CIS)
+  - name: Integrations
+    description: Webhooks, SIEM, Splunk, ELK, and syslog integrations
+  - name: Plugins
+    description: Plugin management
+  - name: SSE
+    description: Server-Sent Events streams for real-time scan and log updates
+  - name: Metrics
+    description: Prometheus metrics endpoint
+  - name: Health
+    description: Health and readiness probes
+
+paths:
+
+  # ──────────────────────────────────────────────
+  # Authentication
+  # ──────────────────────────────────────────────
+
+  /api/auth/register:
+    post:
+      tags: [Authentication]
+      operationId: registerUser
+      summary: Register a new user
+      description: Creates a new user account. Returns the created user profile on success.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+            example:
+              email: analyst@example.com
+              username: analyst01
+              password: Sup3rS3cur3!
+              full_name: Alice Analyst
+              role: analyst
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /api/auth/login:
+    post:
+      tags: [Authentication]
+      operationId: loginUser
+      summary: Authenticate and obtain JWT tokens
+      description: Authenticates with username and password. Returns access and refresh JWT tokens.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+            example:
+              username: analyst01
+              password: Sup3rS3cur3!
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /api/auth/me:
+    get:
+      tags: [Authentication]
+      operationId: getCurrentUser
+      summary: Get current authenticated user
+      description: Returns the profile of the currently authenticated user based on the Bearer token.
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/auth/refresh:
+    post:
+      tags: [Authentication]
+      operationId: refreshToken
+      summary: Refresh JWT access token
+      description: Issues a new access token using the current valid Bearer refresh token.
+      responses:
+        '200':
+          description: New token pair issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/auth/logout:
+    post:
+      tags: [Authentication]
+      operationId: logout
+      summary: Logout current session
+      description: Invalidates the current session token.
+      responses:
+        '200':
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/auth/logout-all:
+    post:
+      tags: [Authentication]
+      operationId: logoutAll
+      summary: Logout all sessions
+      description: Invalidates all active sessions for the current user.
+      responses:
+        '200':
+          description: All sessions terminated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ──────────────────────────────────────────────
+  # Projects
+  # ──────────────────────────────────────────────
+
+  /api/projects:
+    get:
+      tags: [Projects]
+      operationId: listProjects
+      summary: List projects
+      description: Returns a paginated list of pentest projects owned by the authenticated user.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, queued, running, paused, completed, failed]
+          description: Filter by project status
+      responses:
+        '200':
+          description: Paginated project list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListResponse'
+    post:
+      tags: [Projects]
+      operationId: createProject
+      summary: Create a new project
+      description: Creates a new pentest project with the specified target and scan configuration.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreate'
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /api/projects/{project_id}:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+    get:
+      tags: [Projects]
+      operationId: getProject
+      summary: Get project by ID
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Projects]
+      operationId: updateProject
+      summary: Update a project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectUpdate'
+      responses:
+        '200':
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Projects]
+      operationId: deleteProject
+      summary: Delete a project
+      responses:
+        '204':
+          description: Project deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ──────────────────────────────────────────────
+  # Graph
+  # ──────────────────────────────────────────────
+
+  /api/ingest:
+    post:
+      tags: [Graph]
+      operationId: ingestGraph
+      summary: Ingest scan data into graph DB
+      description: Ingests structured scan phase data into the Neo4j attack surface graph.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GraphIngestRequest'
+      responses:
+        '200':
+          description: Ingestion result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphIngestResponse'
+
+  /api/query:
+    post:
+      tags: [Graph]
+      operationId: queryGraph
+      summary: Execute a graph query
+      description: Executes a Cypher query against the Neo4j graph database.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GraphQueryRequest'
+      responses:
+        '200':
+          description: Query results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphQueryResponse'
+
+  /api/attack-surface/{project_id}:
+    get:
+      tags: [Graph]
+      operationId: getAttackSurface
+      summary: Get attack surface graph
+      description: Returns the full attack surface graph for a project.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '200':
+          description: Attack surface graph
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttackSurfaceResponse'
+
+  /api/attack-surface/{project_id}/services:
+    get:
+      tags: [Graph]
+      operationId: getAttackSurfaceServices
+      summary: Get attack surface services
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '200':
+          description: Service nodes
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/attack-surface/{project_id}/overview:
+    get:
+      tags: [Graph]
+      operationId: getAttackSurfaceOverview
+      summary: Get attack surface overview
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '200':
+          description: Attack surface overview
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/vulnerabilities/{project_id}:
+    get:
+      tags: [Graph]
+      operationId: getVulnerabilities
+      summary: Get vulnerability nodes for a project
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '200':
+          description: Vulnerability nodes
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/vulnerabilities/{project_id}/exploitable:
+    get:
+      tags: [Graph]
+      operationId: getExploitableVulnerabilities
+      summary: Get exploitable vulnerabilities
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '200':
+          description: Exploitable vulnerability nodes
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/vulnerabilities/{project_id}/cve-chain/{cve_id}:
+    get:
+      tags: [Graph]
+      operationId: getCveAttackChain
+      summary: Get CVE attack chain
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+        - name: cve_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: CVE identifier (e.g. CVE-2023-1234)
+      responses:
+        '200':
+          description: CVE attack chain graph
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/technologies/{project_id}:
+    get:
+      tags: [Graph]
+      operationId: getTechnologies
+      summary: Get technology nodes for a project
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '200':
+          description: Technology nodes
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/project/{project_id}:
+    delete:
+      tags: [Graph]
+      operationId: deleteProjectGraph
+      summary: Delete project graph data
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '204':
+          description: Graph data deleted
+
+  /api/health:
+    get:
+      tags: [Graph]
+      operationId: graphHealth
+      summary: Graph database health check
+      security: []
+      responses:
+        '200':
+          description: Graph DB health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/stats/{project_id}:
+    get:
+      tags: [Graph]
+      operationId: getGraphStats
+      summary: Get graph statistics for a project
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '200':
+          description: Graph statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphStatsResponse'
+
+  /api/stats/{project_id}/relationships:
+    get:
+      tags: [Graph]
+      operationId: getRelationshipStats
+      summary: Get relationship statistics
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '200':
+          description: Relationship statistics
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/stats/{project_id}/health:
+    get:
+      tags: [Graph]
+      operationId: getNodeHealthStats
+      summary: Get node health statistics
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '200':
+          description: Node health statistics
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/paths/{project_id}/attack:
+    get:
+      tags: [Graph]
+      operationId: getAttackPaths
+      summary: Get attack paths for a project
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '200':
+          description: Attack paths
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/paths/{project_id}/critical:
+    get:
+      tags: [Graph]
+      operationId: getCriticalPaths
+      summary: Get critical attack paths
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '200':
+          description: Critical paths
+          content:
+            application/json:
+              schema:
+                type: object
+
+  # ──────────────────────────────────────────────
+  # AI Agent
+  # ──────────────────────────────────────────────
+
+  /api/status:
+    get:
+      tags: [AI Agent]
+      operationId: getAgentStatus
+      summary: Get AI agent status
+      description: Returns the current execution state of the LangGraph multi-agent system.
+      responses:
+        '200':
+          description: Agent status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentStatus'
+
+  /api/chat:
+    post:
+      tags: [AI Agent]
+      operationId: chat
+      summary: Send a message to the AI agent
+      description: >
+        Sends a natural language message to the AI pentesting agent. The agent
+        classifies intent and routes to the appropriate specialist agent node.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Agent response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+
+  /api/stop:
+    post:
+      tags: [AI Agent]
+      operationId: stopAgent
+      summary: Stop agent execution
+      description: Signals the running agent graph to halt execution gracefully.
+      responses:
+        '200':
+          description: Agent stopped
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
+  /api/resume:
+    post:
+      tags: [AI Agent]
+      operationId: resumeAgent
+      summary: Resume agent execution
+      description: Resumes a paused or interrupted agent execution from its last checkpoint.
+      responses:
+        '200':
+          description: Agent resumed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
+  /api/guidance:
+    post:
+      tags: [AI Agent]
+      operationId: sendGuidance
+      summary: Send human guidance to the agent
+      description: Injects human-in-the-loop guidance into the running agent graph.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuidanceRequest'
+      responses:
+        '200':
+          description: Guidance accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
+  /api/approve:
+    post:
+      tags: [AI Agent]
+      operationId: approveTool
+      summary: Approve pending tool execution
+      description: Approves a tool call that is waiting for human approval before execution.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalRequest'
+      responses:
+        '200':
+          description: Tool execution approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
+  /api/ws/{client_id}:
+    get:
+      tags: [AI Agent]
+      operationId: agentWebSocket
+      summary: WebSocket for real-time agent communication
+      description: >
+        Establishes a WebSocket connection for bidirectional real-time communication
+        with the AI agent. Clients receive streaming agent output, tool calls, and
+        status updates.
+      parameters:
+        - name: client_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique client identifier for WebSocket session
+      responses:
+        '101':
+          description: WebSocket connection established
+
+  # ──────────────────────────────────────────────
+  # Reconnaissance
+  # ──────────────────────────────────────────────
+
+  /api/recon:
+    post:
+      tags: [Reconnaissance]
+      operationId: startRecon
+      summary: Start a reconnaissance task
+      description: Launches an asynchronous reconnaissance task for the specified target.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReconRequest'
+      responses:
+        '202':
+          description: Recon task accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+
+  /api/recon/{task_id}:
+    get:
+      tags: [Reconnaissance]
+      operationId: getReconStatus
+      summary: Get recon task status
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Recon task status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReconTaskStatus'
+
+  /api/recon/{task_id}/results:
+    get:
+      tags: [Reconnaissance]
+      operationId: getReconResults
+      summary: Get recon results
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Reconnaissance results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReconResults'
+
+  # ──────────────────────────────────────────────
+  # Port Scanning (v1)
+  # ──────────────────────────────────────────────
+
+  /api/port-scan/scan:
+    post:
+      tags: [Port Scanning]
+      operationId: startPortScan
+      summary: Start a port scan
+      description: Launches an asynchronous Naabu port scan against the specified target.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PortScanRequest'
+      responses:
+        '202':
+          description: Port scan task accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+
+  /api/port-scan/status/{task_id}:
+    get:
+      tags: [Port Scanning]
+      operationId: getPortScanStatus
+      summary: Get port scan status
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Port scan task status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanTaskStatus'
+
+  /api/port-scan/results/{task_id}:
+    get:
+      tags: [Port Scanning]
+      operationId: getPortScanResults
+      summary: Get port scan results
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Port scan results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortScanResults'
+
+  /api/port-scan/tasks/{task_id}:
+    delete:
+      tags: [Port Scanning]
+      operationId: cancelPortScanTask
+      summary: Cancel a port scan task
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '204':
+          description: Task cancelled
+
+  /api/port-scan/tasks:
+    get:
+      tags: [Port Scanning]
+      operationId: listPortScanTasks
+      summary: List all port scan tasks
+      responses:
+        '200':
+          description: List of scan tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScanTaskStatus'
+
+  # ──────────────────────────────────────────────
+  # HTTP Probing
+  # ──────────────────────────────────────────────
+
+  /api/http-probe:
+    post:
+      tags: [HTTP Probing]
+      operationId: startHttpProbe
+      summary: Start an HTTP probe task
+      description: Probes HTTP/HTTPS services on discovered hosts to fingerprint technologies, headers, and status codes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HttpProbeRequest'
+      responses:
+        '202':
+          description: HTTP probe task accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+
+  /api/http-probe/{task_id}:
+    get:
+      tags: [HTTP Probing]
+      operationId: getHttpProbeStatus
+      summary: Get HTTP probe task status
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: HTTP probe task status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpProbeTaskStatus'
+
+  /api/http-probe/{task_id}/results:
+    get:
+      tags: [HTTP Probing]
+      operationId: getHttpProbeResults
+      summary: Get HTTP probe results
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: HTTP probe results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpProbeResults'
+
+  # ──────────────────────────────────────────────
+  # Port Scans v2
+  # ──────────────────────────────────────────────
+
+  /api/scans/ports:
+    post:
+      tags: [Scans]
+      operationId: createPortScanV2
+      summary: Create a port scan (v2)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PortScanRequest'
+      responses:
+        '202':
+          description: Port scan task accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+
+  /api/scans/ports/{task_id}:
+    get:
+      tags: [Scans]
+      operationId: getPortScanV2
+      summary: Get port scan status (v2)
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Port scan status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanTaskStatus'
+
+  /api/scans/ports/{task_id}/results:
+    get:
+      tags: [Scans]
+      operationId: getPortScanResultsV2
+      summary: Get port scan results (v2)
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Port scan results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortScanResults'
+
+  # ──────────────────────────────────────────────
+  # Nuclei Scans
+  # ──────────────────────────────────────────────
+
+  /api/scans/nuclei:
+    post:
+      tags: [Scans]
+      operationId: createNucleiScan
+      summary: Create a Nuclei vulnerability scan
+      description: Runs Nuclei template-based vulnerability detection against the specified targets.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NucleiScanRequest'
+      responses:
+        '202':
+          description: Nuclei scan task accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+
+  /api/scans/nuclei/{task_id}:
+    get:
+      tags: [Scans]
+      operationId: getNucleiScan
+      summary: Get Nuclei scan status
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Nuclei scan status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanTaskStatus'
+
+  /api/scans/nuclei/{task_id}/results:
+    get:
+      tags: [Scans]
+      operationId: getNucleiScanResults
+      summary: Get Nuclei scan results
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Nuclei scan results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NucleiScanResults'
+
+  # ──────────────────────────────────────────────
+  # URL Discovery
+  # ──────────────────────────────────────────────
+
+  /api/discovery/urls:
+    post:
+      tags: [URL Discovery]
+      operationId: startUrlDiscovery
+      summary: Start URL discovery
+      description: Launches FFuf-backed URL and directory discovery against the target.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UrlDiscoveryRequest'
+      responses:
+        '202':
+          description: URL discovery task accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+
+  /api/discovery/urls/{task_id}:
+    get:
+      tags: [URL Discovery]
+      operationId: getUrlDiscoveryTask
+      summary: Get URL discovery task status
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: URL discovery task status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscoveryTaskStatus'
+
+  /api/discovery/urls/{task_id}/results:
+    get:
+      tags: [URL Discovery]
+      operationId: getUrlDiscoveryResults
+      summary: Get URL discovery results
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: URL discovery results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UrlDiscoveryResults'
+
+  # ──────────────────────────────────────────────
+  # CVE Enrichment
+  # ──────────────────────────────────────────────
+
+  /api/cve/{cve_id}:
+    get:
+      tags: [CVE Enrichment]
+      operationId: getCveDetail
+      summary: Get CVE details
+      description: Returns full CVE details including CVSS scores, references, and affected products from NVD.
+      parameters:
+        - name: cve_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^CVE-\d{4}-\d{4,}$'
+          example: CVE-2023-44487
+      responses:
+        '200':
+          description: CVE details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CVEDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/enrich/findings:
+    post:
+      tags: [CVE Enrichment]
+      operationId: enrichFindings
+      summary: Enrich findings with CVE data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrichFindingsRequest'
+      responses:
+        '200':
+          description: Enriched findings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichedFindingsResponse'
+
+  /api/enrich/findings/batch:
+    post:
+      tags: [CVE Enrichment]
+      operationId: batchEnrichFindings
+      summary: Batch enrich findings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchEnrichRequest'
+      responses:
+        '200':
+          description: Batch enrichment results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchEnrichResponse'
+
+  # ──────────────────────────────────────────────
+  # CWE/CAPEC Enrichment
+  # ──────────────────────────────────────────────
+
+  /api/enrichment/cwe/{cwe_id}:
+    get:
+      tags: [CWE/CAPEC Enrichment]
+      operationId: getCweDetail
+      summary: Get CWE details
+      parameters:
+        - name: cwe_id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: CWE-89
+      responses:
+        '200':
+          description: CWE details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CWEDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/enrichment/capec/{capec_id}:
+    get:
+      tags: [CWE/CAPEC Enrichment]
+      operationId: getCapecDetail
+      summary: Get CAPEC details
+      parameters:
+        - name: capec_id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: CAPEC-66
+      responses:
+        '200':
+          description: CAPEC details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CAPECDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/enrichment/map:
+    post:
+      tags: [CWE/CAPEC Enrichment]
+      operationId: mapFinding
+      summary: Map a finding to CWE/CAPEC
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MappingRequest'
+      responses:
+        '200':
+          description: CWE/CAPEC mapping
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MappingResponse'
+
+  # ──────────────────────────────────────────────
+  # AutoChain
+  # ──────────────────────────────────────────────
+
+  /api/autochain/start:
+    post:
+      tags: [AutoChain]
+      operationId: startAutoChain
+      summary: Start an automated exploitation chain
+      description: >
+        Launches the AutoChain engine which automatically sequences recon, port
+        scanning, vulnerability detection, and exploitation in a fully automated pipeline.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutoChainStartRequest'
+      responses:
+        '201':
+          description: AutoChain started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutoChainStartResponse'
+
+  /api/autochain/templates:
+    get:
+      tags: [AutoChain]
+      operationId: listAutoChainTemplates
+      summary: List AutoChain templates
+      responses:
+        '200':
+          description: Available chain templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AutoChainTemplate'
+
+  /api/autochain/start/template:
+    post:
+      tags: [AutoChain]
+      operationId: startAutoChainFromTemplate
+      summary: Start AutoChain from a template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutoChainTemplateRequest'
+      responses:
+        '201':
+          description: AutoChain started from template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutoChainStartResponse'
+
+  /api/autochain/{chain_id}:
+    get:
+      tags: [AutoChain]
+      operationId: getAutoChainStatus
+      summary: Get AutoChain status
+      parameters:
+        - $ref: '#/components/parameters/ChainId'
+      responses:
+        '200':
+          description: Chain status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutoChainStatusResponse'
+    delete:
+      tags: [AutoChain]
+      operationId: deleteAutoChain
+      summary: Delete an AutoChain
+      parameters:
+        - $ref: '#/components/parameters/ChainId'
+      responses:
+        '204':
+          description: Chain deleted
+
+  /api/autochain/{chain_id}/flags:
+    get:
+      tags: [AutoChain]
+      operationId: getAutoChainFlags
+      summary: Get captured flags
+      parameters:
+        - $ref: '#/components/parameters/ChainId'
+      responses:
+        '200':
+          description: Captured flags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutoChainFlagsResponse'
+
+  /api/autochain/{chain_id}/steps:
+    get:
+      tags: [AutoChain]
+      operationId: getAutoChainSteps
+      summary: Get chain execution steps
+      parameters:
+        - $ref: '#/components/parameters/ChainId'
+      responses:
+        '200':
+          description: Chain steps
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutoChainStepsResponse'
+
+  /api/autochain/{chain_id}/stream:
+    get:
+      tags: [AutoChain]
+      operationId: streamAutoChain
+      summary: SSE stream of AutoChain events
+      description: Server-Sent Events stream for real-time chain execution updates.
+      parameters:
+        - $ref: '#/components/parameters/ChainId'
+      responses:
+        '200':
+          description: SSE event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  # ──────────────────────────────────────────────
+  # Reports
+  # ──────────────────────────────────────────────
+
+  /api/reports:
+    get:
+      tags: [Reports]
+      operationId: listReports
+      summary: List reports
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - name: project_id
+          in: query
+          schema:
+            type: string
+          description: Filter by project ID
+      responses:
+        '200':
+          description: List of report summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReportSummary'
+    post:
+      tags: [Reports]
+      operationId: generateReport
+      summary: Generate a report
+      description: Generates a pentest report in the specified format and template.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateReportRequest'
+      responses:
+        '201':
+          description: Report generation initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+
+  /api/reports/{report_id}:
+    parameters:
+      - $ref: '#/components/parameters/ReportId'
+    get:
+      tags: [Reports]
+      operationId: getReport
+      summary: Get report metadata
+      responses:
+        '200':
+          description: Report metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Reports]
+      operationId: deleteReport
+      summary: Delete a report
+      responses:
+        '204':
+          description: Report deleted
+
+  /api/reports/{report_id}/download:
+    get:
+      tags: [Reports]
+      operationId: downloadReport
+      summary: Download report file
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [pdf, html, markdown]
+          description: Desired download format
+      responses:
+        '200':
+          description: Report file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+            text/markdown:
+              schema:
+                type: string
+
+  /api/reports/{report_id}/artifact:
+    post:
+      tags: [Reports]
+      operationId: uploadArtifact
+      summary: Upload a report artifact
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Artifact file to upload
+                name:
+                  type: string
+                  description: Artifact name
+      responses:
+        '201':
+          description: Artifact uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactResponse'
+
+  /api/reports/{report_id}/artifact/{artifact_id}:
+    get:
+      tags: [Reports]
+      operationId: getArtifactUrl
+      summary: Get artifact presigned URL
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+        - name: artifact_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Presigned artifact URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactUrlResponse'
+
+  # ──────────────────────────────────────────────
+  # Campaigns
+  # ──────────────────────────────────────────────
+
+  /api/campaigns:
+    post:
+      tags: [Campaigns]
+      operationId: createCampaign
+      summary: Create a campaign
+      description: Creates a multi-target scan campaign with the specified configuration.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCampaignRequest'
+      responses:
+        '201':
+          description: Campaign created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignResponse'
+    get:
+      tags: [Campaigns]
+      operationId: listCampaigns
+      summary: List campaigns
+      responses:
+        '200':
+          description: List of campaigns
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CampaignResponse'
+
+  /api/campaigns/{campaign_id}:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    get:
+      tags: [Campaigns]
+      operationId: getCampaign
+      summary: Get campaign details
+      responses:
+        '200':
+          description: Campaign details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Campaigns]
+      operationId: updateCampaign
+      summary: Update a campaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCampaignRequest'
+      responses:
+        '200':
+          description: Updated campaign
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignResponse'
+    delete:
+      tags: [Campaigns]
+      operationId: deleteCampaign
+      summary: Delete a campaign
+      responses:
+        '204':
+          description: Campaign deleted
+
+  # ──────────────────────────────────────────────
+  # Findings
+  # ──────────────────────────────────────────────
+
+  /api/findings:
+    post:
+      tags: [Findings]
+      operationId: createFinding
+      summary: Create a finding
+      description: Creates a new vulnerability finding record.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFindingRequest'
+      responses:
+        '201':
+          description: Finding created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindingResponse'
+    get:
+      tags: [Findings]
+      operationId: listFindings
+      summary: List findings
+      parameters:
+        - name: project_id
+          in: query
+          schema:
+            type: string
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [critical, high, medium, low, info]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, in_progress, resolved, wont_fix, false_positive]
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Paginated finding list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindingListResponse'
+
+  /api/findings/stats:
+    get:
+      tags: [Findings]
+      operationId: getFindingStats
+      summary: Get finding statistics
+      responses:
+        '200':
+          description: Finding statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindingStatsResponse'
+
+  /api/findings/deduplicate:
+    post:
+      tags: [Findings]
+      operationId: deduplicateFindings
+      summary: Run deduplication on findings
+      responses:
+        '200':
+          description: Deduplication result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeduplicationResult'
+
+  /api/findings/bulk-import:
+    post:
+      tags: [Findings]
+      operationId: bulkImportFindings
+      summary: Bulk import findings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkImportRequest'
+      responses:
+        '201':
+          description: Bulk import result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkImportResponse'
+
+  /api/findings/{finding_id}:
+    parameters:
+      - $ref: '#/components/parameters/FindingId'
+    get:
+      tags: [Findings]
+      operationId: getFinding
+      summary: Get a finding by ID
+      responses:
+        '200':
+          description: Finding details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindingResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Findings]
+      operationId: updateFinding
+      summary: Update a finding
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFindingRequest'
+      responses:
+        '200':
+          description: Updated finding
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindingResponse'
+    delete:
+      tags: [Findings]
+      operationId: deleteFinding
+      summary: Delete a finding
+      responses:
+        '204':
+          description: Finding deleted
+
+  /api/findings/{finding_id}/triage:
+    patch:
+      tags: [Findings]
+      operationId: triageFinding
+      summary: Triage a finding
+      parameters:
+        - $ref: '#/components/parameters/FindingId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TriageRequest'
+      responses:
+        '200':
+          description: Triaged finding
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindingResponse'
+
+  /api/findings/{finding_id}/evidence:
+    post:
+      tags: [Findings]
+      operationId: addEvidence
+      summary: Add evidence to a finding
+      parameters:
+        - $ref: '#/components/parameters/FindingId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvidenceRequest'
+      responses:
+        '201':
+          description: Evidence added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvidenceResponse'
+
+  /api/findings/{finding_id}/evidence/{evidence_id}:
+    delete:
+      tags: [Findings]
+      operationId: deleteEvidence
+      summary: Delete evidence from a finding
+      parameters:
+        - $ref: '#/components/parameters/FindingId'
+        - name: evidence_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Evidence deleted
+
+  /api/findings/{finding_id}/cvss:
+    post:
+      tags: [Findings]
+      operationId: calculateCvss
+      summary: Calculate CVSS score for a finding
+      parameters:
+        - $ref: '#/components/parameters/FindingId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CVSSVectorRequest'
+      responses:
+        '200':
+          description: CVSS score
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CVSSScoreResponse'
+
+  # ──────────────────────────────────────────────
+  # Compliance
+  # ──────────────────────────────────────────────
+
+  /api/compliance/assess:
+    post:
+      tags: [Compliance]
+      operationId: runComplianceAssessment
+      summary: Run a compliance assessment
+      description: Maps findings to a compliance framework and returns a gap analysis.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MapRequest'
+      responses:
+        '200':
+          description: Compliance assessment result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceAssessmentResponse'
+
+  /api/compliance/frameworks:
+    get:
+      tags: [Compliance]
+      operationId: listComplianceFrameworks
+      summary: List supported compliance frameworks
+      responses:
+        '200':
+          description: Available frameworks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FrameworkInfo'
+
+  /api/compliance/report/{framework}:
+    get:
+      tags: [Compliance]
+      operationId: getComplianceReport
+      summary: Get compliance report for a framework
+      parameters:
+        - name: framework
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [owasp, pci_dss, nist, cis]
+      responses:
+        '200':
+          description: Compliance report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceReportResponse'
+
+  /api/compliance/gaps/{framework}:
+    get:
+      tags: [Compliance]
+      operationId: getComplianceGaps
+      summary: Get compliance gaps for a framework
+      parameters:
+        - name: framework
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [owasp, pci_dss, nist, cis]
+      responses:
+        '200':
+          description: Compliance gaps
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceGapsResponse'
+
+  # ──────────────────────────────────────────────
+  # Integrations
+  # ──────────────────────────────────────────────
+
+  /api/integrations/configure:
+    post:
+      tags: [Integrations]
+      operationId: addIntegration
+      summary: Add an integration configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookConfigRequest'
+      responses:
+        '201':
+          description: Integration added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookConfigResponse'
+    get:
+      tags: [Integrations]
+      operationId: listIntegrations
+      summary: List integration configurations
+      responses:
+        '200':
+          description: List of integrations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WebhookConfigResponse'
+
+  /api/integrations/configure/{config_id}:
+    delete:
+      tags: [Integrations]
+      operationId: deleteIntegration
+      summary: Delete an integration configuration
+      parameters:
+        - name: config_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Integration deleted
+
+  /api/integrations/test:
+    post:
+      tags: [Integrations]
+      operationId: testIntegration
+      summary: Test an integration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestEventRequest'
+      responses:
+        '200':
+          description: Test result
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/integrations/export/siem:
+    post:
+      tags: [Integrations]
+      operationId: exportToSiem
+      summary: Export findings to SIEM
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SIEMExportRequest'
+      responses:
+        '200':
+          description: SIEM export result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SIEMExportResponse'
+
+  /api/integrations/export/splunk:
+    post:
+      tags: [Integrations]
+      operationId: exportToSplunk
+      summary: Export findings to Splunk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SplunkExportRequest'
+      responses:
+        '200':
+          description: Splunk export result
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/integrations/export/elk:
+    post:
+      tags: [Integrations]
+      operationId: exportToElk
+      summary: Export findings to ELK Stack
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ELKExportRequest'
+      responses:
+        '200':
+          description: ELK export result
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/integrations/syslog/send:
+    post:
+      tags: [Integrations]
+      operationId: sendSyslog
+      summary: Send a syslog message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyslogRequest'
+      responses:
+        '200':
+          description: Syslog sent
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/integrations/history:
+    get:
+      tags: [Integrations]
+      operationId: getExportHistory
+      summary: Get integration export history
+      responses:
+        '200':
+          description: Export history records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeliveryRecord'
+
+  # ──────────────────────────────────────────────
+  # Plugins
+  # ──────────────────────────────────────────────
+
+  /api/plugins:
+    get:
+      tags: [Plugins]
+      operationId: listPlugins
+      summary: List installed plugins
+      responses:
+        '200':
+          description: List of plugins
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PluginInfo'
+    post:
+      tags: [Plugins]
+      operationId: installPlugin
+      summary: Install a plugin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PluginInstallRequest'
+      responses:
+        '201':
+          description: Plugin installed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginInfo'
+
+  /api/plugins/{plugin_id}:
+    delete:
+      tags: [Plugins]
+      operationId: uninstallPlugin
+      summary: Uninstall a plugin
+      parameters:
+        - name: plugin_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Plugin uninstalled
+
+  # ──────────────────────────────────────────────
+  # SSE
+  # ──────────────────────────────────────────────
+
+  /api/sse/stream/scans/{project_id}:
+    get:
+      tags: [SSE]
+      operationId: streamScanEvents
+      summary: SSE stream for scan events
+      description: Server-Sent Events stream delivering real-time scan progress and results.
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '200':
+          description: SSE scan event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /api/sse/stream/logs/{project_id}:
+    get:
+      tags: [SSE]
+      operationId: streamLogEvents
+      summary: SSE stream for log events
+      description: Server-Sent Events stream delivering real-time agent and tool log output.
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '200':
+          description: SSE log event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  # ──────────────────────────────────────────────
+  # Metrics
+  # ──────────────────────────────────────────────
+
+  /metrics:
+    get:
+      tags: [Metrics]
+      operationId: getMetrics
+      summary: Prometheus metrics
+      description: Exposes Prometheus-compatible metrics for scraping.
+      security: []
+      responses:
+        '200':
+          description: Prometheus metrics text
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  # ──────────────────────────────────────────────
+  # Health
+  # ──────────────────────────────────────────────
+
+  /:
+    get:
+      tags: [Health]
+      operationId: rootHealth
+      summary: Root health check
+      security: []
+      responses:
+        '200':
+          description: Service is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /health:
+    get:
+      tags: [Health]
+      operationId: detailedHealth
+      summary: Detailed health check
+      description: Returns health status for all dependent services (DB, Redis, Neo4j).
+      security: []
+      responses:
+        '200':
+          description: Detailed health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedHealthResponse'
+
+  /readiness:
+    get:
+      tags: [Health]
+      operationId: readinessProbe
+      summary: Kubernetes readiness probe
+      security: []
+      responses:
+        '200':
+          description: Service ready
+          content:
+            application/json:
+              schema:
+                type: object
+        '503':
+          description: Service not ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/version:
+    get:
+      tags: [Health]
+      operationId: getVersion
+      summary: API version info
+      security: []
+      responses:
+        '200':
+          description: Version information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionResponse'
+
+# ──────────────────────────────────────────────
+# Components
+# ──────────────────────────────────────────────
+
+components:
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token obtained from /api/auth/login
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Page number (1-based)
+    PageSize:
+      name: page_size
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: Number of results per page
+    ProjectId:
+      name: project_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Project UUID
+    ProjectIdPath:
+      name: project_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Project identifier
+    TaskId:
+      name: task_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Async task UUID
+    ChainId:
+      name: chain_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: AutoChain UUID
+    ReportId:
+      name: report_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Report UUID
+    CampaignId:
+      name: campaign_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Campaign UUID
+    FindingId:
+      name: finding_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Finding UUID
+
+  responses:
+    BadRequest:
+      description: Bad request — invalid input data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            detail: Email address already registered
+    Unauthorized:
+      description: Unauthorized — missing or invalid Bearer token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            detail: Could not validate credentials
+    Forbidden:
+      description: Forbidden — insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            detail: Not enough permissions
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            detail: Resource not found
+    ValidationError:
+      description: Unprocessable entity — request body validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+    TooManyRequests:
+      description: Too many requests — rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            detail: Rate limit exceeded. Try again in 60 seconds.
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            detail: An unexpected error occurred
+
+  schemas:
+
+    # ── Common ──────────────────────────────────
+
+    ErrorResponse:
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: string
+          description: Human-readable error description
+          example: Resource not found
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                    - type: integer
+              msg:
+                type: string
+              type:
+                type: string
+
+    Message:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          example: Operation completed successfully
+
+    # ── Auth ────────────────────────────────────
+
+    UserCreate:
+      type: object
+      required: [email, username, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: analyst@example.com
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+          pattern: '^[a-zA-Z0-9_]+$'
+          example: analyst01
+        password:
+          type: string
+          minLength: 8
+          maxLength: 100
+          format: password
+          example: Sup3rS3cur3!
+        full_name:
+          type: string
+          nullable: true
+          example: Alice Analyst
+        role:
+          type: string
+          enum: [admin, analyst, viewer]
+          default: analyst
+
+    UserLogin:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          example: analyst01
+        password:
+          type: string
+          format: password
+          example: Sup3rS3cur3!
+
+    UserResponse:
+      type: object
+      required: [id, email, username, is_active, created_at, role]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440000
+        email:
+          type: string
+          format: email
+          example: analyst@example.com
+        username:
+          type: string
+          example: analyst01
+        full_name:
+          type: string
+          nullable: true
+          example: Alice Analyst
+        is_active:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        role:
+          type: string
+          enum: [admin, analyst, viewer]
+          example: analyst
+
+    Token:
+      type: object
+      required: [access_token, refresh_token, token_type]
+      properties:
+        access_token:
+          type: string
+          description: Short-lived JWT access token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refresh_token:
+          type: string
+          description: Long-lived JWT refresh token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        token_type:
+          type: string
+          default: bearer
+          example: bearer
+
+    # ── Projects ────────────────────────────────
+
+    ProjectCreate:
+      type: object
+      required: [name, target]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          example: ACME Corp External Assessment
+        description:
+          type: string
+          maxLength: 2000
+          nullable: true
+          example: Full external attack surface assessment for ACME Corp
+        target:
+          type: string
+          minLength: 1
+          maxLength: 500
+          example: acme.com
+        project_type:
+          type: string
+          default: full_assessment
+          example: full_assessment
+        enable_subdomain_enum:
+          type: boolean
+          default: true
+        enable_port_scan:
+          type: boolean
+          default: true
+        enable_web_crawl:
+          type: boolean
+          default: true
+        enable_tech_detection:
+          type: boolean
+          default: true
+        enable_vuln_scan:
+          type: boolean
+          default: true
+        enable_nuclei:
+          type: boolean
+          default: true
+        enable_auto_exploit:
+          type: boolean
+          default: false
+
+    ProjectUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+          nullable: true
+        status:
+          type: string
+          enum: [draft, queued, running, paused, completed, failed]
+        enable_subdomain_enum:
+          type: boolean
+        enable_port_scan:
+          type: boolean
+        enable_web_crawl:
+          type: boolean
+        enable_tech_detection:
+          type: boolean
+        enable_vuln_scan:
+          type: boolean
+        enable_nuclei:
+          type: boolean
+        enable_auto_exploit:
+          type: boolean
+
+    ProjectResponse:
+      type: object
+      required: [id, name, target, project_type, status, created_at, updated_at, user_id]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: ACME Corp External Assessment
+        description:
+          type: string
+          nullable: true
+        target:
+          type: string
+          example: acme.com
+        project_type:
+          type: string
+          example: full_assessment
+        status:
+          type: string
+          enum: [draft, queued, running, paused, completed, failed]
+          example: running
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        user_id:
+          type: string
+          format: uuid
+        enable_subdomain_enum:
+          type: boolean
+        enable_port_scan:
+          type: boolean
+        enable_web_crawl:
+          type: boolean
+        enable_tech_detection:
+          type: boolean
+        enable_vuln_scan:
+          type: boolean
+        enable_nuclei:
+          type: boolean
+        enable_auto_exploit:
+          type: boolean
+
+    ProjectListResponse:
+      type: object
+      required: [projects, total, page, page_size]
+      properties:
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectResponse'
+        total:
+          type: integer
+          example: 42
+        page:
+          type: integer
+          example: 1
+        page_size:
+          type: integer
+          example: 20
+
+    # ── Graph ────────────────────────────────────
+
+    GraphIngestRequest:
+      type: object
+      required: [phase, data]
+      properties:
+        phase:
+          type: string
+          enum: [domain_discovery, port_scan, http_probe, resource_enum, vuln_scan, mitre]
+          example: port_scan
+        data:
+          type: object
+          description: Phase-specific scan data payload
+        user_id:
+          type: string
+          nullable: true
+        project_id:
+          type: string
+          nullable: true
+
+    GraphIngestResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        nodes_created:
+          type: integer
+          example: 47
+        relationships_created:
+          type: integer
+          example: 63
+        phase:
+          type: string
+          example: port_scan
+
+    GraphQueryRequest:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+          description: Cypher query string
+          example: "MATCH (n:Host) RETURN n LIMIT 25"
+        parameters:
+          type: object
+          description: Query parameters
+          additionalProperties: true
+
+    GraphQueryResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+        count:
+          type: integer
+
+    AttackSurfaceResponse:
+      type: object
+      properties:
+        project_id:
+          type: string
+        nodes:
+          type: array
+          items:
+            type: object
+        edges:
+          type: array
+          items:
+            type: object
+        summary:
+          type: object
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+          example: healthy
+        database:
+          type: string
+          example: connected
+        latency_ms:
+          type: number
+          example: 12.4
+
+    GraphStatsResponse:
+      type: object
+      properties:
+        project_id:
+          type: string
+        total_nodes:
+          type: integer
+        total_relationships:
+          type: integer
+        node_types:
+          type: object
+          additionalProperties:
+            type: integer
+        last_updated:
+          type: string
+          format: date-time
+
+    # ── AI Agent ────────────────────────────────
+
+    AgentStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [idle, running, paused, waiting_approval, error]
+          example: running
+        current_agent:
+          type: string
+          nullable: true
+          example: recon
+        phase:
+          type: string
+          nullable: true
+          example: port_scan
+        messages_processed:
+          type: integer
+          example: 14
+        uptime_seconds:
+          type: number
+          example: 342.7
+        pending_approvals:
+          type: integer
+          example: 0
+
+    ChatRequest:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          description: Natural language message to the AI agent
+          example: "Perform a full recon on target.com and identify critical vulnerabilities"
+        project_id:
+          type: string
+          nullable: true
+        session_id:
+          type: string
+          nullable: true
+
+    ChatResponse:
+      type: object
+      properties:
+        response:
+          type: string
+          description: Agent's natural language response
+        agent:
+          type: string
+          description: Which specialist agent handled the request
+          example: recon
+        session_id:
+          type: string
+        tool_calls:
+          type: array
+          items:
+            type: object
+
+    GuidanceRequest:
+      type: object
+      required: [guidance]
+      properties:
+        guidance:
+          type: string
+          description: Human guidance text to inject into the agent
+          example: Focus on authentication bypass vulnerabilities only
+
+    ApprovalRequest:
+      type: object
+      required: [approved]
+      properties:
+        tool_call_id:
+          type: string
+          description: ID of the pending tool call to approve/reject
+        approved:
+          type: boolean
+          description: Whether to approve or reject the tool call
+        reason:
+          type: string
+          nullable: true
+          description: Optional reason for rejection
+
+    # ── Reconnaissance ───────────────────────────
+
+    ReconRequest:
+      type: object
+      required: [target]
+      properties:
+        target:
+          type: string
+          description: Hostname, IP, or domain to recon
+          example: acme.com
+        project_id:
+          type: string
+          nullable: true
+        enable_subdomain_enum:
+          type: boolean
+          default: true
+        enable_whois:
+          type: boolean
+          default: true
+        enable_dns:
+          type: boolean
+          default: true
+        wordlist:
+          type: string
+          nullable: true
+          description: Custom wordlist path for subdomain enumeration
+
+    TaskResponse:
+      type: object
+      required: [task_id, status]
+      properties:
+        task_id:
+          type: string
+          format: uuid
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        status:
+          type: string
+          enum: [queued, running, completed, failed, cancelled]
+          example: queued
+        message:
+          type: string
+          example: Task accepted and queued
+
+    ReconTaskStatus:
+      type: object
+      properties:
+        task_id:
+          type: string
+        status:
+          type: string
+          enum: [queued, running, completed, failed, cancelled]
+        target:
+          type: string
+        progress_percent:
+          type: integer
+          minimum: 0
+          maximum: 100
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        error:
+          type: string
+          nullable: true
+
+    ReconResults:
+      type: object
+      properties:
+        task_id:
+          type: string
+        target:
+          type: string
+        subdomains:
+          type: array
+          items:
+            type: string
+          example: [api.acme.com, mail.acme.com, vpn.acme.com]
+        dns_records:
+          type: object
+          additionalProperties: true
+        whois:
+          type: object
+          additionalProperties: true
+        technologies:
+          type: array
+          items:
+            type: string
+        ip_addresses:
+          type: array
+          items:
+            type: string
+
+    # ── Port Scanning ────────────────────────────
+
+    PortScanRequest:
+      type: object
+      required: [target]
+      properties:
+        target:
+          type: string
+          description: IP address, CIDR range, or hostname
+          example: 192.168.1.0/24
+        ports:
+          type: string
+          default: "1-65535"
+          description: Port range (e.g. "80,443,8080-8090")
+        project_id:
+          type: string
+          nullable: true
+        rate:
+          type: integer
+          default: 1000
+          description: Packets per second
+        timeout:
+          type: integer
+          default: 300
+          description: Scan timeout in seconds
+
+    ScanTaskStatus:
+      type: object
+      properties:
+        task_id:
+          type: string
+        status:
+          type: string
+          enum: [queued, running, completed, failed, cancelled]
+        target:
+          type: string
+        progress_percent:
+          type: integer
+          minimum: 0
+          maximum: 100
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        error:
+          type: string
+          nullable: true
+
+    PortScanResults:
+      type: object
+      properties:
+        task_id:
+          type: string
+        target:
+          type: string
+        hosts:
+          type: array
+          items:
+            type: object
+            properties:
+              ip:
+                type: string
+              hostname:
+                type: string
+                nullable: true
+              open_ports:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    port:
+                      type: integer
+                    protocol:
+                      type: string
+                    service:
+                      type: string
+                      nullable: true
+                    version:
+                      type: string
+                      nullable: true
+        total_hosts:
+          type: integer
+        total_open_ports:
+          type: integer
+
+    # ── HTTP Probing ─────────────────────────────
+
+    HttpProbeRequest:
+      type: object
+      required: [targets]
+      properties:
+        targets:
+          type: array
+          items:
+            type: string
+          description: List of URLs or hosts to probe
+        project_id:
+          type: string
+          nullable: true
+        follow_redirects:
+          type: boolean
+          default: true
+        timeout:
+          type: integer
+          default: 30
+
+    HttpProbeTaskStatus:
+      type: object
+      properties:
+        task_id:
+          type: string
+        status:
+          type: string
+          enum: [queued, running, completed, failed, cancelled]
+        total_targets:
+          type: integer
+        probed:
+          type: integer
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    HttpProbeResults:
+      type: object
+      properties:
+        task_id:
+          type: string
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+              status_code:
+                type: integer
+              content_length:
+                type: integer
+              content_type:
+                type: string
+                nullable: true
+              title:
+                type: string
+                nullable: true
+              technologies:
+                type: array
+                items:
+                  type: string
+              response_time_ms:
+                type: number
+              redirect_url:
+                type: string
+                nullable: true
+
+    # ── Nuclei ───────────────────────────────────
+
+    NucleiScanRequest:
+      type: object
+      required: [targets]
+      properties:
+        targets:
+          type: array
+          items:
+            type: string
+          description: Target URLs or hosts
+        project_id:
+          type: string
+          nullable: true
+        templates:
+          type: array
+          items:
+            type: string
+          description: Nuclei template IDs or paths
+        severity:
+          type: array
+          items:
+            type: string
+            enum: [critical, high, medium, low, info]
+          description: Filter by severity
+        rate_limit:
+          type: integer
+          default: 150
+
+    NucleiScanResults:
+      type: object
+      properties:
+        task_id:
+          type: string
+        findings:
+          type: array
+          items:
+            type: object
+            properties:
+              template_id:
+                type: string
+              name:
+                type: string
+              severity:
+                type: string
+              matched_at:
+                type: string
+              extracted_results:
+                type: array
+                items:
+                  type: string
+              reference:
+                type: array
+                items:
+                  type: string
+        total:
+          type: integer
+
+    # ── URL Discovery ────────────────────────────
+
+    UrlDiscoveryRequest:
+      type: object
+      required: [target]
+      properties:
+        target:
+          type: string
+          description: Base URL to discover paths on
+          example: https://acme.com
+        project_id:
+          type: string
+          nullable: true
+        wordlist:
+          type: string
+          nullable: true
+          description: Wordlist name or path
+        extensions:
+          type: array
+          items:
+            type: string
+          example: [php, asp, aspx, jsp]
+        threads:
+          type: integer
+          default: 40
+        recursion_depth:
+          type: integer
+          default: 2
+
+    DiscoveryTaskStatus:
+      type: object
+      properties:
+        task_id:
+          type: string
+        status:
+          type: string
+          enum: [queued, running, completed, failed, cancelled]
+        target:
+          type: string
+        urls_found:
+          type: integer
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    UrlDiscoveryResults:
+      type: object
+      properties:
+        task_id:
+          type: string
+        target:
+          type: string
+        urls:
+          type: array
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+              status_code:
+                type: integer
+              content_length:
+                type: integer
+              content_type:
+                type: string
+                nullable: true
+        total:
+          type: integer
+
+    # ── CVE Enrichment ───────────────────────────
+
+    CVEDetail:
+      type: object
+      properties:
+        cve_id:
+          type: string
+          example: CVE-2023-44487
+        description:
+          type: string
+        cvss_v3_score:
+          type: number
+          nullable: true
+          example: 7.5
+        cvss_v3_vector:
+          type: string
+          nullable: true
+        cvss_v2_score:
+          type: number
+          nullable: true
+        severity:
+          type: string
+          enum: [CRITICAL, HIGH, MEDIUM, LOW, NONE]
+        cwe_ids:
+          type: array
+          items:
+            type: string
+        references:
+          type: array
+          items:
+            type: string
+        published_date:
+          type: string
+          format: date-time
+        last_modified:
+          type: string
+          format: date-time
+        affected_products:
+          type: array
+          items:
+            type: object
+
+    EnrichFindingsRequest:
+      type: object
+      required: [findings]
+      properties:
+        findings:
+          type: array
+          items:
+            type: object
+            properties:
+              finding_id:
+                type: string
+              cve_id:
+                type: string
+
+    EnrichedFindingsResponse:
+      type: object
+      properties:
+        enriched:
+          type: array
+          items:
+            type: object
+        failed:
+          type: array
+          items:
+            type: string
+
+    BatchEnrichRequest:
+      type: object
+      required: [cve_ids]
+      properties:
+        cve_ids:
+          type: array
+          items:
+            type: string
+          example: [CVE-2023-44487, CVE-2021-44228]
+
+    BatchEnrichResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CVEDetail'
+        not_found:
+          type: array
+          items:
+            type: string
+
+    # ── CWE/CAPEC ────────────────────────────────
+
+    CWEDetail:
+      type: object
+      properties:
+        cwe_id:
+          type: string
+          example: CWE-89
+        name:
+          type: string
+          example: Improper Neutralization of Special Elements used in an SQL Command
+        description:
+          type: string
+        extended_description:
+          type: string
+          nullable: true
+        related_attack_patterns:
+          type: array
+          items:
+            type: string
+        mitigations:
+          type: array
+          items:
+            type: object
+
+    CAPECDetail:
+      type: object
+      properties:
+        capec_id:
+          type: string
+          example: CAPEC-66
+        name:
+          type: string
+          example: SQL Injection
+        description:
+          type: string
+        attack_steps:
+          type: array
+          items:
+            type: string
+        prerequisites:
+          type: array
+          items:
+            type: string
+        related_cwes:
+          type: array
+          items:
+            type: string
+        severity:
+          type: string
+
+    MappingRequest:
+      type: object
+      required: [title, description]
+      properties:
+        title:
+          type: string
+          description: Finding title
+        description:
+          type: string
+          description: Finding description
+        affected_component:
+          type: string
+          nullable: true
+
+    MappingResponse:
+      type: object
+      properties:
+        cwe_id:
+          type: string
+          nullable: true
+        cwe_name:
+          type: string
+          nullable: true
+        capec_ids:
+          type: array
+          items:
+            type: string
+        owasp_category:
+          type: string
+          nullable: true
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    # ── AutoChain ────────────────────────────────
+
+    AutoChainStartRequest:
+      type: object
+      required: [target]
+      properties:
+        target:
+          type: string
+          description: IP address, hostname, or URL
+          example: 10.10.10.100
+        project_id:
+          type: string
+          nullable: true
+        auto_approve_risk_level:
+          type: string
+          enum: [none, low, medium, high, critical]
+          default: none
+          description: Maximum risk level to auto-approve without human confirmation
+        naabu_url:
+          type: string
+          default: http://kali-tools:8000
+        nuclei_url:
+          type: string
+          default: http://kali-tools:8002
+        msf_url:
+          type: string
+          default: http://kali-tools:8003
+
+    AutoChainStartResponse:
+      type: object
+      properties:
+        chain_id:
+          type: string
+          format: uuid
+        target:
+          type: string
+        status:
+          type: string
+          example: started
+        message:
+          type: string
+
+    AutoChainStatusResponse:
+      type: object
+      required: [chain_id, target, status, started_at]
+      properties:
+        chain_id:
+          type: string
+          format: uuid
+        target:
+          type: string
+        status:
+          type: string
+          enum: [running, paused, completed, failed, stopped]
+        current_phase:
+          type: string
+          nullable: true
+        total_steps:
+          type: integer
+        completed_steps:
+          type: integer
+        total_vulns_found:
+          type: integer
+        total_exploits_attempted:
+          type: integer
+        exploitation_success:
+          type: boolean
+        flags_found:
+          type: integer
+        session_id:
+          type: integer
+          nullable: true
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+          nullable: true
+        error:
+          type: string
+          nullable: true
+
+    AutoChainFlagsResponse:
+      type: object
+      properties:
+        chain_id:
+          type: string
+        flags:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+              captured_at:
+                type: string
+                format: date-time
+              phase:
+                type: string
+
+    AutoChainStepsResponse:
+      type: object
+      properties:
+        chain_id:
+          type: string
+        steps:
+          type: array
+          items:
+            type: object
+            properties:
+              step_number:
+                type: integer
+              phase:
+                type: string
+              action:
+                type: string
+              status:
+                type: string
+              output:
+                type: string
+                nullable: true
+              started_at:
+                type: string
+                format: date-time
+                nullable: true
+              completed_at:
+                type: string
+                format: date-time
+                nullable: true
+
+    AutoChainTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: Web Application Full Assessment
+        description:
+          type: string
+        phases:
+          type: array
+          items:
+            type: string
+        estimated_duration_minutes:
+          type: integer
+
+    AutoChainTemplateRequest:
+      type: object
+      required: [template_id, target]
+      properties:
+        template_id:
+          type: string
+        target:
+          type: string
+        project_id:
+          type: string
+          nullable: true
+        auto_approve_risk_level:
+          type: string
+          enum: [none, low, medium, high, critical]
+          default: none
+
+    # ── Reports ──────────────────────────────────
+
+    GenerateReportRequest:
+      type: object
+      required: [title, template, format]
+      properties:
+        project_name:
+          type: string
+          default: Security Assessment
+        author:
+          type: string
+          default: Security Team
+        client_name:
+          type: string
+          nullable: true
+        title:
+          type: string
+          example: External Penetration Test Report — ACME Corp
+        template:
+          type: string
+          enum: [technical_report, executive_summary, compliance_report, red_team_report]
+          example: technical_report
+        format:
+          type: string
+          enum: [html, pdf, markdown]
+          example: pdf
+        include_charts:
+          type: boolean
+          default: true
+        include_toc:
+          type: boolean
+          default: true
+        scan_results:
+          type: array
+          items:
+            type: object
+            description: Scan result objects to include in the report
+        confidentiality:
+          type: string
+          default: CONFIDENTIAL
+
+    ReportSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        template:
+          type: string
+        format:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        project_id:
+          type: string
+          nullable: true
+
+    ReportResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        template:
+          type: string
+        format:
+          type: string
+        status:
+          type: string
+          enum: [generating, completed, failed]
+        download_url:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        size_bytes:
+          type: integer
+          nullable: true
+        project_id:
+          type: string
+          nullable: true
+
+    ArtifactResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        size_bytes:
+          type: integer
+        uploaded_at:
+          type: string
+          format: date-time
+        content_type:
+          type: string
+
+    ArtifactUrlResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          description: Presigned download URL
+        expires_at:
+          type: string
+          format: date-time
+
+    # ── Campaigns ────────────────────────────────
+
+    CampaignConfigRequest:
+      type: object
+      properties:
+        max_concurrent_targets:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 3
+        scan_timeout_seconds:
+          type: integer
+          default: 3600
+        retry_failed_targets:
+          type: boolean
+          default: true
+        max_retries:
+          type: integer
+          minimum: 0
+          maximum: 5
+          default: 2
+        enable_correlation:
+          type: boolean
+          default: true
+        rate_limit_rps:
+          type: number
+          default: 10.0
+        tags:
+          type: array
+          items:
+            type: string
+        scan_profile:
+          type: string
+          enum: [quick, standard, thorough, stealth]
+          default: standard
+
+    CreateCampaignRequest:
+      type: object
+      required: [name, config]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          example: Q4 External Perimeter Sweep
+        description:
+          type: string
+          maxLength: 2000
+        config:
+          $ref: '#/components/schemas/CampaignConfigRequest'
+        created_by:
+          type: string
+          default: system
+
+    UpdateCampaignRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        config:
+          $ref: '#/components/schemas/CampaignConfigRequest'
+        status:
+          type: string
+          enum: [draft, running, paused, completed, failed]
+
+    CampaignResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [draft, running, paused, completed, failed]
+        config:
+          $ref: '#/components/schemas/CampaignConfigRequest'
+        created_by:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        total_targets:
+          type: integer
+        completed_targets:
+          type: integer
+        failed_targets:
+          type: integer
+
+    # ── Findings ─────────────────────────────────
+
+    CreateFindingRequest:
+      type: object
+      required: [title, affected_component, remediation, remediation_effort]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 512
+          example: SQL Injection in /api/search endpoint
+        severity:
+          type: string
+          enum: [critical, high, medium, low, info]
+          default: info
+        description:
+          type: string
+          maxLength: 8192
+        source:
+          type: string
+          enum: [manual, nessus, nuclei, burp, metasploit, nmap, sqlmap, other]
+          default: manual
+        cve_id:
+          type: string
+          nullable: true
+          example: CVE-2023-1234
+        cwe_id:
+          type: string
+          nullable: true
+          example: CWE-89
+        owasp_category:
+          type: string
+          nullable: true
+          example: A03:2021 - Injection
+        cvss_score:
+          type: number
+          minimum: 0
+          maximum: 10
+          default: 0.0
+        cvss_vector:
+          type: string
+          nullable: true
+        affected_component:
+          type: string
+          example: /api/search
+        affected_url:
+          type: string
+          nullable: true
+          example: https://acme.com/api/search
+        affected_parameter:
+          type: string
+          nullable: true
+          example: q
+        affected_method:
+          type: string
+          default: GET
+        project_id:
+          type: string
+          nullable: true
+        campaign_id:
+          type: string
+          nullable: true
+        target_id:
+          type: string
+          nullable: true
+        scan_id:
+          type: string
+          nullable: true
+        remediation:
+          type: string
+          example: Use parameterised queries and input validation
+        remediation_effort:
+          type: string
+          enum: [low, medium, high, critical]
+        references:
+          type: array
+          items:
+            type: string
+        tool_name:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+        raw_output:
+          type: string
+          nullable: true
+
+    UpdateFindingRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        severity:
+          type: string
+          enum: [critical, high, medium, low, info]
+        description:
+          type: string
+        status:
+          type: string
+          enum: [open, in_progress, resolved, wont_fix, false_positive]
+        cvss_score:
+          type: number
+          minimum: 0
+          maximum: 10
+        remediation:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    FindingResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        severity:
+          type: string
+          enum: [critical, high, medium, low, info]
+        description:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [open, in_progress, resolved, wont_fix, false_positive]
+        source:
+          type: string
+        cve_id:
+          type: string
+          nullable: true
+        cwe_id:
+          type: string
+          nullable: true
+        owasp_category:
+          type: string
+          nullable: true
+        cvss_score:
+          type: number
+          nullable: true
+        cvss_vector:
+          type: string
+          nullable: true
+        affected_component:
+          type: string
+        affected_url:
+          type: string
+          nullable: true
+        affected_parameter:
+          type: string
+          nullable: true
+        affected_method:
+          type: string
+        project_id:
+          type: string
+          nullable: true
+        campaign_id:
+          type: string
+          nullable: true
+        remediation:
+          type: string
+          nullable: true
+        remediation_effort:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+        evidence:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceResponse'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    FindingListResponse:
+      type: object
+      properties:
+        findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/FindingResponse'
+        total:
+          type: integer
+        page:
+          type: integer
+        page_size:
+          type: integer
+
+    FindingStatsResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+        by_severity:
+          type: object
+          properties:
+            critical:
+              type: integer
+            high:
+              type: integer
+            medium:
+              type: integer
+            low:
+              type: integer
+            info:
+              type: integer
+        by_status:
+          type: object
+          properties:
+            open:
+              type: integer
+            in_progress:
+              type: integer
+            resolved:
+              type: integer
+            wont_fix:
+              type: integer
+            false_positive:
+              type: integer
+        by_source:
+          type: object
+          additionalProperties:
+            type: integer
+
+    DeduplicationResult:
+      type: object
+      properties:
+        total_before:
+          type: integer
+        duplicates_removed:
+          type: integer
+        total_after:
+          type: integer
+        duplicate_groups:
+          type: array
+          items:
+            type: object
+
+    BulkImportRequest:
+      type: object
+      required: [findings]
+      properties:
+        findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateFindingRequest'
+        project_id:
+          type: string
+          nullable: true
+        deduplicate:
+          type: boolean
+          default: true
+
+    BulkImportResponse:
+      type: object
+      properties:
+        imported:
+          type: integer
+        skipped:
+          type: integer
+        failed:
+          type: integer
+        finding_ids:
+          type: array
+          items:
+            type: string
+
+    TriageRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [open, in_progress, resolved, wont_fix, false_positive]
+        triage_note:
+          type: string
+          nullable: true
+        assignee:
+          type: string
+          nullable: true
+
+    EvidenceRequest:
+      type: object
+      required: [type, content]
+      properties:
+        type:
+          type: string
+          enum: [screenshot, request_response, log, code, other]
+        content:
+          type: string
+          description: Evidence content (base64 for binary, plain text for logs/code)
+        description:
+          type: string
+          nullable: true
+        filename:
+          type: string
+          nullable: true
+
+    EvidenceResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        finding_id:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+          nullable: true
+        filename:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    CVSSVectorRequest:
+      type: object
+      required: [vector]
+      properties:
+        vector:
+          type: string
+          description: CVSS v3.1 vector string
+          example: "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+
+    CVSSScoreResponse:
+      type: object
+      properties:
+        base_score:
+          type: number
+          minimum: 0
+          maximum: 10
+          example: 9.8
+        severity:
+          type: string
+          enum: [NONE, LOW, MEDIUM, HIGH, CRITICAL]
+          example: CRITICAL
+        vector:
+          type: string
+        temporal_score:
+          type: number
+          nullable: true
+        environmental_score:
+          type: number
+          nullable: true
+
+    # ── Compliance ───────────────────────────────
+
+    FindingRequest:
+      type: object
+      required: [title, severity]
+      properties:
+        title:
+          type: string
+        severity:
+          type: string
+          enum: [critical, high, medium, low, info]
+        cwe_id:
+          type: string
+          nullable: true
+        owasp_category:
+          type: string
+          nullable: true
+
+    MapRequest:
+      type: object
+      required: [findings, framework]
+      properties:
+        findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/FindingRequest'
+        framework:
+          type: string
+          enum: [owasp, pci_dss, nist, cis]
+
+    ComplianceAssessmentResponse:
+      type: object
+      properties:
+        framework:
+          type: string
+        overall_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        passed_controls:
+          type: integer
+        failed_controls:
+          type: integer
+        not_applicable:
+          type: integer
+        control_results:
+          type: array
+          items:
+            type: object
+            properties:
+              control_id:
+                type: string
+              name:
+                type: string
+              status:
+                type: string
+                enum: [pass, fail, not_applicable]
+              findings:
+                type: array
+                items:
+                  type: string
+
+    FrameworkInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          enum: [owasp, pci_dss, nist, cis]
+        name:
+          type: string
+          example: OWASP Top 10
+        version:
+          type: string
+          example: "2021"
+        total_controls:
+          type: integer
+        description:
+          type: string
+
+    ComplianceReportResponse:
+      type: object
+      properties:
+        framework:
+          type: string
+        generated_at:
+          type: string
+          format: date-time
+        summary:
+          type: object
+        controls:
+          type: array
+          items:
+            type: object
+
+    ComplianceGapsResponse:
+      type: object
+      properties:
+        framework:
+          type: string
+        gaps:
+          type: array
+          items:
+            type: object
+            properties:
+              control_id:
+                type: string
+              name:
+                type: string
+              severity:
+                type: string
+              remediation_steps:
+                type: array
+                items:
+                  type: string
+
+    # ── Integrations ─────────────────────────────
+
+    WebhookConfigRequest:
+      type: object
+      required: [id, provider, url, name]
+      properties:
+        id:
+          type: string
+        provider:
+          type: string
+          enum: [slack, teams, discord, pagerduty, jira, generic]
+        url:
+          type: string
+          format: uri
+        name:
+          type: string
+        enabled:
+          type: boolean
+          default: true
+        events:
+          type: array
+          items:
+            type: string
+          example: [finding.created, scan.completed]
+        token:
+          type: string
+          description: Authentication token for the webhook
+        jira_project:
+          type: string
+          nullable: true
+        jira_issue_type:
+          type: string
+          default: Bug
+        jira_username:
+          type: string
+          nullable: true
+        jira_severity_threshold:
+          type: string
+          default: high
+        pagerduty_severity:
+          type: string
+          default: error
+        custom_headers:
+          type: object
+          additionalProperties:
+            type: string
+
+    WebhookConfigResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        provider:
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+        enabled:
+          type: boolean
+        events:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+
+    TestEventRequest:
+      type: object
+      required: [config_id]
+      properties:
+        config_id:
+          type: string
+        event_type:
+          type: string
+          default: test
+
+    SIEMExportRequest:
+      type: object
+      required: [siem_type, endpoint]
+      properties:
+        siem_type:
+          type: string
+          enum: [splunk, elk, qradar, sentinel, generic]
+        endpoint:
+          type: string
+          format: uri
+        api_key:
+          type: string
+          nullable: true
+        project_id:
+          type: string
+          nullable: true
+        severity_filter:
+          type: array
+          items:
+            type: string
+            enum: [critical, high, medium, low, info]
+
+    SIEMExportResponse:
+      type: object
+      properties:
+        exported:
+          type: integer
+        failed:
+          type: integer
+        siem_type:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    SplunkExportRequest:
+      type: object
+      required: [hec_url, hec_token]
+      properties:
+        hec_url:
+          type: string
+          format: uri
+        hec_token:
+          type: string
+        index:
+          type: string
+          default: main
+        project_id:
+          type: string
+          nullable: true
+
+    ELKExportRequest:
+      type: object
+      required: [elasticsearch_url, index]
+      properties:
+        elasticsearch_url:
+          type: string
+          format: uri
+        index:
+          type: string
+        api_key:
+          type: string
+          nullable: true
+        project_id:
+          type: string
+          nullable: true
+
+    SyslogRequest:
+      type: object
+      required: [host, port, message]
+      properties:
+        host:
+          type: string
+        port:
+          type: integer
+          default: 514
+        message:
+          type: string
+        severity:
+          type: integer
+          minimum: 0
+          maximum: 7
+          default: 6
+        facility:
+          type: integer
+          minimum: 0
+          maximum: 23
+          default: 1
+        protocol:
+          type: string
+          enum: [udp, tcp]
+          default: udp
+
+    DeliveryRecord:
+      type: object
+      properties:
+        id:
+          type: string
+        config_id:
+          type: string
+        provider:
+          type: string
+        event_type:
+          type: string
+        status:
+          type: string
+          enum: [success, failed, pending]
+        response_code:
+          type: integer
+          nullable: true
+        delivered_at:
+          type: string
+          format: date-time
+        error:
+          type: string
+          nullable: true
+
+    # ── Plugins ──────────────────────────────────
+
+    PluginInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: OWASP ZAP Scanner
+        version:
+          type: string
+          example: 1.2.0
+        description:
+          type: string
+        enabled:
+          type: boolean
+        author:
+          type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+        installed_at:
+          type: string
+          format: date-time
+
+    PluginInstallRequest:
+      type: object
+      required: [source]
+      properties:
+        source:
+          type: string
+          description: Plugin package name, URL, or registry ID
+          example: univex-plugin-zap
+        version:
+          type: string
+          nullable: true
+          description: Specific version to install (latest if omitted)
+        config:
+          type: object
+          additionalProperties: true
+          description: Plugin-specific configuration
+
+    # ── Health ───────────────────────────────────
+
+    DetailedHealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+          example: 2.1.0
+        services:
+          type: object
+          properties:
+            database:
+              type: object
+              properties:
+                status:
+                  type: string
+                latency_ms:
+                  type: number
+            redis:
+              type: object
+              properties:
+                status:
+                  type: string
+                latency_ms:
+                  type: number
+            neo4j:
+              type: object
+              properties:
+                status:
+                  type: string
+                latency_ms:
+                  type: number
+        uptime_seconds:
+          type: number
+
+    VersionResponse:
+      type: object
+      properties:
+        version:
+          type: string
+          example: 2.1.0
+        api_version:
+          type: string
+          example: v1
+        build_date:
+          type: string
+          nullable: true
+        commit_sha:
+          type: string
+          nullable: true
+        environment:
+          type: string
+          enum: [development, staging, production]
+          example: production

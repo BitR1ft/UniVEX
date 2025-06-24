@@ -1,0 +1,73 @@
+# SearXNG Settings for UniVex
+# See: https://docs.searxng.org/admin/settings/
+
+use_default_settings: true
+
+server:
+  # Secret key for session management — override via SEARXNG_SECRET_KEY env var
+  secret_key: "${SEARXNG_SECRET_KEY:-changeme}"
+  limiter: false
+  image_proxy: false
+  base_url: "${SEARXNG_BASE_URL:-http://localhost:8080/}"
+  port: 8080
+  bind_address: "0.0.0.0"
+
+search:
+  default_lang: "en"
+  autocomplete: ""
+  autocomplete_min: 4
+  safe_search: 0
+  formats:
+    - html
+    - json
+
+ui:
+  static_use_hash: true
+  default_theme: simple
+  theme_args:
+    simple_style: dark
+
+# Enable a curated set of engines suitable for security research
+engines:
+  - name: google
+    engine: google
+    shortcut: g
+    disabled: false
+  - name: bing
+    engine: bing
+    shortcut: b
+    disabled: false
+  - name: duckduckgo
+    engine: duckduckgo
+    shortcut: d
+    disabled: false
+  - name: startpage
+    engine: startpage
+    shortcut: sp
+    disabled: false
+  - name: github
+    engine: github
+    shortcut: gh
+    disabled: false
+  - name: stackoverflow
+    engine: stackoverflow
+    shortcut: so
+    disabled: false
+  - name: arxiv
+    engine: arxiv
+    shortcut: ax
+    disabled: false
+  - name: wikidata
+    engine: wikidata
+    shortcut: wd
+    timeout: 3.0
+    disabled: false
+
+outgoing:
+  # Shared request timeout in seconds
+  request_timeout: 3.0
+  max_request_timeout: 15.0
+  useragent_suffix: ""
+  pool_connections: 100
+  pool_maxsize: 20
+  enable_http2: true

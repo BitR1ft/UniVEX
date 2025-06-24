@@ -1,0 +1,125 @@
+# ==============================================================================
+# Grafana Loki Configuration — UniVex Observability
+# Day 12: Loki Log Aggregation
+#
+# Loki version: 3.4.x
+# Storage: local filesystem (switch to S3/GCS for production)
+# Retention: 30 days (configurable via RETENTION_DAYS env var)
+# ==============================================================================
+
+# Authentication — disabled for internal network; enable for public exposure
+auth_enabled: false
+
+# ---------------------------------------------------------------------------
+# Server
+# ---------------------------------------------------------------------------
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+  log_level: info
+  log_format: json
+  graceful_shutdown_timeout: 30s
+
+# ---------------------------------------------------------------------------
+# Common (shared paths)
+# ---------------------------------------------------------------------------
+common:
+  path_prefix: /loki
+  storage:
+    filesystem:
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+# ---------------------------------------------------------------------------
+# Query Range (caching & parallelism)
+# ---------------------------------------------------------------------------
+query_range:
+  results_cache:
+    cache:
+      embedded_cache:
+        enabled: true
+        max_size_mb: 100
+
+# ---------------------------------------------------------------------------
+# Schema Config
+# ---------------------------------------------------------------------------
+schema_config:
+  configs:
+    - from: 2024-01-01
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+# ---------------------------------------------------------------------------
+# Storage Config
+# ---------------------------------------------------------------------------
+storage_config:
+  tsdb_shipper:
+    active_index_directory: /loki/tsdb-index
+    cache_location: /loki/tsdb-cache
+    cache_ttl: 24h
+  filesystem:
+    directory: /loki/chunks
+
+# ---------------------------------------------------------------------------
+# Compactor — retention enforcement
+# ---------------------------------------------------------------------------
+compactor:
+  working_directory: /loki/compactor
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
+  delete_request_store: filesystem
+
+# ---------------------------------------------------------------------------
+# Limits — retention and ingestion rate limits
+# ---------------------------------------------------------------------------
+limits_config:
+  # Retention period: 30 days
+  retention_period: 720h
+
+  # Ingestion rate limits (tune for your environment)
+  ingestion_rate_mb: 16
+  ingestion_burst_size_mb: 32
+  max_concurrent_tail_requests: 20
+  max_cache_freshness_per_query: 10m
+
+  # Labels limits
+  max_label_names_per_series: 30
+  max_label_value_length: 2048
+
+  # Query limits
+  max_query_series: 5000
+  max_query_parallelism: 32
+  query_timeout: 5m
+
+  # Log line size limit
+  max_line_size: 256KB
+  max_line_size_truncate: true
+
+  # Structured metadata (for trace_id correlation)
+  allow_structured_metadata: true
+
+# ---------------------------------------------------------------------------
+# Ruler (alerting rules)
+# ---------------------------------------------------------------------------
+ruler:
+  alertmanager_url: http://localhost:9093
+  storage:
+    type: local
+    local:
+      directory: /loki/rules
+
+# ---------------------------------------------------------------------------
+# Analytics
+# ---------------------------------------------------------------------------
+analytics:
+  reporting_enabled: false
