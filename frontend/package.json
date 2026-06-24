@@ -46,6 +46,6 @@
     "tailwindcss": "^3.4.1",
     "@types/node": "^20.11.5",
     "ts-jest": "^29.3.0",
-    "typescript": "^5.3.3"
+    "typescript": "^6.0.3"
   }
 }
