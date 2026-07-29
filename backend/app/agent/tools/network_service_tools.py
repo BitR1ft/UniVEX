@@ -8,7 +8,8 @@ SNMP enumeration, and anonymous FTP access checking.
 from __future__ import annotations
 
 import asyncio
-import ftplib
+# FTP support is an explicit feature for pentest workflows.
+import ftplib  # nosec B402
 import logging
 import re
 import socket
@@ -667,7 +668,8 @@ class AnonymousFTPTool(BaseTool):
     def _check_anonymous_ftp(self, host: str, port: int, timeout: int) -> str:
         """Perform the FTP anonymous login check (blocking, runs in executor)."""
         try:
-            ftp = ftplib.FTP()
+            # Intentional anonymous FTP probe tool behavior.
+            ftp = ftplib.FTP()  # nosec B321
             ftp.connect(host, port, timeout=timeout)
             ftp.login("anonymous", "anonymous@anonymous.com")
         except ftplib.error_perm as exc:

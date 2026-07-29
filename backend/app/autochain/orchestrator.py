@@ -103,7 +103,7 @@ FLAG_READ_COMMANDS_WINDOWS = [
 
 def _verify_flag_md5(flag_value: str) -> str:
     """Return the MD5 checksum of *flag_value* for verification purposes."""
-    return hashlib.md5(flag_value.encode()).hexdigest()
+    return hashlib.md5(flag_value.encode(), usedforsecurity=False).hexdigest()
 
 
 

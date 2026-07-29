@@ -79,7 +79,7 @@ class SIEMEvent:
     def event_id(self) -> str:
         """Deterministic short event ID."""
         raw = f"{self.id}:{self.title}:{self.target_host}"
-        return hashlib.md5(raw.encode()).hexdigest()[:16]  # noqa: S324
+        return hashlib.md5(raw.encode(), usedforsecurity=False).hexdigest()[:16]  # noqa: S324
 
 
 # ---------------------------------------------------------------------------
