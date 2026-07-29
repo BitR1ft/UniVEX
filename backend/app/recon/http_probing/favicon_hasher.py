@@ -131,7 +131,7 @@ class FaviconHasher:
             FaviconInfo with hash values
         """
         # Calculate MD5
-        md5_hash = hashlib.md5(data).hexdigest()
+        md5_hash = hashlib.md5(data, usedforsecurity=False).hexdigest()
         
         # Calculate SHA256
         sha256_hash = hashlib.sha256(data).hexdigest()

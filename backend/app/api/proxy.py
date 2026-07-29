@@ -345,7 +345,7 @@ async def replay_request(
     try:
         # SSL verification disabled by design — the proxy connects to arbitrary
         # targets including those with self-signed or invalid certificates.
-        async with httpx.AsyncClient(verify=False, timeout=30.0) as client:
+        async with httpx.AsyncClient(verify=False, timeout=30.0) as client:  # nosec B501
             resp = await client.request(
                 method=method,
                 url=url,

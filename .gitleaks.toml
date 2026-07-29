@@ -1,0 +1,10 @@
+[allowlist]
+description = "Allow known test fixtures and documentation token examples"
+paths = [
+  '''^backend/tests/''',
+  '''^frontend/__tests__/''',
+  '''^docs/API\.md$''',
+  '''^backend/app/recon/port_scanning/README\.md$''',
+  '''^scripts/install\.sh$''',
+  '''^scripts/install-podman\.sh$''',
+]

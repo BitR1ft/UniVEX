@@ -623,7 +623,7 @@ class VulnerabilityNode(BaseNode):
         # Create unique identifier
         import hashlib
         vuln_str = f"{name}:{severity}:{source}"
-        properties['id'] = hashlib.md5(vuln_str.encode()).hexdigest()
+        properties['id'] = hashlib.md5(vuln_str.encode(), usedforsecurity=False).hexdigest()
         
         return self.client.create_node('Vulnerability', properties, merge=True)
 
