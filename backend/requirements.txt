@@ -101,7 +101,7 @@ pyyaml>=6.0.1          # Provider registry YAML loading
 duckduckgo-search>=6.0.0
 
 # Day 6 — Additional Embedding Providers & pgvector
-pgvector>=0.3.0
+pgvector>=0.4.2
 sentence-transformers>=2.7.0
 
 # Day 11 — Langfuse LLM Observability
