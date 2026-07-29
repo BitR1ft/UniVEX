@@ -22,7 +22,7 @@ prisma==0.11.0
 
 # WebSocket & SSE
 websockets==12.0
-sse-starlette==1.8.2
+sse-starlette==3.4.5
 
 # Docker SDK for container orchestration
 docker==7.0.0
