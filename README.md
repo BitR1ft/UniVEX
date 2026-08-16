@@ -4,21 +4,6 @@ UniVex is an autonomous penetration testing platform that combines AI-driven orc
 
 > ⚠️ **Authorized use only.** Use UniVex only on systems you own or are explicitly permitted to test.
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Tech Stack](#tech-stack)
-- [Repository Structure](#repository-structure)
-- [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
-- [Local Development](#local-development)
-- [Environment Configuration](#environment-configuration)
-- [Testing](#testing)
-- [Documentation](#documentation)
-- [Contributing](#contributing)
-- [Security](#security)
-- [License](#license)
 
 ## Overview
 
